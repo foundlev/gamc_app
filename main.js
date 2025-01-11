@@ -41,6 +41,11 @@ clearIcaoBtn.addEventListener('click', () => {
   icaoInput.focus();     // ставим фокус назад на инпут
 });
 
+const titleButton = document.getElementById('button-title');
+titleButton.addEventListener('click', () => {
+  location.reload();
+});
+
 
 function showModal() {
   modalBackdrop.classList.add('show');

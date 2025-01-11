@@ -325,3 +325,7 @@ footer {
   transform: translateY(-50%);
   opacity: 0.6;
 }
+
+#button-title {
+    pointer: cursor;
+}

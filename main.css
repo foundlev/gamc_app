@@ -287,3 +287,41 @@ footer {
 .show {
   display: flex !important;
 }
+
+/* Обёртка, чтобы кнопка очистки располагалась внутри поля */
+.icao-input-wrapper {
+  position: relative; /* если нужно */
+}
+
+/* Контейнер, который содержит input и кнопку "X" */
+.input-with-clear {
+  position: relative;
+  display: inline-block; /* или flex, по вкусу */
+  width: 100%; /* чтобы занять всю ширину */
+}
+
+/* Сам input займет всю ширину контейнера */
+.input-with-clear input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.clear-icao-btn {
+  position: absolute;
+  right: 10px; /* отступ от края инпута */
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-color); /* или любой другой цвет */
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 5px;
+  /* Немного стилей при наведении */
+  transition: opacity 0.2s;
+}
+
+.input-with-clear button.clear-icao-btn:hover {
+  transform: translateY(-50%);
+  opacity: 0.6;
+}

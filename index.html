@@ -20,8 +20,14 @@
 
   <main>
     <div class="input-group">
-      <label for="icao">ICAO (4 буквы):</label>
-      <input type="text" id="icao" placeholder="Например: UUEE" maxlength="4" />
+      <div class="input-group icao-input-wrapper">
+        <label for="icao">ICAO (4 буквы):</label>
+        <div class="input-with-clear">
+          <input type="text" id="icao" placeholder="Например: UUEE" maxlength="4" />
+          <button type="button" class="clear-icao-btn" id="clearIcaoBtn">Стереть</button>
+        </div>
+      </div>
+
     </div>
 
     <div class="buttons">

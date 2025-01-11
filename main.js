@@ -32,6 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
 /* =========================
    МОДАЛКА
 ========================= */
+
+// Получаем кнопку «X»
+const clearIcaoBtn = document.getElementById('clearIcaoBtn');
+
+clearIcaoBtn.addEventListener('click', () => {
+  icaoInput.value = '';  // очищаем поле
+  icaoInput.focus();     // ставим фокус назад на инпут
+});
+
+
 function showModal() {
   modalBackdrop.classList.add('show');
 }
@@ -166,7 +176,7 @@ async function getWeather(icao, isRefresh = false) {
     // ========= Формируем плашки с временем в новом порядке =======
     timeBadgeContainer.innerHTML = '';
     blockObjects.forEach(obj => {
-      const re = /^(TAF|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
+      const re = /^(TAF|TAF AMD|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
       const match = obj.text.match(re);
       if (match) {
         const t = match[1].toUpperCase();  // METAR / SPECI / TAF
@@ -215,6 +225,7 @@ function highlightKeywords(text) {
   text = text.replace(/\b(METAR\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
   text = text.replace(/\b(SPECI\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
   text = text.replace(/\b(TAF\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
+  text = text.replace(/\b(TAF AMD\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
 
   return text;
 }

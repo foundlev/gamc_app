@@ -1,0 +1,15 @@
+{
+  "name": "GAMC Weather",
+  "short_name": "GAMC Weather",
+  "start_url": "/gamc_app/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007BFF",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "100x100",
+      "type": "image/png"
+    }
+  ]
+}

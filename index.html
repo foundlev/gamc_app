@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GAMC Weather</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+  <header>
+    <h1>GAMC Weather</h1>
+  </header>
+
+  <main>
+    <div class="input-group">
+      <label for="icao">ICAO (4 буквы):</label>
+      <input type="text" id="icao" placeholder="Например: UUEE" maxlength="4" />
+    </div>
+
+    <div class="buttons">
+      <button id="fetchBtn">Запросить</button>
+      <button id="refreshBtn">Обновить</button>
+      <button id="resetPasswordBtn">Сбросить пароль</button>
+    </div>
+
+    <div class="subtitle">Последние 10 аэродромов:</div>
+    <div class="history" id="historyContainer"></div>
+
+    <!-- Плашки с временем -->
+    <div class="time-badge-container" id="timeBadgeContainer"></div>
+
+    <!-- Основной контейнер для данных -->
+    <div class="response-container" id="responseContainer">
+      Здесь будет отображаться погода...
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Meteo-Helper
+  </footer>
+
+  <!-- Модальное окно для пароля -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <h2>Введите пароль</h2>
+      <input type="password" id="modalPassword"/>
+      <div class="modal-button-group">
+        <button id="savePasswordBtn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

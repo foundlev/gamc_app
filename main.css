@@ -95,7 +95,7 @@ button {
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-button:hover {
+button:active {
   transform: translateY(-2px);
   background-color: var(--accent-color);
   opacity: 0.9; /* немного тусклее при наведении */
@@ -121,7 +121,7 @@ button:hover {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.history button:hover {
+.history button:active {
   transform: translateY(-2px);
   opacity: 0.8;
 }
@@ -321,7 +321,7 @@ footer {
   transition: opacity 0.2s;
 }
 
-.input-with-clear button.clear-icao-btn:hover {
+.input-with-clear button.clear-icao-btn:active {
   transform: translateY(-50%);
   opacity: 0.6;
 }

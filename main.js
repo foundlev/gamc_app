@@ -175,6 +175,18 @@ async function getWeather(icao, isRefresh = false) {
 
     // ========= Формируем плашки с временем в новом порядке =======
     timeBadgeContainer.innerHTML = '';
+
+    const nowUTC = new Date();
+    const hhUTC = String(nowUTC.getUTCHours()).padStart(2, '0');
+    const mmUTC = String(nowUTC.getUTCMinutes()).padStart(2, '0');
+
+    const utcBadge = document.createElement('div');
+    utcBadge.className = 'time-badge';
+    utcBadge.textContent = `UTC ${hhUTC}:${mmUTC}`;
+
+    // Добавляем в контейнер первым
+    timeBadgeContainer.appendChild(utcBadge);
+
     blockObjects.forEach(obj => {
       const re = /^(TAF|TAF AMD|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
       const match = obj.text.match(re);

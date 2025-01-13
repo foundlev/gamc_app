@@ -1,163 +1,166 @@
 :root {
-  --bg-color: #ffffff;
-  --text-color: #333333;
-  --accent-color: #0077ff;
-  --border-color: #dddddd;
-  --card-bg: #f9f9f9;
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --accent-color: #0077ff;
+    --border-color: #dddddd;
+    --card-bg: #f9f9f9;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #121212;
-    --text-color: #eeeeee;
-    --accent-color: #3399ff;
-    --border-color: #444444;
-    --card-bg: #1e1e1e;
-  }
+    :root {
+        --bg-color: #121212;
+        --text-color: #eeeeee;
+        --accent-color: #3399ff;
+        --border-color: #444444;
+        --card-bg: #1e1e1e;
+    }
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-               Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-header, footer {
-  padding: 10px;
-  background-color: var(--card-bg);
-  border-bottom: 1px solid var(--border-color);
+header,
+footer {
+    padding: 10px;
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
 }
 
 header h1 {
-  margin: 0;
-  font-size: 1.2rem;
-  text-align: center;
+    margin: 0;
+    font-size: 1.2rem;
+    text-align: center;
 }
 
 main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  gap: 10px;
-  max-width: 600px;
-  margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .input-group label {
-  font-size: 0.9rem;
+    font-size: 0.9rem;
 }
 
 .input-group input {
-  padding: 8px;
-  font-size: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--bg-color);
-  color: var(--text-color);
-  width: 100%;
-  box-sizing: border-box;
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* =========================
    Кнопки с плавной анимацией
 ========================= */
 .buttons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 button {
-  padding: 10px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background-color: var(--accent-color);
-  color: #ffffff;
-  white-space: nowrap;
-  /* Плавный переход при наведении */
-  transition: transform 0.2s ease, background-color 0.2s ease;
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    white-space: nowrap;
+    /* Плавный переход при наведении */
+    transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 button:active {
-  transform: translateY(-2px);
-  background-color: var(--accent-color);
-  opacity: 0.9; /* немного тусклее при наведении */
+    transform: translateY(-2px);
+    background-color: var(--accent-color);
+    opacity: 0.9;
+    /* немного тусклее при наведении */
 }
 
 .subtitle {
-  font-size: 0.9rem;
-  color: var(--accent-color);
+    font-size: 0.9rem;
+    color: var(--accent-color);
 }
 
 .history {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
 }
 
 .history button {
-  background-color: var(--card-bg);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  font-size: 0.9rem;
-  padding: 5px 8px;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    padding: 5px 8px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .history button:active {
-  transform: translateY(-2px);
-  opacity: 0.8;
+    transform: translateY(-2px);
+    opacity: 0.8;
 }
 
 /* =========================
    Плашки времени
 ========================= */
 .time-badge-container {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
 }
 
 /* Анимация появления плашек */
 @keyframes badgeFadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    0% {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .time-badge {
-  display: inline-block;
-  background-color: var(--accent-color);
-  color: #ffffff;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 0.85rem;
-  /* Сразу скрыт, анимируем при рендере */
-  opacity: 0;
-  animation: badgeFadeIn 0.4s ease forwards;
-  /* Можно добавить небольшую задержку,
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    /* Сразу скрыт, анимируем при рендере */
+    opacity: 0;
+    animation: badgeFadeIn 0.4s ease forwards;
+    /* Можно добавить небольшую задержку,
      чтобы анимировались по очереди:
      animation-delay: 0.05s; */
 }
@@ -168,41 +171,42 @@ button:active {
 
 /* Анимация для текста ответа */
 @keyframes fadeSlideIn {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    0% {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .response-container {
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 10px;
-  background-color: var(--card-bg);
-  overflow: auto;
-  min-height: 100px;
-  white-space: pre-wrap;
-  font-family: monospace;
-  font-size: 1rem;
-  line-height: 1.4;
-  /* По умолчанию скрыто, а при обновлении JS
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    background-color: var(--card-bg);
+    overflow: auto;
+    min-height: 100px;
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 1rem;
+    line-height: 1.4;
+    /* По умолчанию скрыто, а при обновлении JS
      можно добавлять класс .show или что-то
      вроде этого для анимации, но можно и сразу. */
-  opacity: 1;
-  animation: fadeSlideIn 0.4s ease forwards;
+    opacity: 1;
+    animation: fadeSlideIn 0.4s ease forwards;
 }
 
 /* =========================
    Footer
 ========================= */
 footer {
-  border-top: 1px solid var(--border-color);
-  text-align: center;
-  font-size: 0.8rem;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 0.8rem;
 }
 
 /* =========================
@@ -211,121 +215,132 @@ footer {
 
 /* Анимация для затемнения фона */
 @keyframes backdropFade {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 .modal-backdrop {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: none; /* hidden by default */
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  opacity: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    /* hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    opacity: 0;
 }
 
 .modal-backdrop.show {
-  display: flex;
-  animation: backdropFade 0.3s forwards;
+    display: flex;
+    animation: backdropFade 0.3s forwards;
 }
 
 .modal {
-  background-color: var(--card-bg);
-  padding: 20px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  max-width: 300px;
-  width: 90%;
-  box-sizing: border-box;
-  /* Анимация самого окна (небольшое «увеличение») */
-  transform: scale(0.95);
-  opacity: 0;
-  animation: modalPop 0.3s forwards;
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    max-width: 300px;
+    width: 90%;
+    box-sizing: border-box;
+    /* Анимация самого окна (небольшое «увеличение») */
+    transform: scale(0.95);
+    opacity: 0;
+    animation: modalPop 0.3s forwards;
 }
 
 @keyframes modalPop {
-  0% {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .modal h2 {
-  margin-top: 0;
-  font-size: 1.1rem;
-  margin-bottom: 10px;
-  text-align: center;
+    margin-top: 0;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    text-align: center;
 }
 
 .modal-button-group {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  justify-content: center;
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
 }
 
 .modal input {
-  width: 100%;
-  padding: 8px;
-  font-size: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--bg-color);
-  color: var(--text-color);
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
 }
 
 .show {
-  display: flex !important;
+    display: flex !important;
 }
 
 /* Обёртка, чтобы кнопка очистки располагалась внутри поля */
 .icao-input-wrapper {
-  position: relative; /* если нужно */
+    position: relative;
+    /* если нужно */
 }
 
 /* Контейнер, который содержит input и кнопку "X" */
 .input-with-clear {
-  position: relative;
-  display: inline-block; /* или flex, по вкусу */
-  width: 100%; /* чтобы занять всю ширину */
+    position: relative;
+    display: inline-block;
+    /* или flex, по вкусу */
+    width: 100%;
+    /* чтобы занять всю ширину */
 }
 
 /* Сам input займет всю ширину контейнера */
 .input-with-clear input {
-  width: 100%;
-  box-sizing: border-box;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .clear-icao-btn {
-  position: absolute;
-  right: 10px; /* отступ от края инпута */
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  color: var(--text-color); /* или любой другой цвет */
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 2px 5px;
-  /* Немного стилей при наведении */
-  transition: opacity 0.2s;
+    position: absolute;
+    right: 10px;
+    /* отступ от края инпута */
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    /* или любой другой цвет */
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 2px 5px;
+    /* Немного стилей при наведении */
+    transition: opacity 0.2s;
 }
 
 .input-with-clear button.clear-icao-btn:active {
-  transform: translateY(-50%);
-  opacity: 0.6;
+    transform: translateY(-50%);
+    opacity: 0.6;
 }
 
 #button-title {
-    pointer: cursor;
+    cursor: pointer;
 }

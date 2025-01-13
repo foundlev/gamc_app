@@ -94,8 +94,7 @@ function showOfflineWarning() {
     const warning = document.createElement('div');
     warning.className = 'offline-warning';
     warning.innerHTML = `
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        Нет подключения. Данные взяты из сохраненных.
+        <i class="fa-solid fa-triangle-exclamation"></i>Нет подключения. Данные взяты из сохраненных.
     `;
     timeBadgeContainer.insertAdjacentElement('afterend', warning);
 }
@@ -104,8 +103,7 @@ function showOfflineWarningNoInfo() {
     const warning = document.createElement('div');
     warning.className = 'offline-warning-no-info';
     warning.innerHTML = `
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        Нет подключения. Нет сохраненных данных.
+        <i class="fa-solid fa-ban"></i>Нет подключения. Нет сохраненных данных.
     `;
     timeBadgeContainer.insertAdjacentElement('afterend', warning);
 }
@@ -121,19 +119,6 @@ savePasswordBtn.addEventListener('click', () => {
 });
 
 /* =========================
-   СБРОС ПАРОЛЯ
-========================= */
-resetPasswordBtn.addEventListener('click', () => {
-    localStorage.removeItem(PASSWORD_KEY);
-    location.reload();
-});
-
-removeSavedIcaosBtn.addEventListener('click', () => {
-    localStorage.removeItem(ICAO_HISTORY_KEY);
-    location.reload();
-});
-
-/* =========================
    ЗАПРОС ПОГОДЫ
 ========================= */
 async function getWeather(icao, isRefresh = false) {
@@ -142,14 +127,10 @@ async function getWeather(icao, isRefresh = false) {
         showModal();
         return;
     }
+
     if (!icao) {
         alert('Введите ICAO!');
         return;
-    }
-
-    // Сохраняем icao, если нужно
-    if (!isRefresh && icao.length === 4) {
-        saveIcaoToHistory(icao);
     }
 
     const existingWarning = document.querySelector('.offline-warning');
@@ -282,7 +263,7 @@ async function getWeather(icao, isRefresh = false) {
             const match = obj.text.match(re);
             if (match) {
                 const t = match[1].toUpperCase(); // METAR / SPECI / TAF / TAF AMD
-                const ddhhmm = match[2];         // например "112030" (день=11, часы=20, минуты=30)
+                const ddhhmm = match[2]; // например "112030" (день=11, часы=20, минуты=30)
 
                 const dd = parseInt(ddhhmm.slice(0, 2), 10);
                 const hh = parseInt(ddhhmm.slice(2, 4), 10);
@@ -309,6 +290,8 @@ async function getWeather(icao, isRefresh = false) {
                     badge.classList.add('badge-green');
                 } else if ((t === 'METAR' || t === 'SPECI') && diffAbs >= 30) {
                     badge.classList.add('badge-orange');
+                } else if ((t === 'TAF' || t === 'TAF AMD') && diffAbs <= 3600) {
+                    badge.classList.add('badge-green');
                 } else if ((t === 'TAF' || t === 'TAF AMD') && diffAbs >= 21600) {
                     badge.classList.add('badge-orange');
                 } else {
@@ -325,11 +308,18 @@ async function getWeather(icao, isRefresh = false) {
         //  2) "METAR LTAI 111030Z" или "SPECI ...", а также "TAF" - делаем жирным
         finalText = highlightKeywords(finalText);
 
-        // Сохранение finalText в localStorage
-        if (icao && finalText) {
-            const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
-            savedData[icao] = finalText;
-            localStorage.setItem('icaoData', JSON.stringify(savedData));
+        if (!finalText.includes("НЕТ В КАТАЛОГЕ,ОБРАЩАЙТЕСЬ К СИНОПТИКУ=")) {
+            // Сохраняем icao, если нужно
+            if (!isRefresh && icao.length === 4) {
+                saveIcaoToHistory(icao);
+            }
+
+            // Сохранение finalText в localStorage
+            if (icao && finalText) {
+                const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
+                savedData[icao] = finalText;
+                localStorage.setItem('icaoData', JSON.stringify(savedData));
+            }
         }
 
         // Выводим как HTML (чтобы теги <b>, <u> работали)
@@ -441,4 +431,71 @@ resetZoomBtn.addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
     const savedZoom = parseFloat(localStorage.getItem('pageZoom') || 1);
     updateZoom(savedZoom); // Восстанавливаем масштаб из localStorage
+});
+
+// Находим элементы второго (подтверждающего) модального окна
+const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
+const confirmModalTitle = document.getElementById('confirmModalTitle');
+const confirmModalMessage = document.getElementById('confirmModalMessage');
+const closeConfirmModalBtn = document.getElementById('closeConfirmModalBtn');
+const confirmYesBtn = document.getElementById('confirmYesBtn');
+const confirmNoBtn = document.getElementById('confirmNoBtn');
+
+/**
+ * Показывает модалку подтверждения с заголовком, сообщением и коллбэком,
+ * который вызывается по нажатию "Да".
+ */
+function showConfirmModal(title, message, onYes) {
+    confirmModalTitle.textContent = title;
+    confirmModalMessage.textContent = message;
+
+    // При нажатии на "Да" выполняем нужное действие
+    confirmYesBtn.onclick = () => {
+        hideConfirmModal();
+        onYes(); // вызываем переданный коллбэк
+    };
+
+    confirmModalBackdrop.classList.add('show');
+}
+
+/** Скрыть модалку подтверждения */
+function hideConfirmModal() {
+    confirmModalBackdrop.classList.remove('show');
+}
+
+// По клику на кнопку закрытия (крестик) — тоже просто скрываем
+closeConfirmModalBtn.addEventListener('click', hideConfirmModal);
+
+// Или по клику на "Нет"
+confirmNoBtn.addEventListener('click', hideConfirmModal);
+
+// ------------------------------
+// Заменяем логику для удаления сохранённых ICAO
+// ------------------------------
+removeSavedIcaosBtn.addEventListener('click', () => {
+    showConfirmModal(
+        'Удаление сохранённых ICAO',
+        'Вы действительно хотите удалить все сохранённые аэродромы?',
+        () => {
+            // Действие, если пользователь подтвердил
+            localStorage.removeItem(ICAO_HISTORY_KEY);
+            localStorage.removeItem('icaoData');
+            location.reload();
+        }
+    );
+});
+
+// ------------------------------
+// Заменяем логику для сброса пароля
+// ------------------------------
+resetPasswordBtn.addEventListener('click', () => {
+    showConfirmModal(
+        'Сброс пароля',
+        'Вы действительно хотите сбросить пароль?',
+        () => {
+            // Действие, если пользователь подтвердил
+            localStorage.removeItem(PASSWORD_KEY);
+            location.reload();
+        }
+    );
 });

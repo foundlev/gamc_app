@@ -16,6 +16,50 @@
     }
 }
 
+:root {
+    /* Светлая тема */
+    --badge-green-bg: #27ae60;
+    --badge-orange-bg: #eb862d;
+    --badge-default-bg: #ecf0f1;
+    --badge-text-color: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+    /* Тёмная тема */
+    :root {
+        --badge-green-bg: #249152;
+        --badge-orange-bg: #d17320;
+        --badge-default-bg: #34495e;
+        --badge-text-color: #ecf0f1;
+    }
+}
+
+/* Общие стили для всех плашек */
+.time-badge {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: var(--badge-text-color);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    /* Сразу скрыт, анимируем при рендере */
+    opacity: 0;
+    animation: badgeFadeIn 0.4s ease forwards;
+}
+
+/* Состояния плашек */
+.badge-green {
+    background-color: var(--badge-green-bg);
+}
+
+.badge-orange {
+    background-color: var(--badge-orange-bg);
+}
+
+.badge-default {
+    background-color: var(--accent-color);
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -150,21 +194,6 @@ button:active {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-.time-badge {
-    display: inline-block;
-    background-color: var(--accent-color);
-    color: #ffffff;
-    border-radius: 4px;
-    padding: 8px 10px;
-    font-size: 0.85rem;
-    /* Сразу скрыт, анимируем при рендере */
-    opacity: 0;
-    animation: badgeFadeIn 0.4s ease forwards;
-    /* Можно добавить небольшую задержку,
-     чтобы анимировались по очереди:
-     animation-delay: 0.05s; */
 }
 
 /* =========================

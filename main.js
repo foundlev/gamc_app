@@ -12,6 +12,7 @@ const icaoInput = document.getElementById('icao');
 const fetchBtn = document.getElementById('fetchBtn');
 const refreshBtn = document.getElementById('refreshBtn');
 const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+const removeSavedIcaosBtn = document.getElementById('removeSavedIcaos');
 const responseContainer = document.getElementById('responseContainer');
 const historyContainer = document.getElementById('historyContainer');
 const timeBadgeContainer = document.getElementById('timeBadgeContainer');
@@ -124,6 +125,11 @@ savePasswordBtn.addEventListener('click', () => {
 ========================= */
 resetPasswordBtn.addEventListener('click', () => {
     localStorage.removeItem(PASSWORD_KEY);
+    location.reload();
+});
+
+removeSavedIcaosBtn.addEventListener('click', () => {
+    localStorage.removeItem(ICAO_HISTORY_KEY);
     location.reload();
 });
 
@@ -275,15 +281,41 @@ async function getWeather(icao, isRefresh = false) {
             const re = /^(TAF|TAF AMD|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
             const match = obj.text.match(re);
             if (match) {
-                const t = match[1].toUpperCase(); // METAR / SPECI / TAF
-                const ddhhmm = match[2]; // например "112030"
-                const hh = ddhhmm.slice(2, 4);
-                const mm = ddhhmm.slice(4, 6);
-                const parsedTime = `${hh}:${mm}`;
+                const t = match[1].toUpperCase(); // METAR / SPECI / TAF / TAF AMD
+                const ddhhmm = match[2];         // например "112030" (день=11, часы=20, минуты=30)
 
+                const dd = parseInt(ddhhmm.slice(0, 2), 10);
+                const hh = parseInt(ddhhmm.slice(2, 4), 10);
+                const mm = parseInt(ddhhmm.slice(4, 6), 10);
+
+                // Создаём дату текущего UTC-месяца и года, с днём = dd и временем hh:mm UTC
+                const now = new Date(); // текущее локальное время
+                const currentYear = now.getUTCFullYear();
+                const currentMonth = now.getUTCMonth();
+
+                // Пробуем собрать дату сообщения
+                const msgDate = new Date(Date.UTC(currentYear, currentMonth, dd, hh, mm));
+                const nowUTC = new Date(); // текущее время (локально), но сравнение будем вести в UTC
+                const diffMin = (nowUTC - msgDate) / 60000;
+                const diffAbs = Math.abs(diffMin);
+
+                // Делаем плашку
                 const badge = document.createElement('div');
                 badge.className = 'time-badge';
-                badge.textContent = `${t} ${parsedTime}`;
+                badge.textContent = `${t} ${hh}:${String(mm).padStart(2,'0')}`;
+
+                // Добавляем классы в зависимости от условий
+                if (diffAbs <= 10) {
+                    badge.classList.add('badge-green');
+                } else if ((t === 'METAR' || t === 'SPECI') && diffAbs >= 30) {
+                    badge.classList.add('badge-orange');
+                } else if ((t === 'TAF' || t === 'TAF AMD') && diffAbs >= 21600) {
+                    badge.classList.add('badge-orange');
+                } else {
+                    badge.classList.add('badge-default');
+                }
+
+                // Добавляем плашку в контейнер
                 timeBadgeContainer.appendChild(badge);
             }
         });

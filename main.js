@@ -57,9 +57,8 @@ closeModalBtn.addEventListener('click', () => {
 
 function updateFetchBtn() {
     const icao = icaoInput.value.trim().toUpperCase();
-    console.log(nowIcao && nowIcao === nowIcao && icao.length === 4);
 
-    if (nowIcao && nowIcao === nowIcao && icao.length === 4) {
+    if (nowIcao && nowIcao === icao && icao.length === 4) {
         fetchBtn.innerHTML = '<i class="fas fa-sync-alt"></i>Обновить';
     } else {
         fetchBtn.innerHTML = '<i class="fas fa-cloud-download-alt"></i>Запросить';
@@ -290,9 +289,9 @@ async function getWeather(icao, isRefresh = false) {
                     badge.classList.add('badge-green');
                 } else if ((t === 'METAR' || t === 'SPECI') && diffAbs >= 30) {
                     badge.classList.add('badge-orange');
-                } else if ((t === 'TAF' || t === 'TAF AMD') && diffAbs <= 3600) {
+                } else if ((t === 'TAF' || t === 'TAF AMD') && diffAbs <= 60) {
                     badge.classList.add('badge-green');
-                } else if ((t === 'TAF' || t === 'TAF AMD') && diffAbs >= 21600) {
+                } else if ((t === 'TAF' || t === 'TAF AMD') && diffAbs >= 360) {
                     badge.classList.add('badge-orange');
                 } else {
                     badge.classList.add('badge-default');

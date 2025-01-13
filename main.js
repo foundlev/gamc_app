@@ -48,6 +48,12 @@ clearIcaoBtn.addEventListener('click', () => {
     nowIcao = null;
 });
 
+const closeModalBtn = document.getElementById('closeModalBtn');
+
+closeModalBtn.addEventListener('click', () => {
+    hideModal();
+});
+
 function updateFetchBtn() {
     const icao = icaoInput.value.trim().toUpperCase();
     console.log(nowIcao && nowIcao === nowIcao && icao.length === 4);

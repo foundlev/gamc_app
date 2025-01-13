@@ -54,6 +54,7 @@ main {
 }
 
 .input-group {
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -79,8 +80,9 @@ main {
 ========================= */
 .buttons {
     display: flex;
-    gap: 5px;
+    gap: 10px;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 button {
@@ -214,67 +216,9 @@ footer {
 ========================= */
 
 /* Анимация для затемнения фона */
-@keyframes backdropFade {
-    0% {
-        opacity: 0;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
-
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    /* hidden by default */
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    opacity: 0;
-}
-
 .modal-backdrop.show {
     display: flex;
     animation: backdropFade 0.3s forwards;
-}
-
-.modal {
-    background-color: var(--card-bg);
-    padding: 20px;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    max-width: 300px;
-    width: 90%;
-    box-sizing: border-box;
-    /* Анимация самого окна (небольшое «увеличение») */
-    transform: scale(0.95);
-    opacity: 0;
-    animation: modalPop 0.3s forwards;
-}
-
-@keyframes modalPop {
-    0% {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.modal h2 {
-    margin-top: 0;
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    text-align: center;
 }
 
 .modal-button-group {
@@ -282,16 +226,6 @@ footer {
     gap: 10px;
     margin-top: 10px;
     justify-content: center;
-}
-
-.modal input {
-    width: 100%;
-    padding: 8px;
-    font-size: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--bg-color);
-    color: var(--text-color);
 }
 
 .show {
@@ -395,7 +329,6 @@ i {
 }
 
 .buttons button {
-    margin-right: 5px;
     flex: 1;
 }
 
@@ -413,4 +346,150 @@ i {
 .input-with-clear {
     position: relative;
     flex: 3; /* Поле ввода с кнопкой "Стереть" занимает 3 части */
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6); /* Полупрозрачный фон */
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: backdropFade 0.3s ease-in-out;
+}
+
+.modal-backdrop.show {
+    display: flex;
+}
+
+.modal {
+    background: linear-gradient(135deg, #ffffff, #f7f9fc); /* Градиентный фон */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    text-align: center;
+    animation: modalPop 0.4s ease-out;
+}
+
+.modal h2 {
+    margin: 0 0 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333333;
+}
+
+.modal input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 20px;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    color: #333333;
+    transition: border-color 0.2s;
+}
+
+.modal input:focus {
+    border-color: #0077ff;
+    outline: none;
+}
+
+.modal-button-group button {
+    background-color: #0077ff;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.modal-button-group button:active {
+    background-color: #005bb5;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #666666;
+    transition: color 0.2s;
+}
+
+.modal-close-btn:active {
+    color: #333333;
+}
+
+/* Анимации */
+@keyframes backdropFade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalPop {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .modal {
+        background: linear-gradient(135deg, #1e1e1e, #2c2c2c); /* Градиент для темной темы */
+        color: #f0f0f0;
+        border: 1px solid #444444;
+    }
+
+    .modal h2 {
+        color: #ffffff; /* Белый текст заголовка */
+    }
+
+    .modal input {
+        background-color: #2c2c2c; /* Темный фон для ввода */
+        color: #ffffff;
+        border: 1px solid #555555; /* Темная рамка */
+    }
+
+    .modal input:focus {
+        border-color: #3399ff; /* Акцент для фокуса */
+    }
+
+    .modal-button-group button {
+        background-color: #3399ff; /* Синий акцент */
+        color: #ffffff;
+    }
+
+    .modal-button-group button:hover {
+        background-color: #0077ff; /* Более яркий синий */
+    }
+
+    .modal-close-btn {
+        color: #cccccc; /* Светло-серая кнопка закрытия */
+    }
+
+    .modal-close-btn:hover {
+        color: #ffffff; /* Белый при наведении */
+    }
 }

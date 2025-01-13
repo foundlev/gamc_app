@@ -24,7 +24,6 @@
     <main>
         <div class="input-group">
             <div class="input-group icao-input-wrapper">
-                <label for="icao">ICAO (4 буквы):</label>
                 <div class="input-group-row">
                     <div class="input-with-clear">
                         <input type="text" id="icao" placeholder="Например: UUEE" maxlength="4" />
@@ -61,8 +60,9 @@
     <!-- Модальное окно для пароля -->
     <div class="modal-backdrop" id="modalBackdrop">
         <div class="modal">
+            <button class="modal-close-btn" id="closeModalBtn"><i class="fas fa-times"></i></button>
             <h2>Введите пароль</h2>
-            <input type="password" id="modalPassword" />
+            <input type="password" id="modalPassword" placeholder="Ваш пароль" />
             <div class="modal-button-group">
                 <button id="savePasswordBtn">Сохранить</button>
             </div>

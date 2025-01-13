@@ -79,7 +79,7 @@ main {
 ========================= */
 .buttons {
     display: flex;
-    gap: 10px;
+    gap: 5px;
     flex-wrap: wrap;
 }
 
@@ -361,6 +361,10 @@ i {
     margin-right: 7px;
 }
 
+#resetPasswordBtn i, #resetZoomBtn i {
+    margin-right: 0px;
+}
+
 /* Тёмная тема */
 @media (prefers-color-scheme: dark) {
     .offline-warning {
@@ -372,4 +376,3 @@ i {
 .buttons button {
     margin-right: 5px;
 }
-

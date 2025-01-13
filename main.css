@@ -344,3 +344,27 @@ footer {
 #button-title {
     cursor: pointer;
 }
+
+/* Светлая тема */
+.offline-warning {
+    background-color: #FFA500; /* ярко-оранжевый */
+    color: #FFFFFF; /* белый текст */
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-top: -10px;
+    text-align: center;
+    animation: fadeSlideIn 0.4s ease forwards;
+}
+
+i {
+    margin-right: 7px;
+}
+
+/* Тёмная тема */
+@media (prefers-color-scheme: dark) {
+    .offline-warning {
+        background-color: #FF7F50; /* кораллово-оранжевый */
+        color: #000000; /* чёрный текст */
+    }
+}

@@ -1,3 +1,6 @@
+// Проверка отсутствия интернета
+const checkLostConnection = true;
+
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
 const ICAO_HISTORY_KEY = 'icaoHistory';
@@ -55,6 +58,18 @@ function hideModal() {
     modalBackdrop.classList.remove('show');
 }
 
+function showOfflineWarning() {
+    const existingWarning = document.querySelector('.offline-warning');
+    if (existingWarning) {
+        existingWarning.remove();
+    }
+
+    const warning = document.createElement('div');
+    warning.className = 'offline-warning';
+    warning.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>Данные взяты из сохраненных. Возможно, информация устарела.';
+    timeBadgeContainer.insertAdjacentElement('afterend', warning);
+}
+
 savePasswordBtn.addEventListener('click', () => {
     const pwd = modalPassword.value.trim();
     if (!pwd) {
@@ -96,6 +111,14 @@ async function getWeather(icao, isRefresh = false) {
 
     responseContainer.textContent = 'Загрузка...';
     timeBadgeContainer.innerHTML = '';
+
+    // Проверка сохраненных данных
+    const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
+    if ((!navigator.onLine && savedData[icao]) || checkLostConnection) {
+        showOfflineWarning(); // Показать предупреждение
+        responseContainer.innerHTML = savedData[icao];
+        return;
+    }
 
     try {
         const res = await fetch(url);
@@ -214,6 +237,18 @@ async function getWeather(icao, isRefresh = false) {
         //  1) слова TEMPO, BECMG, PROB40, PROB30, FMXXXXXX (подчёркивание)
         //  2) "METAR LTAI 111030Z" или "SPECI ...", а также "TAF" - делаем жирным
         finalText = highlightKeywords(finalText);
+
+        // Сохранение finalText в localStorage
+        if (icao && finalText) {
+            const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
+            savedData[icao] = finalText;
+            localStorage.setItem('icaoData', JSON.stringify(savedData));
+        }
+
+        const existingWarning = document.querySelector('.offline-warning');
+        if (existingWarning) {
+            existingWarning.remove();
+        }
 
         // Выводим как HTML (чтобы теги <b>, <u> работали)
         responseContainer.innerHTML = finalText;

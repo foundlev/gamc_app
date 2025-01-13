@@ -1,5 +1,5 @@
 // Проверка отсутствия интернета
-const checkLostConnection = true;
+const checkLostConnection = false;
 
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
@@ -330,3 +330,38 @@ function renderHistory() {
         historyContainer.appendChild(btn);
     });
 }
+
+// Функция для обновления масштаба
+function updateZoom(scale) {
+    document.body.style.transformOrigin = 'center top'; // Устанавливаем точку трансформации
+    document.body.style.zoom = scale; // Применяем масштаб
+    localStorage.setItem('pageZoom', scale); // Сохраняем масштаб в localStorage
+}
+
+// Увеличить масштаб
+const zoomInBtn = document.getElementById('zoomInBtn');
+zoomInBtn.addEventListener('click', () => {
+    let currentZoom = parseFloat(localStorage.getItem('pageZoom') || 1);
+    currentZoom = Math.min(currentZoom + 0.1, 2); // Лимит увеличения до 200%
+    updateZoom(currentZoom);
+});
+
+// Уменьшить масштаб
+const zoomOutBtn = document.getElementById('zoomOutBtn');
+zoomOutBtn.addEventListener('click', () => {
+    let currentZoom = parseFloat(localStorage.getItem('pageZoom') || 1);
+    currentZoom = Math.max(currentZoom - 0.1, 0.5); // Лимит уменьшения до 50%
+    updateZoom(currentZoom);
+});
+
+// Сброс масштаба
+const resetZoomBtn = document.getElementById('resetZoomBtn');
+resetZoomBtn.addEventListener('click', () => {
+    const defaultZoom = 1; // Масштаб по умолчанию
+    updateZoom(defaultZoom); // Сбросить масштаб
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedZoom = parseFloat(localStorage.getItem('pageZoom') || 1);
+    updateZoom(savedZoom); // Восстанавливаем масштаб из localStorage
+});

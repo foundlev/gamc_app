@@ -372,8 +372,9 @@ i {
     margin-right: 7px;
 }
 
-#resetZoomBtn i {
-    margin-right: 0px;
+#zoomInBtn i, #zoomOutBtn i {
+    margin-left: 10.5px;
+    margin-right: 10.5px;
 }
 
 /* Тёмная тема */
@@ -391,4 +392,9 @@ i {
 
 .buttons button {
     margin-right: 5px;
+}
+
+#fetchBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }

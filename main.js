@@ -1,6 +1,8 @@
 // Проверка отсутствия интернета
 const checkLostConnection = false;
 
+let nowIcao = null;
+
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
 const ICAO_HISTORY_KEY = 'icaoHistory';
@@ -42,6 +44,29 @@ const clearIcaoBtn = document.getElementById('clearIcaoBtn');
 clearIcaoBtn.addEventListener('click', () => {
     icaoInput.value = ''; // очищаем поле
     icaoInput.focus(); // ставим фокус назад на инпут
+    updateFetchBtn();
+    nowIcao = null;
+});
+
+function updateFetchBtn() {
+    const icao = icaoInput.value.trim().toUpperCase();
+    console.log(nowIcao && nowIcao === nowIcao && icao.length === 4);
+
+    if (nowIcao && nowIcao === nowIcao && icao.length === 4) {
+        fetchBtn.innerHTML = '<i class="fas fa-sync-alt"></i>Обновить';
+    } else {
+        fetchBtn.innerHTML = '<i class="fas fa-cloud-download-alt"></i>Запросить';
+    }
+
+    if (icao.length === 4) {
+        fetchBtn.disabled = false;
+    } else {
+        fetchBtn.disabled = true;
+    }
+}
+
+icaoInput.addEventListener('input', () => {
+    updateFetchBtn();
 });
 
 const titleButton = document.getElementById('button-title');
@@ -309,6 +334,8 @@ fetchBtn.addEventListener('click', () => {
     const icao = icaoInput.value.trim().toUpperCase();
     icaoInput.value = icao;
     getWeather(icao, false);
+    nowIcao = icao;
+    updateFetchBtn();
 });
 
 /* =========================
@@ -335,7 +362,9 @@ function renderHistory() {
         btn.textContent = icao;
         btn.addEventListener('click', () => {
             icaoInput.value = icao;
+            nowIcao = icao;
             getWeather(icao, false);
+            updateFetchBtn();
         });
         historyContainer.appendChild(btn);
     });

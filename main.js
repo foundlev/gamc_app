@@ -59,14 +59,22 @@ function hideModal() {
 }
 
 function showOfflineWarning() {
-    const existingWarning = document.querySelector('.offline-warning');
-    if (existingWarning) {
-        existingWarning.remove();
-    }
-
     const warning = document.createElement('div');
     warning.className = 'offline-warning';
-    warning.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>Данные взяты из сохраненных. Возможно, информация устарела.';
+    warning.innerHTML = `
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Нет подключения. Данные взяты из сохраненных.
+    `;
+    timeBadgeContainer.insertAdjacentElement('afterend', warning);
+}
+
+function showOfflineWarningNoInfo() {
+    const warning = document.createElement('div');
+    warning.className = 'offline-warning-no-info';
+    warning.innerHTML = `
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Нет подключения. Нет сохраненных данных.
+    `;
     timeBadgeContainer.insertAdjacentElement('afterend', warning);
 }
 
@@ -107,6 +115,16 @@ async function getWeather(icao, isRefresh = false) {
         saveIcaoToHistory(icao);
     }
 
+    const existingWarning = document.querySelector('.offline-warning');
+    if (existingWarning) {
+        existingWarning.remove();
+    }
+
+    const existingWarningNoInfo = document.querySelector('.offline-warning-no-info');
+    if (existingWarningNoInfo) {
+        existingWarningNoInfo.remove();
+    }
+
     const url = `https://myapihelper.na4u.ru/gamc_app/api.php?password=${encodeURIComponent(password)}&icao=${encodeURIComponent(icao)}`;
 
     responseContainer.textContent = 'Загрузка...';
@@ -114,10 +132,16 @@ async function getWeather(icao, isRefresh = false) {
 
     // Проверка сохраненных данных
     const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
-    if ((!navigator.onLine && savedData[icao]) || checkLostConnection) {
-        showOfflineWarning(); // Показать предупреждение
-        responseContainer.innerHTML = savedData[icao];
-        return;
+    if ((!navigator.onLine) || checkLostConnection) {
+        if (savedData[icao]) {
+            showOfflineWarning(); // Показать предупреждение
+            responseContainer.innerHTML = savedData[icao];
+            return;
+        } else {
+            showOfflineWarningNoInfo(); // Показать предупреждение
+            responseContainer.innerHTML = 'Нет данных.';
+            return;
+        }
     }
 
     try {
@@ -245,11 +269,6 @@ async function getWeather(icao, isRefresh = false) {
             localStorage.setItem('icaoData', JSON.stringify(savedData));
         }
 
-        const existingWarning = document.querySelector('.offline-warning');
-        if (existingWarning) {
-            existingWarning.remove();
-        }
-
         // Выводим как HTML (чтобы теги <b>, <u> работали)
         responseContainer.innerHTML = finalText;
 
@@ -290,15 +309,6 @@ fetchBtn.addEventListener('click', () => {
     const icao = icaoInput.value.trim().toUpperCase();
     icaoInput.value = icao;
     getWeather(icao, false);
-});
-
-refreshBtn.addEventListener('click', () => {
-    const icao = icaoInput.value.trim().toUpperCase();
-    if (!icao) {
-        alert('Нечего обновлять. Сначала введите ICAO!');
-        return;
-    }
-    getWeather(icao, true);
 });
 
 /* =========================

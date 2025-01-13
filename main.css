@@ -64,7 +64,7 @@ main {
 }
 
 .input-group input {
-    padding: 8px;
+    padding: 10px;
     font-size: 1rem;
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -372,9 +372,13 @@ i {
     margin-right: 7px;
 }
 
-#zoomInBtn i, #zoomOutBtn i {
+.buttons i {
     margin-left: 10.5px;
     margin-right: 10.5px;
+}
+
+#fetchBtn {
+    min-width: 110px;
 }
 
 /* Тёмная тема */
@@ -392,9 +396,21 @@ i {
 
 .buttons button {
     margin-right: 5px;
+    flex: 1;
 }
 
 #fetchBtn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+.input-group-row {
+    display: flex;
+    gap: 10px; /* Отступ между полем ввода и кнопкой "Запросить" */
+    align-items: center;
+}
+
+.input-with-clear {
+    position: relative;
+    flex: 3; /* Поле ввода с кнопкой "Стереть" занимает 3 части */
 }

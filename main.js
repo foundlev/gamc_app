@@ -258,10 +258,10 @@ async function getWeather(icao, isRefresh = false) {
         timeBadgeContainer.appendChild(utcBadge);
 
         blockObjects.forEach(obj => {
-            const re = /^(TAF|TAF AMD|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
+            const re = /^(TAF|TAF AMD|TAF COR|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
             const match = obj.text.match(re);
             if (match) {
-                const t = match[1].toUpperCase(); // METAR / SPECI / TAF / TAF AMD
+                const t = match[1].toUpperCase(); // METAR / SPECI / TAF / TAF AMD / TAF COR
                 const ddhhmm = match[2]; // например "112030" (день=11, часы=20, минуты=30)
 
                 const dd = parseInt(ddhhmm.slice(0, 2), 10);
@@ -289,9 +289,9 @@ async function getWeather(icao, isRefresh = false) {
                     badge.classList.add('badge-green');
                 } else if ((t === 'METAR' || t === 'SPECI') && diffAbs >= 30) {
                     badge.classList.add('badge-orange');
-                } else if ((t === 'TAF' || t === 'TAF AMD') && diffAbs <= 60) {
+                } else if ((t === 'TAF' || t === 'TAF AMD' || t === 'TAF COR') && diffAbs <= 60) {
                     badge.classList.add('badge-green');
-                } else if ((t === 'TAF' || t === 'TAF AMD') && diffAbs >= 360) {
+                } else if ((t === 'TAF' || t === 'TAF AMD' || t === 'TAF COR') && diffAbs >= 360) {
                     badge.classList.add('badge-orange');
                 } else {
                     badge.classList.add('badge-default');
@@ -350,6 +350,7 @@ function highlightKeywords(text) {
     text = text.replace(/\b(SPECI\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
     text = text.replace(/\b(TAF\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
     text = text.replace(/\b(TAF AMD\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
+    text = text.replace(/\b(TAF COR\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
 
     return text;
 }

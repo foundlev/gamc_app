@@ -35,6 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHistory();
 });
 
+function getGamcUID() {
+    let gamcUid = localStorage.getItem('gamcUid');
+    if (!gamcUid) {
+        gamcUid = generateUID();
+        localStorage.setItem('gamcUid', gamcUid);
+    }
+    return gamcUid;
+}
+
+function generateUID() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    let uid = '';
+    for (let i = 0; i < 6; i++) {
+        uid += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return uid;
+}
+
 /* =========================
    МОДАЛКА
 ========================= */
@@ -142,7 +160,8 @@ async function getWeather(icao, isRefresh = false) {
         existingWarningNoInfo.remove();
     }
 
-    const url = `https://myapihelper.na4u.ru/gamc_app/api.php?password=${encodeURIComponent(password)}&icao=${encodeURIComponent(icao)}`;
+    const gamcUid = getGamcUID();
+    const url = `https://myapihelper.na4u.ru/gamc_app/api.php?password=${encodeURIComponent(password)}&icao=${encodeURIComponent(icao)}&gamcUid=${encodeURIComponent(gamcUid)}`;
 
     responseContainer.textContent = 'Загрузка...';
     timeBadgeContainer.innerHTML = '';

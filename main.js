@@ -372,9 +372,9 @@ function insertLineBreaks(text) {
     // Вставляем перенос строки перед FMXXXXXX
     text = text.replace(/\b(FM\d{6})\b/g, '\n$1');
 
-    // Вставляем перенос строки перед TEMPO и BECMG
-    // (без проверки на PROBXX для упрощения; для сложной логики потребуются расширенные проверки или lookbehind)
-    text = text.replace(/\b(TEMPO|BECMG|RMK|INTER)\b/g, '\n$1');
+    // Вставляем перенос строки перед TEMPO, BECMG, RMK, INTER,
+    // если перед ними не стоит PROB30 или PROB40
+    text = text.replace(/(?<!PROB30\s)(?<!PROB40\s)\b(TEMPO|BECMG|RMK|INTER)\b/g, '\n$1');
 
     return text;
 }
@@ -488,6 +488,8 @@ function highlightKeywords(text) {
 
     // Оборачиваем строки, начинающиеся с TEMPO, в контейнер для альтернативного оформления
     text = text.replace(/^(<u>TEMPO<\/u>.*)$/gm, '<span class="tempo-line">$1</span>');
+    text = text.replace(/^(<u>PROB30<\/u>.*)$/gm, '<span class="tempo-line">$1</span>');
+    text = text.replace(/^(<u>PROB40<\/u>.*)$/gm, '<span class="tempo-line">$1</span>');
 
     return text;
 }

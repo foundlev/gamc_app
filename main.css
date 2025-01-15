@@ -562,6 +562,7 @@ footer {
     color: white;
     padding: 2px 4px;
     border-radius: 3px;
+    white-space: nowrap;
 }
 
 .color-yellow {
@@ -569,6 +570,7 @@ footer {
     color: white;
     padding: 2px 4px;
     border-radius: 3px;
+    white-space: nowrap;
 }
 
 .color-red {
@@ -576,6 +578,7 @@ footer {
     color: white;
     padding: 2px 4px;
     border-radius: 3px;
+    white-space: nowrap;
 }
 
 .color-purple {
@@ -583,6 +586,7 @@ footer {
     color: white;
     padding: 2px 4px;
     border-radius: 3px;
+    white-space: nowrap;
 }
 
 .color-darkred {
@@ -590,6 +594,7 @@ footer {
     color: white;
     padding: 2px 4px;
     border-radius: 3px;
+    white-space: nowrap;
 }
 
 .color-description {
@@ -974,4 +979,8 @@ footer {
     .tempo-line .color-darkred::before {
         background-image: none;
     }
+}
+
+.original-link {
+    color: rgb(87, 74, 255);
 }

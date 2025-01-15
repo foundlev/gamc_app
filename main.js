@@ -352,6 +352,65 @@ async function getWeather(icao, isRefresh = false) {
  * Функция, которая подменяет ключевые слова на HTML-теги
  * (bold или underline).
  */
+function highlightWind(text) {
+    // Ищем группы ветра по формату dddff(f)(Ggg)?(MPS|KT)
+    return text.replace(/\b(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)\b/g, (match, dir, speed, gust, unit) => {
+        let speedNum = parseInt(speed, 10);
+        let highlight = false;
+
+        if(unit === 'MPS') {
+            // Проверяем скорость ветра в м/с
+            if(speedNum >= 15) {
+                highlight = true;
+            }
+            // Проверяем порывы в м/с
+            else if(gust) {
+                let gustNum = parseInt(gust.slice(1), 10); // удаляем букву "G"
+                if(gustNum >= 15) {
+                    highlight = true;
+                }
+            }
+        } else if(unit === 'KT') {
+            // Проверяем скорость ветра в узлах
+            if(speedNum >= 30) {
+                highlight = true;
+            }
+            // Проверяем порывы в узлах
+            else if(gust) {
+                let gustNum = parseInt(gust.slice(1), 10);
+                if(gustNum >= 30) {
+                    highlight = true;
+                }
+            }
+        }
+
+        if(highlight) {
+            return `<span class="color-purple">${match}</span>`;
+        }
+        return match;
+    });
+}
+
+function highlightCloudBase(text) {
+    // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
+    return text.replace(/\b(OVC|BKN)(\d{3})\b/g, (match, type, heightStr) => {
+        let height = parseInt(heightStr, 10);
+        let colorClass = '';
+
+        if (height < 2) {
+            colorClass = 'color-darkred';
+        } else if (height >= 2 && height <= 4 ) {
+            colorClass = 'color-red';
+        } else if (height >= 5 && height <= 10 ) {
+            colorClass = 'color-yellow';
+        } else {
+            colorClass = 'color-green';
+        }
+
+        return `<span class="${colorClass}">${match}</span>`;
+    });
+}
+
 function highlightKeywords(text) {
     // 1) Подчёркиваем TEMPO, BECMG, PROB40, PROB30:
     text = text.replace(/\b(TEMPO|BECMG|PROB40|PROB30)\b/g, '<u>$1</u>');
@@ -370,6 +429,29 @@ function highlightKeywords(text) {
     text = text.replace(/\b(TAF\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
     text = text.replace(/\b(TAF AMD\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
     text = text.replace(/\b(TAF COR\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
+
+    // 3) Выделение именно четырехзначных чисел как отдельных слов
+
+    text = text.replace(/(^|\s)(\d{4})(?=$|\s)/g, (match, prefix, numStr) => {
+        let num = parseInt(numStr, 10);
+        let colorClass = '';
+        if(num > 3500) {
+            colorClass = 'color-green';
+        } else if(num > 1200 && num <= 3500) {
+            colorClass = 'color-yellow';
+        } else if(num >= 550 && num <= 1200) {
+            colorClass = 'color-red';
+        } else if(num < 550) {
+            colorClass = 'color-darkred';
+        }
+        return prefix + (colorClass ? `<span class="${colorClass}">${numStr}</span>` : numStr);
+    });
+
+    // Выделение CAVOK и NSC зелёным цветом
+    text = text.replace(/\b(CAVOK|NSC)\b/g, '<span class="color-green">$1</span>');
+
+    text = highlightWind(text);
+    text = highlightCloudBase(text);
 
     return text;
 }

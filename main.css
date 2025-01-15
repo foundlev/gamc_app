@@ -224,7 +224,7 @@ button:active {
     white-space: pre-wrap;
     font-family: monospace;
     font-size: 1rem;
-    line-height: 1.4;
+    line-height: 1.5;
     /* По умолчанию скрыто, а при обновлении JS
      можно добавлять класс .show или что-то
      вроде этого для анимации, но можно и сразу. */
@@ -557,4 +557,39 @@ i {
 #confirmYesBtn,
 #confirmNoBtn {
     flex: 1;
+}
+
+.color-green {
+    background-color: green;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.color-yellow {
+    background-color: #FFA500;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.color-red {
+    background-color: #b22222;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.color-purple {
+    background-color: purple;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.color-darkred {
+    background-color: #5C0000;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
 }

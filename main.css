@@ -579,7 +579,7 @@ footer {
 }
 
 .color-purple {
-    background-color: purple;
+    background-color: rgb(180, 0, 180);
     color: white;
     padding: 2px 4px;
     border-radius: 3px;
@@ -684,6 +684,143 @@ footer {
     margin-bottom: 10px;
 }
 
+/* Альтернативные, полосатые стили для цветовых классов внутри строк с TEMPO */
+.tempo-line .color-green {
+    position: relative;
+    color: black;
+    text-shadow: 0px 0px 5px white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: none;
+}
+
+.tempo-line .color-green::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(0, 128, 0, 0.5) 0,
+        rgba(0, 128, 0, 0.5) 5px,
+        rgba(0, 0, 0, 0) 5px,
+        rgba(0, 0, 0, 0) 10px
+    );
+    border-radius: 3px;
+    z-index: -1;
+}
+
+.tempo-line .color-yellow {
+    position: relative;
+    color: black;
+    text-shadow: 0px 0px 5px white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: none;
+}
+
+.tempo-line .color-yellow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 165, 0, 0.5) 0,
+        rgba(255, 165, 0, 0.5) 5px,
+        rgba(0, 0, 0, 0) 5px,
+        rgba(0, 0, 0, 0) 10px
+    );
+    border-radius: 3px;
+    z-index: -1;
+}
+
+.tempo-line .color-red {
+    position: relative;
+    color: black;
+    text-shadow: 0px 0px 5px white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: none;
+}
+
+.tempo-line .color-red::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(178, 34, 34, 0.5) 0,
+        rgba(178, 34, 34, 0.5) 5px,
+        rgba(0, 0, 0, 0) 5px,
+        rgba(0, 0, 0, 0) 10px
+    );
+    border-radius: 3px;
+    z-index: -1;
+}
+
+.tempo-line .color-purple {
+    position: relative;
+    color: black;
+    text-shadow: 0px 0px 5px white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: none;
+}
+
+.tempo-line .color-purple::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(180, 0, 180, 0.5) 0,
+        rgba(180, 0, 180, 0.5) 5px,
+        rgba(0, 0, 0, 0) 5px,
+        rgba(0, 0, 0, 0) 10px
+    );
+    border-radius: 3px;
+    z-index: -1;
+}
+
+.tempo-line .color-darkred {
+    position: relative;
+    color: black;
+    text-shadow: 0px 0px 5px white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: none;
+}
+
+.tempo-line .color-darkred::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(60, 0, 0, 0.5) 0,
+        rgba(60, 0, 0, 0.5) 5px,
+        rgba(0, 0, 0, 0) 5px,
+        rgba(0, 0, 0, 0) 10px
+    );
+    border-radius: 3px;
+    z-index: -1;
+}
+
+
 @media (prefers-color-scheme: dark) {
     .runway-info-modal-backdrop .modal {
         background: linear-gradient(135deg, #1e1e1e, #2c2c2c); /* Тёмный градиентный фон */
@@ -711,5 +848,130 @@ footer {
     .color-description {
         background-color: rgb(77, 77, 77);
         color: white;
+    }
+
+    .color-green {
+        background-color: rgb(2, 102, 2);
+        text-shadow: 0px 0px 5px black;
+    }
+
+    .color-yellow {
+        background-color: #c88200;
+        text-shadow: 0px 0px 5px black;
+    }
+
+    .color-red {
+        background-color: #881818;
+        text-shadow: 0px 0px 5px black;
+    }
+
+    .color-purple {
+        background-color: rgb(98, 0, 98);
+        text-shadow: 0px 0px 5px black;
+    }
+
+    .color-darkred {
+        box-shadow: 0px 0px 3px red;
+        background-color: black;
+        text-shadow: 0px 0px 5px black;
+    }
+
+    .color-description {
+        text-shadow: 0px 0px 5px black;
+    }
+
+    .tempo-line .color-green {
+        background: none;
+        background-image: repeating-linear-gradient(
+            45deg,
+            rgb(2, 102, 2) 0,
+            rgb(2, 102, 2) 5px,
+            transparent 5px,
+            transparent 15px
+        );
+        color: white;
+        padding: 2px 4px;
+        border-radius: 3px;
+        text-shadow: 0px 0px 3px black;
+    }
+
+    .tempo-line .color-green::before {
+        background-image: none;
+    }
+
+    .tempo-line .color-yellow {
+        background-image: repeating-linear-gradient(
+            45deg,
+            #c88200 0,
+            #c88200 5px,
+            transparent 5px,
+            transparent 15px
+        );
+        color: white;
+        padding: 2px 4px;
+        border-radius: 3px;
+        text-shadow: 0px 0px 3px black;
+    }
+
+    .tempo-line .color-yellow::before {
+        background-image: none;
+    }
+
+    .tempo-line .color-red {
+        background: none;
+        background-image: repeating-linear-gradient(
+            45deg,
+            #881818 0,
+            #881818 5px,
+            transparent 5px,
+            transparent 15px
+        );
+        color: white;
+        padding: 2px 4px;
+        border-radius: 3px;
+        text-shadow: 0px 0px 3px black;
+    }
+
+    .tempo-line .color-red::before {
+        background-image: none;
+    }
+
+    .tempo-line .color-purple {
+        background: none;
+        background-image: repeating-linear-gradient(
+            45deg,
+            rgb(98, 0, 98) 0,
+            rgb(98, 0, 98) 5px,
+            transparent 5px,
+            transparent 15px
+        );
+        color: white;
+        padding: 2px 4px;
+        border-radius: 3px;
+        text-shadow: 0px 0px 3px black;
+    }
+
+    .tempo-line .color-purple::before {
+        background-image: none;
+    }
+
+    .tempo-line .color-darkred {
+        background: none;
+        background-image: repeating-linear-gradient(
+            45deg,
+            black 0,
+            black 5px,
+            transparent 5px,
+            transparent 10px
+        );
+        color: white;
+        padding: 2px 4px;
+        border-radius: 3px;
+        box-shadow: none;
+        text-shadow: 0px 0px 3px black;
+    }
+
+    .tempo-line .color-darkred::before {
+        background-image: none;
     }
 }

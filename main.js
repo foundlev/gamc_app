@@ -486,6 +486,9 @@ function highlightKeywords(text) {
         return `<span class="color-description runway-info" data-runway="${rwy}" data-info="${info}">${match} <i class="fa fa-info-circle" aria-hidden="true"></i></span>`;
     });
 
+    // Оборачиваем строки, начинающиеся с TEMPO, в контейнер для альтернативного оформления
+    text = text.replace(/^(<u>TEMPO<\/u>.*)$/gm, '<span class="tempo-line">$1</span>');
+
     return text;
 }
 

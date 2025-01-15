@@ -90,7 +90,16 @@ function updateFetchBtn() {
 }
 
 icaoInput.addEventListener('input', () => {
+    // Удаляем все символы, кроме английских букв, и преобразуем оставшееся в верхний регистр
+    icaoInput.value = icaoInput.value.replace(/[^A-Za-z]/g, '').toUpperCase();
     updateFetchBtn();
+});
+
+
+icaoInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !fetchBtn.disabled) {
+        fetchWeather();
+    }
 });
 
 const titleButton = document.getElementById('button-title');
@@ -277,10 +286,10 @@ async function getWeather(icao, isRefresh = false) {
         timeBadgeContainer.appendChild(utcBadge);
 
         blockObjects.forEach(obj => {
-            const re = /^(TAF|TAF AMD|TAF COR|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
+            const re = /^(TAF|TAF AMD|TAF COR|TAF RTD|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
             const match = obj.text.match(re);
             if (match) {
-                const t = match[1].toUpperCase(); // METAR / SPECI / TAF / TAF AMD / TAF COR
+                const t = match[1].toUpperCase(); // METAR / SPECI / TAF / TAF AMD / TAF COR / TAF RTD
                 const ddhhmm = match[2]; // например "112030" (день=11, часы=20, минуты=30)
 
                 const dd = parseInt(ddhhmm.slice(0, 2), 10);
@@ -308,9 +317,9 @@ async function getWeather(icao, isRefresh = false) {
                     badge.classList.add('badge-green');
                 } else if ((t === 'METAR' || t === 'SPECI') && diffAbs >= 30) {
                     badge.classList.add('badge-orange');
-                } else if ((t === 'TAF' || t === 'TAF AMD' || t === 'TAF COR') && diffAbs <= 60) {
+                } else if ((t === 'TAF' || t === 'TAF AMD' || t === 'TAF COR' || t === 'TAF RTD') && diffAbs <= 60) {
                     badge.classList.add('badge-green');
-                } else if ((t === 'TAF' || t === 'TAF AMD' || t === 'TAF COR') && diffAbs >= 360) {
+                } else if ((t === 'TAF' || t === 'TAF AMD' || t === 'TAF COR' || t === 'TAF RTD') && diffAbs >= 360) {
                     badge.classList.add('badge-orange');
                 } else {
                     badge.classList.add('badge-default');
@@ -394,7 +403,7 @@ function highlightWind(text) {
 
 function highlightCloudBase(text) {
     // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
-    return text.replace(/\b(OVC|BKN)(\d{3})\b/g, (match, type, heightStr) => {
+    return text.replace(/\b(OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
         let height = parseInt(heightStr, 10);
         let colorClass = '';
 
@@ -444,6 +453,7 @@ function highlightKeywords(text) {
     text = text.replace(/\b(TAF\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
     text = text.replace(/\b(TAF AMD\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
     text = text.replace(/\b(TAF COR\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
+    text = text.replace(/\b(TAF RTD\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
     // LTBB SIGMET 4
     text = text.replace(/\b([A-Z]{4}\s+SIGMET\s+\d{1})\b/g, '<b>$1</b>');
     text = text.replace(/\b([A-Z]{4}\s+AIRMET\s+\d{1})\b/g, '<b>$1</b>');
@@ -466,7 +476,7 @@ function highlightKeywords(text) {
     });
 
     // Выделение CAVOK и NSC зелёным цветом
-    text = text.replace(/\b(CAVOK|NSC)\b/g, '<span class="color-green">$1</span>');
+    text = text.replace(/\b(CLR|CAVOK|NCD|NSW|NSC|GOOD|VMC|VFR)\b/g, '<span class="color-green">$1</span>');
     text = text.replace(/\b(WS)\b/g, '<span class="color-purple">$1</span>');
 
     text = highlightWind(text);
@@ -486,12 +496,16 @@ function highlightKeywords(text) {
 /* =========================
    ОБРАБОТЧИКИ КНОПОК
 ========================= */
-fetchBtn.addEventListener('click', () => {
+function fetchWeather() {
     const icao = icaoInput.value.trim().toUpperCase();
     icaoInput.value = icao;
     getWeather(icao, false);
     nowIcao = icao;
     updateFetchBtn();
+}
+
+fetchBtn.addEventListener('click', () => {
+    fetchWeather();
 });
 
 /* =========================
@@ -657,6 +671,13 @@ function decodeRunwayInfo(runway, info) {
         parseInt(info.slice(4, 6), 10) // Коэффициент сцепления
     ];
 
+    let runwayDesc = runway;
+    if (runwayDesc === "88") {
+        runwayDesc = "для всех ВПП";
+    } else if (runwayDesc === "99") {
+        runwayDesc = "повторение последнего сообщения";
+    }
+
     const conditionDesc = {
         0: "сухо",
         1: "влажно",
@@ -698,11 +719,11 @@ function decodeRunwayInfo(runway, info) {
 
     return `
         <strong class='strong-header'>Код:</strong> ${runway} / ${info}<br><br>
-        <strong>ВПП:</strong> ${runway}<br>
-        <strong>Условия покрытия:</strong> ${conditionDesc} (${condition})<br>
-        <strong>Степень покрытия:</strong> ${coverageDesc} (${coverage})<br>
-        <strong>Толщина покрытия:</strong> ${depthDesc} (${depth})<br>
-        <strong>Коэффициент сцепления:</strong> ${frictionDesc} (${friction})
+        <strong>ВПП:</strong> ${runwayDesc}<br>
+        <strong>Условия:</strong> ${conditionDesc} (${condition})<br>
+        <strong>Степень:</strong> ${coverageDesc} (${coverage})<br>
+        <strong>Толщина:</strong> ${depthDesc} (${depth})<br>
+        <strong>Коэф. сцепления:</strong> ${frictionDesc} (${friction})
     `;
 }
 

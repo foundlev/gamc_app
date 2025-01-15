@@ -125,7 +125,7 @@ main {
 ========================= */
 .buttons {
     display: flex;
-    gap: 10px;
+    gap: 5px;
     flex-wrap: wrap;
     justify-content: space-between;
 }
@@ -375,7 +375,7 @@ footer {
 
 .input-group-row {
     display: flex;
-    gap: 10px;
+    gap: 5px;
     /* Отступ между полем ввода и кнопкой "Запросить" */
     align-items: center;
 }
@@ -598,6 +598,10 @@ footer {
     padding: 2px 4px;
     border-radius: 3px;
     cursor: pointer; /* Добавлено для указания кликабельности */
+}
+
+.runway-info {
+    white-space: nowrap;
 }
 
 .runway-info i {

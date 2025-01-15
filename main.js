@@ -324,6 +324,7 @@ async function getWeather(icao, isRefresh = false) {
         // ========= Добавляем HTML-выделение =========
         //  1) слова TEMPO, BECMG, PROB40, PROB30, FMXXXXXX (подчёркивание)
         //  2) "METAR LTAI 111030Z" или "SPECI ...", а также "TAF" - делаем жирным
+        finalText = insertLineBreaks(finalText);
         finalText = highlightKeywords(finalText);
 
         if (!finalText.includes("НЕТ В КАТАЛОГЕ,ОБРАЩАЙТЕСЬ К СИНОПТИКУ=")) {
@@ -411,9 +412,23 @@ function highlightCloudBase(text) {
     });
 }
 
+function insertLineBreaks(text) {
+    // Вставляем перенос строки перед PROB40 и PROB30
+    text = text.replace(/\b(PROB40|PROB30)\b/g, '\n$1');
+
+    // Вставляем перенос строки перед FMXXXXXX
+    text = text.replace(/\b(FM\d{6})\b/g, '\n$1');
+
+    // Вставляем перенос строки перед TEMPO и BECMG
+    // (без проверки на PROBXX для упрощения; для сложной логики потребуются расширенные проверки или lookbehind)
+    text = text.replace(/\b(TEMPO|BECMG|RMK|INTER)\b/g, '\n$1');
+
+    return text;
+}
+
 function highlightKeywords(text) {
     // 1) Подчёркиваем TEMPO, BECMG, PROB40, PROB30:
-    text = text.replace(/\b(TEMPO|BECMG|PROB40|PROB30)\b/g, '<u>$1</u>');
+    text = text.replace(/\b(TEMPO|BECMG|INTER|PROB40|PROB30)\b/g, '<u>$1</u>');
 
     // ...и любые FM + 6 цифр, например FM241500
     text = text.replace(/\bFM\d{6}\b/g, '<u>$&</u>');
@@ -429,6 +444,9 @@ function highlightKeywords(text) {
     text = text.replace(/\b(TAF\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
     text = text.replace(/\b(TAF AMD\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
     text = text.replace(/\b(TAF COR\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
+    // LTBB SIGMET 4
+    text = text.replace(/\b([A-Z]{4}\s+SIGMET\s+\d{1})\b/g, '<b>$1</b>');
+    text = text.replace(/\b([A-Z]{4}\s+AIRMET\s+\d{1})\b/g, '<b>$1</b>');
 
     // 3) Выделение именно четырехзначных чисел как отдельных слов
 
@@ -453,6 +471,14 @@ function highlightKeywords(text) {
 
     text = highlightWind(text);
     text = highlightCloudBase(text);
+
+    // Распознавание и выделение информации о ВПП с учётом буквенного суффикса (L, C, R)
+    text = text.replace(/\bR(\d{2}[LCR]?)\/(\d{6})\b/g, (match, rwy, info) => {
+        if (/^\/{6}$/.test(info)) return match; // Пропускаем пустую информацию
+
+        // Добавляем всплывающее окно с информацией
+        return `<span class="color-description runway-info" data-runway="${rwy}" data-info="${info}">${match} <i class="fa fa-info-circle" aria-hidden="true"></i></span>`;
+    });
 
     return text;
 }
@@ -600,4 +626,93 @@ resetPasswordBtn.addEventListener('click', () => {
             location.reload();
         }
     );
+});
+
+function showRunwayInfoModal(content) {
+    const modal = document.getElementById('runwayInfoModal');
+    const contentElem = document.getElementById('runwayInfoContent');
+    contentElem.innerHTML = content;
+    modal.classList.add('show');
+}
+
+function hideRunwayInfoModal() {
+    const modal = document.getElementById('runwayInfoModal');
+    modal.classList.remove('show');
+}
+
+// Закрытие модального окна при нажатии на кнопку
+document.getElementById('closeRunwayInfoModalBtn').addEventListener('click', hideRunwayInfoModal);
+
+// Закрытие модального окна при клике вне его области
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('runwayInfoModal');
+    if (e.target === modal) hideRunwayInfoModal();
+});
+
+function decodeRunwayInfo(runway, info) {
+    const [condition, coverage, depth, friction] = [
+        parseInt(info[0], 10), // Условия покрытия
+        parseInt(info[1], 10), // Степень покрытия
+        parseInt(info.slice(2, 4), 10), // Толщина покрытия
+        parseInt(info.slice(4, 6), 10) // Коэффициент сцепления
+    ];
+
+    const conditionDesc = {
+        0: "сухо",
+        1: "влажно",
+        2: "мокро или вода местами",
+        3: "иней или изморозь",
+        4: "сухой снег",
+        5: "мокрый снег",
+        6: "слякоть",
+        7: "лёд",
+        8: "уплотнённый, укатанный снег",
+        9: "замёрзшая или неровная поверхность"
+    }[condition] || "Нет данных";
+
+    const coverageDesc = {
+        1: "менее 10% ВПП",
+        2: "от 11% до 25% ВПП",
+        5: "от 26% до 50% ВПП",
+        9: "от 51% до 100% ВПП"
+    }[coverage] || "нет данных";
+
+    const depthDesc = depth >= 91
+        ? `${(depth - 90) * 5} см`
+        : depth === 0
+            ? "менее 1 мм"
+            : `${depth} мм`;
+
+    let frictionDesc = {
+        91: "плохой",
+        92: "плохой/средний",
+        93: "средний",
+        94: "средний/хороший",
+        95: "хороший"
+    }[friction] || "нет данных";
+
+    // Если frictionDesc === "Нет данных" и является числом от 10 до 90
+    if (frictionDesc === "нет данных" && friction >= 10 && friction <= 90) {
+        frictionDesc = `0.${friction}`;
+    }
+
+    return `
+        <strong class='strong-header'>Код:</strong> ${runway} / ${info}<br><br>
+        <strong>ВПП:</strong> ${runway}<br>
+        <strong>Условия покрытия:</strong> ${conditionDesc} (${condition})<br>
+        <strong>Степень покрытия:</strong> ${coverageDesc} (${coverage})<br>
+        <strong>Толщина покрытия:</strong> ${depthDesc} (${depth})<br>
+        <strong>Коэффициент сцепления:</strong> ${frictionDesc} (${friction})
+    `;
+}
+
+// Обработчик клика по элементам информации о ВПП
+document.addEventListener('click', (e) => {
+    const target = e.target.closest('.runway-info');
+    if (target) {
+        const runway = target.dataset.runway;
+        const info = target.dataset.info;
+        const content = decodeRunwayInfo(runway, info);
+        showRunwayInfoModal(content);
+    }
 });

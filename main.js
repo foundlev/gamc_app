@@ -449,6 +449,7 @@ function highlightKeywords(text) {
 
     // Выделение CAVOK и NSC зелёным цветом
     text = text.replace(/\b(CAVOK|NSC)\b/g, '<span class="color-green">$1</span>');
+    text = text.replace(/\b(WS)\b/g, '<span class="color-purple">$1</span>');
 
     text = highlightWind(text);
     text = highlightCloudBase(text);

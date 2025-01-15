@@ -99,6 +99,7 @@ icaoInput.addEventListener('input', () => {
 icaoInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !fetchBtn.disabled) {
         fetchWeather();
+        icaoInput.blur(); // снимает фокус с поля ввода
     }
 });
 
@@ -362,64 +363,7 @@ async function getWeather(icao, isRefresh = false) {
  * Функция, которая подменяет ключевые слова на HTML-теги
  * (bold или underline).
  */
-function highlightWind(text) {
-    // Ищем группы ветра по формату dddff(f)(Ggg)?(MPS|KT)
-    return text.replace(/\b(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)\b/g, (match, dir, speed, gust, unit) => {
-        let speedNum = parseInt(speed, 10);
-        let highlight = false;
 
-        if(unit === 'MPS') {
-            // Проверяем скорость ветра в м/с
-            if(speedNum >= 15) {
-                highlight = true;
-            }
-            // Проверяем порывы в м/с
-            else if(gust) {
-                let gustNum = parseInt(gust.slice(1), 10); // удаляем букву "G"
-                if(gustNum >= 15) {
-                    highlight = true;
-                }
-            }
-        } else if(unit === 'KT') {
-            // Проверяем скорость ветра в узлах
-            if(speedNum >= 30) {
-                highlight = true;
-            }
-            // Проверяем порывы в узлах
-            else if(gust) {
-                let gustNum = parseInt(gust.slice(1), 10);
-                if(gustNum >= 30) {
-                    highlight = true;
-                }
-            }
-        }
-
-        if(highlight) {
-            return `<span class="color-purple">${match}</span>`;
-        }
-        return match;
-    });
-}
-
-function highlightCloudBase(text) {
-    // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
-    return text.replace(/\b(OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
-        let height = parseInt(heightStr, 10);
-        let colorClass = '';
-
-        if (height < 2) {
-            colorClass = 'color-darkred';
-        } else if (height >= 2 && height <= 4 ) {
-            colorClass = 'color-red';
-        } else if (height >= 5 && height <= 10 ) {
-            colorClass = 'color-yellow';
-        } else {
-            colorClass = 'color-green';
-        }
-
-        return `<span class="${colorClass}">${match}</span>`;
-    });
-}
 
 function insertLineBreaks(text) {
     // Вставляем перенос строки перед PROB40 и PROB30
@@ -479,8 +423,60 @@ function highlightKeywords(text) {
     text = text.replace(/\b(CLR|CAVOK|NCD|NSW|NSC|GOOD|VMC|VFR)\b/g, '<span class="color-green">$1</span>');
     text = text.replace(/\b(WS)\b/g, '<span class="color-purple">$1</span>');
 
-    text = highlightWind(text);
-    text = highlightCloudBase(text);
+    // Ищем группы ветра по формату dddff(f)(Ggg)?(MPS|KT)
+    text = text.replace(/\b(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)\b/g, (match, dir, speed, gust, unit) => {
+        let speedNum = parseInt(speed, 10);
+        let highlight = false;
+
+        if(unit === 'MPS') {
+            // Проверяем скорость ветра в м/с
+            if(speedNum >= 15) {
+                highlight = true;
+            }
+            // Проверяем порывы в м/с
+            else if(gust) {
+                let gustNum = parseInt(gust.slice(1), 10); // удаляем букву "G"
+                if(gustNum >= 15) {
+                    highlight = true;
+                }
+            }
+        } else if(unit === 'KT') {
+            // Проверяем скорость ветра в узлах
+            if(speedNum >= 30) {
+                highlight = true;
+            }
+            // Проверяем порывы в узлах
+            else if(gust) {
+                let gustNum = parseInt(gust.slice(1), 10);
+                if(gustNum >= 30) {
+                    highlight = true;
+                }
+            }
+        }
+
+        if(highlight) {
+            return `<span class="color-purple">${match}</span>`;
+        }
+        return match;
+    });
+
+    // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
+    text = text.replace(/\b(OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
+        let height = parseInt(heightStr, 10);
+        let colorClass = '';
+
+        if (height < 2) {
+            colorClass = 'color-darkred';
+        } else if (height >= 2 && height <= 4 ) {
+            colorClass = 'color-red';
+        } else if (height >= 5 && height <= 10 ) {
+            colorClass = 'color-yellow';
+        } else {
+            colorClass = 'color-green';
+        }
+
+        return `<span class="${colorClass}">${match}</span>`;
+    });
 
     // Распознавание и выделение информации о ВПП с учётом буквенного суффикса (L, C, R)
     text = text.replace(/\bR(\d{2}[LCR]?)\/(\d{6})\b/g, (match, rwy, info) => {

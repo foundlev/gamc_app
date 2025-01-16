@@ -999,3 +999,7 @@ footer {
 .original-link {
     color: rgb(87, 74, 255);
 }
+
+.offline-warning i, .offline-warning-no-info i {
+    margin-right: 5px;
+}

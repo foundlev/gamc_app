@@ -7,6 +7,14 @@ let nowIcao = null;
 const PASSWORD_KEY = 'gamcPassword';
 const ICAO_HISTORY_KEY = 'icaoHistory';
 
+let doHighlight = false;
+
+// При загрузке страницы пытаемся загрузить сохранённое состояние
+const savedState = localStorage.getItem('doHighlight');
+if (savedState !== null) {
+  doHighlight = JSON.parse(savedState);
+}
+
 // Селекторы
 const icaoInput = document.getElementById('icao');
 const fetchBtn = document.getElementById('fetchBtn');
@@ -335,7 +343,9 @@ async function getWeather(icao, isRefresh = false) {
         //  1) слова TEMPO, BECMG, PROB40, PROB30, FMXXXXXX (подчёркивание)
         //  2) "METAR LTAI 111030Z" или "SPECI ...", а также "TAF" - делаем жирным
         finalText = insertLineBreaks(finalText);
-        finalText = highlightKeywords(finalText);
+        if (doHighlight) {
+            finalText = highlightKeywords(finalText);
+        }
 
         if (!finalText.includes("НЕТ В КАТАЛОГЕ,ОБРАЩАЙТЕСЬ К СИНОПТИКУ=")) {
             // Сохраняем icao, если нужно
@@ -947,4 +957,29 @@ document.addEventListener('click', (e) => {
 
          showWindInfoModal(content);
     }
+});
+
+function updateHighlightButton() {
+  const button = document.getElementById('changeHighlight');
+  if (!button) return; // если кнопка не найдена, выходим
+  if (doHighlight) {
+    button.innerHTML = '<i class="fa-solid fa-highlighter"></i>';
+  } else {
+    button.innerHTML = '<i class="fa-solid fa-marker"></i>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateHighlightButton()
+  const button = document.getElementById('changeHighlight');
+  if (!button) return; // если кнопка не найдена, выходим
+
+  button.addEventListener('click', () => {
+    // Переключаем значение
+    doHighlight = !doHighlight;
+    updateHighlightButton()
+
+    // Сохраняем новое состояние в localStorage
+    localStorage.setItem('doHighlight', JSON.stringify(doHighlight));
+  });
 });

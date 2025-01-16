@@ -224,7 +224,7 @@ button:active {
     white-space: pre-wrap;
     font-family: monospace;
     font-size: 1rem;
-    line-height: 1.6;
+    line-height: 1.7em;
     /* По умолчанию скрыто, а при обновлении JS
      можно добавлять класс .show или что-то
      вроде этого для анимации, но можно и сразу. */
@@ -534,12 +534,12 @@ footer {
         /* Более яркий синий */
     }
 
-    .modal-close-btn {
+    .modal .modal-close-btn {
         color: #cccccc;
         /* Светло-серая кнопка закрытия */
     }
 
-    .modal-close-btn:hover {
+    .modal .modal-close-btn:hover {
         color: #ffffff;
         /* Белый при наведении */
     }
@@ -598,7 +598,7 @@ footer {
 }
 
 .color-description {
-    background-color: rgb(231, 231, 231);
+    border: 2px solid rgb(231, 231, 231);
     color: black;
     padding: 2px 4px;
     border-radius: 3px;
@@ -609,9 +609,8 @@ footer {
     white-space: nowrap;
 }
 
-.runway-info i {
+.runway-info i, .wind-info i {
     margin-left: -5px;
-    margin-right: 0;
     opacity: 0.8;
 }
 
@@ -825,6 +824,18 @@ footer {
     z-index: -1;
 }
 
+#windInfoContent {
+    text-align: left;
+    line-height: 1.3em;
+}
+
+.color-description.color-purple {
+    color: white;
+}
+
+.tempo-line .color-description.color-purple {
+    color: black;
+}
 
 @media (prefers-color-scheme: dark) {
     .runway-info-modal-backdrop .modal {
@@ -851,7 +862,7 @@ footer {
     }
 
     .color-description {
-        background-color: rgb(77, 77, 77);
+        border: 2px solid rgb(77, 77, 77);
         color: white;
     }
 
@@ -978,6 +989,10 @@ footer {
 
     .tempo-line .color-darkred::before {
         background-image: none;
+    }
+
+    .tempo-line .color-description.color-purple {
+        color: white;
     }
 }
 

@@ -424,41 +424,41 @@ function highlightKeywords(text) {
     text = text.replace(/\b(WS)\b/g, '<span class="color-purple">$1</span>');
 
     // Ищем группы ветра по формату dddff(f)(Ggg)?(MPS|KT)
-    text = text.replace(/\b(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)\b/g, (match, dir, speed, gust, unit) => {
-        let speedNum = parseInt(speed, 10);
-        let highlight = false;
-
-        if(unit === 'MPS') {
-            // Проверяем скорость ветра в м/с
-            if(speedNum >= 15) {
-                highlight = true;
-            }
-            // Проверяем порывы в м/с
-            else if(gust) {
-                let gustNum = parseInt(gust.slice(1), 10); // удаляем букву "G"
-                if(gustNum >= 15) {
-                    highlight = true;
-                }
-            }
-        } else if(unit === 'KT') {
-            // Проверяем скорость ветра в узлах
-            if(speedNum >= 30) {
-                highlight = true;
-            }
-            // Проверяем порывы в узлах
-            else if(gust) {
-                let gustNum = parseInt(gust.slice(1), 10);
-                if(gustNum >= 30) {
-                    highlight = true;
-                }
-            }
-        }
-
-        if(highlight) {
-            return `<span class="color-purple">${match}</span>`;
-        }
-        return match;
-    });
+//    text = text.replace(/\b(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)\b/g, (match, dir, speed, gust, unit) => {
+//        let speedNum = parseInt(speed, 10);
+//        let highlight = false;
+//
+//        if(unit === 'MPS') {
+//            // Проверяем скорость ветра в м/с
+//            if(speedNum >= 15) {
+//                highlight = true;
+//            }
+//            // Проверяем порывы в м/с
+//            else if(gust) {
+//                let gustNum = parseInt(gust.slice(1), 10); // удаляем букву "G"
+//                if(gustNum >= 15) {
+//                    highlight = true;
+//                }
+//            }
+//        } else if(unit === 'KT') {
+//            // Проверяем скорость ветра в узлах
+//            if(speedNum >= 30) {
+//                highlight = true;
+//            }
+//            // Проверяем порывы в узлах
+//            else if(gust) {
+//                let gustNum = parseInt(gust.slice(1), 10);
+//                if(gustNum >= 30) {
+//                    highlight = true;
+//                }
+//            }
+//        }
+//
+//        if(highlight) {
+//            return `<span class="color-purple">${match}</span>`;
+//        }
+//        return match;
+//    });
 
     // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
     text = text.replace(/\b(OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
@@ -484,6 +484,31 @@ function highlightKeywords(text) {
 
         // Добавляем всплывающее окно с информацией
         return `<span class="color-description runway-info" data-runway="${rwy}" data-info="${info}">${match} <i class="fa fa-info-circle" aria-hidden="true"></i></span>`;
+    });
+
+    // Распознавание и выделение информации о ветре
+    text = text.replace(/\b((?:VRB|\d{3})\d{2,3}(?:G\d{2,3})?(?:MPS|KT))\b/g, (match) => {
+        let pattern = /^(VRB|\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)$/;
+        let m = match.match(pattern);
+        if(!m) return match;
+        let [ , dir, speed, gust, unit] = m;
+        let highlight = false;
+        let speedNum = parseInt(speed, 10);
+        if(unit === 'MPS') {
+            if(speedNum >= 15) highlight = true;
+            else if(gust) {
+                let gustNum = parseInt(gust.slice(1), 10);
+                if(gustNum >= 15) highlight = true;
+            }
+        } else if(unit === 'KT') {
+            if(speedNum >= 30) highlight = true;
+            else if(gust) {
+                let gustNum = parseInt(gust.slice(1), 10);
+                if(gustNum >= 30) highlight = true;
+            }
+        }
+        let colorClass = highlight ? "color-purple" : "";
+        return `<span class="color-description wind-info ${colorClass}" data-wind="${match}" data-unit="${unit}" data-dir="${dir}" data-speed="${speed}" data-gust="${gust||''}"><span>${match}</span> <i class="fa-solid fa-calculator"></i></span>`;
     });
 
     // Оборачиваем строки, начинающиеся с TEMPO, в контейнер для альтернативного оформления
@@ -736,5 +761,92 @@ document.addEventListener('click', (e) => {
         const info = target.dataset.info;
         const content = decodeRunwayInfo(runway, info);
         showRunwayInfoModal(content);
+    }
+});
+
+function showWindInfoModal(content) {
+    const modal = document.getElementById('windInfoModal');
+    const contentElem = document.getElementById('windInfoContent');
+    contentElem.innerHTML = content;
+    modal.classList.add('show');
+}
+
+function hideWindInfoModal() {
+    const modal = document.getElementById('windInfoModal');
+    modal.classList.remove('show');
+}
+
+document.getElementById('closeWindInfoModalBtn').addEventListener('click', hideWindInfoModal);
+
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('windInfoModal');
+    if(e.target === modal) hideWindInfoModal();
+});
+
+document.addEventListener('click', (e) => {
+    const windTarget = e.target.closest('.wind-info');
+    if(windTarget) {
+         const dir = windTarget.dataset.dir;
+         const speed = windTarget.dataset.speed;
+         const gust = windTarget.dataset.gust;
+         const unit = windTarget.dataset.unit;
+
+         const runwayElems = document.querySelectorAll('.runway-info');
+         let content = "";
+
+         if (gust) {
+            content += `Ветер: ${dir}° ${parseInt(speed)} ${unit} до ${parseInt(gust.replace('G', ''))} ${unit}<br><br>`;
+         } else {
+            content += `Ветер: ${dir}° ${parseInt(speed)} ${unit}<br><br>`;
+         }
+
+         runwayElems.forEach(elem => {
+             const rwy = elem.dataset.runway;
+             let rwyNumber = rwy;
+             let heading = null;
+             let headingOpp = null;
+             if(/[LCR]$/.test(rwyNumber)) {
+                 let num = rwyNumber.slice(0,2);
+                 let suffix = rwyNumber.slice(2);
+                 let numVal = parseInt(num, 10);
+                 let oppSuffix = suffix;
+                 if(suffix === 'L') oppSuffix = 'R';
+                 else if(suffix === 'R') oppSuffix = 'L';
+                 let oppNumVal = (numVal + 18) % 36;
+                 if(oppNumVal === 0) oppNumVal = 36;
+                 heading = numVal * 10;
+                 headingOpp = oppNumVal * 10;
+             } else {
+                 let numVal = parseInt(rwyNumber, 10);
+                 heading = numVal * 10;
+                 let oppNumVal = (numVal + 18) % 36;
+                 if(oppNumVal === 0) oppNumVal = 36;
+                 headingOpp = oppNumVal * 10;
+             }
+             let windDir = (dir === 'VRB') ? null : parseInt(dir,10);
+             let windSpeed = parseFloat(speed);
+             let windGust = gust ? parseFloat(gust.slice(1)) : null;
+             function calcCrosswind(angle, spd) {
+                 let rad = (windDir - angle) * Math.PI/180;
+                 return Math.abs(spd * Math.sin(rad));
+             }
+             let crossConst = (windDir !== null) ? calcCrosswind(heading, windSpeed) : null;
+             let crossGust = (windDir !== null && windGust) ? calcCrosswind(heading, windGust) : null;
+             let crossConstOpp = (windDir !== null) ? calcCrosswind(headingOpp, windSpeed) : null;
+             let crossGustOpp = (windDir !== null && windGust) ? calcCrosswind(headingOpp, windGust) : null;
+
+             content += `<strong>ВПП ${rwy}</strong>: `;
+             if(windDir === null) {
+                 content += `Ветер переменный<br><br>`;
+             } else {
+                 if(windGust) {
+                    content += `Продольная: ${windSpeed}${unit}, боковая: ${crossConst ? crossConst.toFixed(0) : 'N/A'} до ${crossGust ? crossGust.toFixed(0) : 'N/A'} ${unit}`;
+                 } else {
+                    content += `Продольная: ${windSpeed}${unit}, боковая: ${crossConst ? crossConst.toFixed(0) : 'N/A'} ${unit}`;
+                 }
+                 content += `<br><br>`;
+             }
+         });
+         showWindInfoModal(content);
     }
 });

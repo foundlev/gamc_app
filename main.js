@@ -908,15 +908,15 @@ document.addEventListener('click', (e) => {
                             if(windGust) {
                                 const result = crossConst
                                     ? (crossConst < 0
-                                        ? '(L) ' + Math.abs(crossConst).toFixed(0)
-                                        : '(R) ' + Math.abs(crossConst).toFixed(0))
+                                        ? '' + Math.abs(crossConst).toFixed(0)
+                                        : '' + Math.abs(crossConst).toFixed(0))
                                     : 'N/A';
                                 content += `HW: ${latConst.toFixed(1)} <i class="fa-solid fa-wind"></i> ${latGust.toFixed(1)} ${unit}, XW: ${result} <i class="fa-solid fa-wind"></i> ${crossGust ? Math.abs(crossGust).toFixed(1) : 'N/A'} ${unit}<br><br>`;
                             } else {
                                 const result = crossConst
                                     ? (crossConst < 0
-                                        ? '(L) ' + Math.abs(crossConst).toFixed(1)
-                                        : '(R) ' + Math.abs(crossConst).toFixed(1))
+                                        ? '' + Math.abs(crossConst).toFixed(1)
+                                        : '' + Math.abs(crossConst).toFixed(1))
                                     : 'N/A';
                                 content += `HW: ${latConst.toFixed(1)} ${unit}, XW: ${result} ${unit}<br><br>`;
                             }
@@ -937,15 +937,15 @@ document.addEventListener('click', (e) => {
                             if(windGust) {
                                 const result = crossConst
                                     ? (crossConst < 0
-                                        ? '(L) ' + Math.abs(crossConst).toFixed(1)
-                                        : '(R) ' + Math.abs(crossConst).toFixed(1))
+                                        ? '' + Math.abs(crossConst).toFixed(1)
+                                        : '' + Math.abs(crossConst).toFixed(1))
                                     : 'N/A';
                                 content += `HW: ${latConstOpp.toFixed(1)} <i class="fa-solid fa-wind"></i> ${latGustOpp.toFixed(1)} ${unit}, XW: ${result} <i class="fa-solid fa-wind"></i> ${crossGustOpp ? Math.abs(crossGustOpp).toFixed(1) : 'N/A'} ${unit}<br><br>`;
                             } else {
                                 const result = crossConst
                                     ? (crossConst < 0
-                                        ? '(L) ' + Math.abs(crossConst).toFixed(1)
-                                        : '(R) ' + Math.abs(crossConst).toFixed(1))
+                                        ? '' + Math.abs(crossConst).toFixed(1)
+                                        : '' + Math.abs(crossConst).toFixed(1))
                                     : 'N/A';
                                 content += `HW: ${latConstOpp.toFixed(1)} ${unit}, XW: ${result} ${unit}<br><br>`;
                             }

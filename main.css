@@ -408,7 +408,7 @@ footer {
 }
 
 .modal-button-group button {
-    background-color: #0077ff;
+    background-color: var(--accent-color);
     color: white;
     padding: 10px 20px;
     font-size: 1rem;
@@ -416,10 +416,6 @@ footer {
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s;
-}
-
-.modal-button-group button:active {
-    background-color: #005bb5;
 }
 
 .modal-close-btn {
@@ -802,17 +798,6 @@ footer {
         /* Акцент для фокуса */
     }
 
-    .modal-button-group button {
-        background-color: #3399ff;
-        /* Синий акцент */
-        color: #ffffff;
-    }
-
-    .modal-button-group button:hover {
-        background-color: #0077ff;
-        /* Более яркий синий */
-    }
-
     .modal .modal-close-btn {
         color: #cccccc;
         /* Светло-серая кнопка закрытия */
@@ -984,7 +969,8 @@ footer {
 }
 
 .offline-warning i,
-.offline-warning-no-info i {
+.offline-warning-no-info i,
+#saveRouteBtn i {
     margin-right: 5px;
 }
 
@@ -1089,4 +1075,53 @@ footer {
 
 .custom-checkbox:hover input[type="checkbox"]+span::before {
     border-color: var(--accent-color);
+}
+
+.route-dropdown {
+    margin-bottom: 5px;
+}
+
+.route-dropdown select {
+    width: 100%;
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--card-bg);
+    color: var(--text-color);
+}
+
+.subtitle-row {
+    display: flex;
+    /* в одну строку */
+    align-items: center;
+    /* вертикально по центру */
+    justify-content: space-between;
+    /* надпись слева, селект справа */
+}
+
+#routeSelect {
+    width: 100%;
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    /* Плавный переход при наведении и фокусе */
+    transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+}
+
+/* При наведении - слегка меняем цвет рамки */
+#routeSelect:hover {
+    border-color: var(--accent-color);
+}
+
+/* При фокусе - более явная подсветка */
+#routeSelect:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.3);
+    /* подсветка */
 }

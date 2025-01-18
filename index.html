@@ -43,8 +43,18 @@
             <button id="offlineToggleBtn"><i class="fa-solid fa-signal"></i></button>
         </div>
 
+        <div class="subtitle-row">
+            <div class="subtitle">Последние 10 аэродромов:</div>
+            <div class="route-dropdown">
+                <select id="routeSelect">
+                    <option value="recent" selected>
+                        <i class="fa-solid fa-clock-rotate-left"></i> Недавние
+                    </option>
+                </select>
+            </div>
+        </div>
 
-        <div class="subtitle">Последние 10 аэродромов:</div>
+        <!-- Здесь будет либо 10 аэродромов (как раньше), либо список из маршрута -->
         <div class="history" id="historyContainer"></div>
 
         <!-- Плашки с временем -->
@@ -129,6 +139,44 @@
             </div>
         </div>
     </div>
+
+    <!-- Модальное окно для добавления маршрута -->
+    <div class="modal-backdrop" id="addRouteModalBackdrop">
+        <div class="modal">
+            <button class="modal-close-btn" id="closeAddRouteModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Добавить маршрут</h2>
+
+            <div>
+                <label for="departureIcao">
+                    <i class="fa-solid fa-plane-departure"></i> Вылет:
+                </label>
+                <input type="text" id="departureIcao" maxlength="4" placeholder="XXXX" />
+            </div>
+
+            <div>
+                <label for="arrivalIcao">
+                    <i class="fa-solid fa-plane-arrival"></i> Назначение:
+                </label>
+                <input type="text" id="arrivalIcao" maxlength="4" placeholder="XXXX" />
+            </div>
+
+            <div>
+                <label for="alternatesIcao">
+                    <i class="fa-solid fa-location-dot"></i> Запасные (через пробел, максимум 10):
+                </label>
+                <input type="text" id="alternatesIcao" placeholder="XXXX XXXX ..." />
+            </div>
+
+            <div class="modal-button-group">
+                <button id="saveRouteBtn">
+                    <i class="fa-solid fa-floppy-disk"></i>Сохранить маршрут
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <script src="main.js"></script>
 </body>

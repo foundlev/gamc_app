@@ -26,6 +26,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalPassword = document.getElementById('modalPassword');
     const savePasswordBtn = document.getElementById('savePasswordBtn');
 
+    // Храним маршруты в localStorage под этим ключом
+    const ROUTES_KEY = 'savedRoutes';
+
+    // При загрузке получаем из localStorage или пустой массив
+    let savedRoutes = JSON.parse(localStorage.getItem(ROUTES_KEY) || '[]');
+
+    // Селект для выбора маршрута
+    const routeSelect = document.getElementById('routeSelect');
+
+    // Модальное окно для добавления маршрута
+    const addRouteModalBackdrop = document.getElementById('addRouteModalBackdrop');
+    const closeAddRouteModalBtn = document.getElementById('closeAddRouteModalBtn');
+    const saveRouteBtn = document.getElementById('saveRouteBtn');
+
+    // Поля ввода внутри модалки
+    const departureIcaoInput = document.getElementById('departureIcao');
+    const arrivalIcaoInput = document.getElementById('arrivalIcao');
+    const alternatesIcaoInput = document.getElementById('alternatesIcao');
+
     const savedPassword = localStorage.getItem(PASSWORD_KEY);
     if (!savedPassword) {
         showModal();
@@ -362,8 +381,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (!finalText.includes("НЕТ В КАТАЛОГЕ,ОБРАЩАЙТЕСЬ К СИНОПТИКУ=")) {
-                // Сохраняем icao, если нужно
-                if (!isRefresh && icao.length === 4) {
+                // Сохраняем icao в историю ТОЛЬКО если сейчас выбран режим "recent"
+                if (!isRefresh && icao.length === 4 && routeSelect.value === 'recent') {
                     saveIcaoToHistory(icao);
                 }
 
@@ -571,12 +590,16 @@ document.addEventListener('DOMContentLoaded', () => {
         icao = icao.toUpperCase();
         let history = JSON.parse(localStorage.getItem(ICAO_HISTORY_KEY) || '[]');
 
+        // Обновляем массив
         history = history.filter(item => item !== icao);
         history.unshift(icao);
         history = history.slice(0, 10);
-
         localStorage.setItem(ICAO_HISTORY_KEY, JSON.stringify(history));
-        renderHistory();
+
+        // Если сейчас "Недавние", то сразу перерисуем
+        if (routeSelect.value === 'recent') {
+            renderHistory();
+        }
     }
 
     function renderHistory() {
@@ -1053,4 +1076,134 @@ document.addEventListener('DOMContentLoaded', () => {
         doHighlight = doHighlightCheckbox.checked; // Обновить переменную
         localStorage.setItem('doHighlight', JSON.stringify(doHighlight)); // Сохранить в localStorage
     });
+
+    function showAddRouteModal() {
+        addRouteModalBackdrop.classList.add('show');
+    }
+
+    function hideAddRouteModal() {
+        addRouteModalBackdrop.classList.remove('show');
+    }
+    closeAddRouteModalBtn.addEventListener('click', hideAddRouteModal);
+
+    saveRouteBtn.addEventListener('click', () => {
+        const dep = departureIcaoInput.value.trim().toUpperCase();
+        const arr = arrivalIcaoInput.value.trim().toUpperCase();
+        const alts = alternatesIcaoInput.value.trim().toUpperCase();
+
+        if (dep.length !== 4 || arr.length !== 4) {
+            alert('Вылет и Назначение должны содержать по 4 латинских буквы!');
+            return;
+        }
+
+        // Парсим запасные
+        let alternatesList = alts ? alts.split(/\s+/) : [];
+        // Ограничим максимум 10
+        alternatesList = alternatesList.slice(0, 10).filter(a => a.length === 4);
+
+        // Формируем объект нового маршрута
+        const newRoute = {
+            departure: dep,
+            arrival: arr,
+            alternates: alternatesList
+        };
+
+        // Добавляем в массив savedRoutes
+        savedRoutes.push(newRoute);
+
+        // Сохраняем в localStorage
+        localStorage.setItem(ROUTES_KEY, JSON.stringify(savedRoutes));
+
+        // Обновим выпадающий список
+        renderRoutesInSelect();
+
+        // Закроем модалку
+        hideAddRouteModal();
+
+        // Очистим поля
+        departureIcaoInput.value = '';
+        arrivalIcaoInput.value = '';
+        alternatesIcaoInput.value = '';
+    });
+
+    function renderRoutesInSelect() {
+        // Очистим все <option> сначала
+        routeSelect.innerHTML = '';
+
+        // 1) «Недавние»
+        // Иконка font-awesome "clock-rotate-left" = "\f017"
+        let recentOption = document.createElement('option');
+        recentOption.value = 'recent';
+        recentOption.innerHTML = 'Недавние';
+        routeSelect.appendChild(recentOption);
+
+        // 2) Для каждого сохранённого маршрута
+        savedRoutes.forEach((route, index) => {
+            const option = document.createElement('option');
+            const dep = route.departure;
+            const arr = route.arrival;
+            // Иконка для маршрутов, например "fa-route" = "\f4d7" (или что угодно)
+            // Или можно использовать самолёт: "\f5b0" = fa-plane
+            option.value = index;
+            option.innerHTML = dep + ' - ' + arr;
+            routeSelect.appendChild(option);
+        });
+
+        // 3) Пункт «Добавить маршрут»
+        // Иконка "fa-plus" = "\f067"
+        let addOption = document.createElement('option');
+        addOption.value = 'add';
+        addOption.innerHTML = 'Добавить маршрут...';
+        routeSelect.appendChild(addOption);
+
+        // Всегда оставляем «Недавние» выбранным по умолчанию (если нужно)
+        routeSelect.value = 'recent';
+    }
+    renderRoutesInSelect();
+
+    routeSelect.addEventListener('change', () => {
+        const selectedValue = routeSelect.value;
+
+        if (selectedValue === 'recent') {
+            // Показываем "Недавние"
+            renderHistory();
+            return;
+        }
+
+        if (selectedValue === 'add') {
+            // Показываем модалку
+            showAddRouteModal();
+            return;
+        }
+
+        // Иначе это индекс маршрута
+        const routeIndex = parseInt(selectedValue, 10);
+        const route = savedRoutes[routeIndex];
+        if (!route) return;
+
+        // Собираем массив [departure, arrival, ...alternates]
+        const routeAerodromes = [route.departure, route.arrival, ...route.alternates];
+
+        // Рендерим их в #historyContainer
+        renderRouteAerodromes(routeAerodromes);
+    });
+
+    function renderRouteAerodromes(aerodromes) {
+        // Очищаем
+        historyContainer.innerHTML = '';
+        // По аналогии с renderHistory(), но вместо history делаем buttons из массива aerodromes
+        aerodromes.forEach(icao => {
+            const btn = document.createElement('button');
+            btn.textContent = icao;
+            // Если хотим, чтобы при нажатии запрашивалась погода:
+            btn.addEventListener('click', () => {
+                document.getElementById('icao').value = icao;
+                nowIcao = icao;
+                getWeather(icao, false);
+                updateFetchBtn();
+            });
+            historyContainer.appendChild(btn);
+        });
+    }
+
 });

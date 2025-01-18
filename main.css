@@ -1003,3 +1003,40 @@ footer {
 .offline-warning i, .offline-warning-no-info i {
     margin-right: 5px;
 }
+
+.modal-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#settingsModalBackdrop .modal .modal-button {
+    display: block;
+    width: 80%;
+    text-align: center; /* если нужно выравнивание текста по левому краю */
+}
+
+#settingsModalBackdrop .modal .modal-button i {
+    margin-right: 5px;
+}
+
+#offlineToggleBtn.online {
+    background-color: var(--badge-green-bg);
+}
+#offlineToggleBtn.offline {
+    background-color: var(--badge-orange-bg);
+}
+
+#settingsModalBackdrop {
+    z-index: 1;
+}
+
+#confirmModalBackdrop {
+    z-index: 2;
+}
+
+#modalBackdrop {
+    z-index: 3;
+}

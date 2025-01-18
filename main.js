@@ -1,5 +1,5 @@
-// Проверка отсутствия интернета
-const checkLostConnection = false;
+// Инициализация переменной offlineMode из localStorage или по умолчанию
+let offlineMode = JSON.parse(localStorage.getItem('offlineMode')) || false;
 
 let nowIcao = null;
 
@@ -186,7 +186,7 @@ async function getWeather(icao, isRefresh = false) {
 
     // Проверка сохраненных данных
     const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
-    if ((!navigator.onLine) || checkLostConnection) {
+    if ((!navigator.onLine) || offlineMode) {
         if (savedData[icao]) {
             showOfflineWarning(); // Показать предупреждение
             responseContainer.innerHTML = savedData[icao];
@@ -963,9 +963,9 @@ function updateHighlightButton() {
   const button = document.getElementById('changeHighlight');
   if (!button) return; // если кнопка не найдена, выходим
   if (doHighlight) {
-    button.innerHTML = '<i class="fa-solid fa-highlighter"></i>';
+    button.innerHTML = '<i class="fa-solid fa-marker"></i>Выкл подсветку';
   } else {
-    button.innerHTML = '<i class="fa-solid fa-marker"></i>';
+    button.innerHTML = '<i class="fa-solid fa-highlighter"></i>Вкл подсветку';
   }
 }
 
@@ -982,4 +982,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // Сохраняем новое состояние в localStorage
     localStorage.setItem('doHighlight', JSON.stringify(doHighlight));
   });
+});
+
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsModalBackdrop = document.getElementById('settingsModalBackdrop');
+const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
+
+settingsBtn.addEventListener('click', () => {
+    settingsModalBackdrop.classList.add('show');
+});
+
+closeSettingsModalBtn.addEventListener('click', () => {
+    settingsModalBackdrop.classList.remove('show');
+});
+
+// Закрытие модального окна при клике вне его области (необязательно)
+settingsModalBackdrop.addEventListener('click', (e) => {
+    if (e.target === settingsModalBackdrop) {
+        settingsModalBackdrop.classList.remove('show');
+    }
+});
+
+// Получаем ссылку на кнопку toggling offline режима
+const offlineToggleBtn = document.getElementById('offlineToggleBtn');
+
+// Функция для обновления внешнего вида кнопки в зависимости от состояния
+function updateOfflineButton() {
+    if (offlineMode) {
+        offlineToggleBtn.classList.add('offline');
+        offlineToggleBtn.classList.remove('online');
+        offlineToggleBtn.innerHTML = '<i class="fa-solid fa-plane"></i>';
+    } else {
+        offlineToggleBtn.classList.add('online');
+        offlineToggleBtn.classList.remove('offline');
+        offlineToggleBtn.innerHTML = '<i class="fa-solid fa-signal"></i>';
+    }
+}
+
+// Первоначальное обновление кнопки при загрузке
+updateOfflineButton();
+
+// Обработчик клика по кнопке для переключения режима
+offlineToggleBtn.addEventListener('click', () => {
+    offlineMode = !offlineMode;
+    localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
+    updateOfflineButton();
 });

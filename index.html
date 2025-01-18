@@ -35,14 +35,14 @@
 
         </div>
 
-        <div class="buttons">
-            <button id="zoomInBtn"><i class="fas fa-search-plus"></i></button>
-            <button id="zoomOutBtn"><i class="fas fa-search-minus"></i></button>
-            <button id="resetZoomBtn"><i class="fas fa-compress-arrows-alt"></i></button>
-            <button id="removeSavedIcaos" style="display: none"><i class="fa-solid fa-trash"></i></button>
-            <button id="resetPasswordBtn"><i class="fas fa-unlock-alt"></i></button>
-            <button id="changeHighlight"><i class="fa-solid fa-highlighter"></i></button>
-        </div>
+<div class="buttons">
+    <button id="zoomInBtn"><i class="fas fa-search-plus"></i></button>
+    <button id="zoomOutBtn"><i class="fas fa-search-minus"></i></button>
+    <button id="resetZoomBtn"><i class="fas fa-compress-arrows-alt"></i></button>
+    <button id="settingsBtn"><i class="fa-solid fa-gear"></i></button>
+    <button id="offlineToggleBtn"><i class="fa-solid fa-signal"></i></button>
+</div>
+
 
         <div class="subtitle">Последние 10 аэродромов:</div>
         <div class="history" id="historyContainer"></div>
@@ -105,6 +105,19 @@
             <button class="modal-close-btn" id="closeWindInfoModalBtn"><i class="fas fa-times"></i></button>
             <h2>Информация о ветре</h2>
             <p id="windInfoContent">Здесь будет информация о ветре...</p>
+        </div>
+    </div>
+
+    <!-- Новое модальное окно настроек -->
+    <div class="modal-backdrop" id="settingsModalBackdrop">
+        <div class="modal">
+            <button class="modal-close-btn" id="closeSettingsModalBtn"><i class="fas fa-times"></i></button>
+            <h2>Настройки</h2>
+            <div class="modal-button-container">
+                <button id="removeSavedIcaos" class="modal-button"><i class="fa-solid fa-trash"></i>Удалить сохранённые ICAO</button>
+                <button id="resetPasswordBtn" class="modal-button"><i class="fas fa-unlock-alt"></i>Сбросить пароль</button>
+                <button id="changeHighlight" class="modal-button"><i class="fa-solid fa-highlighter"></i>Вкл подсветку</button>
+            </div>
         </div>
     </div>
 

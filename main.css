@@ -288,6 +288,10 @@ footer {
     cursor: pointer;
 }
 
+.content-clickable {
+    cursor: pointer;
+}
+
 /* Светлая тема */
 .offline-warning {
     background-color: #FFA500;

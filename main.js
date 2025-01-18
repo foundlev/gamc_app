@@ -4,6 +4,15 @@ let offlineMode = JSON.parse(localStorage.getItem('offlineMode')) || false;
 let autoGoOffline = JSON.parse(localStorage.getItem('autoGoOffline')) || true;
 let doHighlight = JSON.parse(localStorage.getItem('doHighlight')) || false;
 
+// Maintenance support for B737 is provided in the following airports (29 NOV 24)
+const airportCodes = [
+    "UAAA", "UBBB", "UDYZ", "UEEE",
+    "UHWW", "UIII", "ULAA", "ULLI", "ULMM", "UMKK", "UMMS", "UNBG", "UNKL", "UNNT", "UNOO",
+    "URMG", "URML", "URMM", "URSS", "URWW", "USII", "USPP", "USRR", "USSS", "USTR", "UTTT",
+    "UUYY", "UWGG", "UWKD", "UWOO", "UWUU", "UWWW", "HECA", "HEGN", "HESH", "LTAI", "LTFM",
+    "OMAA", "OMDB", "OMDW", "VTBS", "ZJSY"
+];
+
 let nowIcao = null;
 
 // Ключи для localStorage
@@ -388,6 +397,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     timeBadgeContainer.appendChild(badge);
                 }
             });
+
+            if (airportCodes.includes(icao)) {
+                const maintenanceBadge = document.createElement('div');
+                maintenanceBadge.className = 'time-badge';
+                maintenanceBadge.id = 'showMaintenanceInfoModal';
+                maintenanceBadge.classList.add('badge-green');
+                maintenanceBadge.classList.add('content-clickable');
+                maintenanceBadge.innerHTML = `<i class="fa-solid fa-wrench"></i>`;
+
+                maintenanceBadge.addEventListener('click', () => {
+                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> осуществляется техническое обслуживание B737<br><br>NOTAM AFL 9EMIH/24 (29 NOV 24)`);
+                });
+
+                timeBadgeContainer.appendChild(maintenanceBadge);
+            }
 
             finalText = insertLineBreaks(finalText);
             if (doHighlight) {
@@ -851,6 +875,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (e) => {
         const modal = document.getElementById('windInfoModal');
         if (e.target === modal) hideWindInfoModal();
+    });
+
+    function showMaintenanceInfoModal(content) {
+        const modal = document.getElementById('maintenanceInfoModal');
+        const contentElem = document.getElementById('maintenanceInfoContent');
+        contentElem.innerHTML = content;
+        modal.classList.add('show');
+    }
+
+    function hideMaintenanceInfoModal() {
+        const modal = document.getElementById('maintenanceInfoModal');
+        modal.classList.remove('show');
+    }
+
+    document.getElementById('closeMaintenanceInfoModalBtn').addEventListener('click', hideMaintenanceInfoModal);
+
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('maintenanceInfoModal');
+        if (e.target === modal) hideMaintenanceInfoModal();
     });
 
     function closestRunway(windDirInt, heading, headingOpp) {

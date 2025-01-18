@@ -125,6 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFetchBtn();
     });
 
+    departureIcaoInput.addEventListener('input', () => {
+        // Удаляем все символы, кроме английских букв, и преобразуем оставшееся в верхний регистр
+        departureIcaoInput.value = departureIcaoInput.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+    });
+
+    arrivalIcaoInput.addEventListener('input', () => {
+        // Удаляем все символы, кроме английских букв, и преобразуем оставшееся в верхний регистр
+        arrivalIcaoInput.value = arrivalIcaoInput.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+    });
+
+    alternatesIcaoInput.addEventListener('input', () => {
+        // Удаляем все символы, кроме английских букв, и преобразуем оставшееся в верхний регистр
+        alternatesIcaoInput.value = alternatesIcaoInput.value.replace(/[^A-Za-z| ]/g, '').toUpperCase();
+    });
 
     icaoInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !fetchBtn.disabled) {

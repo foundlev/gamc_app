@@ -989,7 +989,8 @@ footer {
     /* если нужно выравнивание текста по левому краю */
 }
 
-#settingsModalBackdrop .modal .modal-button i {
+#settingsModalBackdrop .modal .modal-button i,
+#addRouteModalBackdrop i{
     margin-right: 5px;
 }
 

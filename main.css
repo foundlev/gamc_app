@@ -20,8 +20,8 @@
     background-color: var(--accent-color);
     color: var(--badge-text-color);
     border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 0.85rem;
+    padding: 8px 10px;
+    font-size: 0.8rem;
     /* Сразу скрыт, анимируем при рендере */
     opacity: 0;
     animation: badgeFadeIn 0.4s ease forwards;
@@ -159,7 +159,7 @@ button:active {
 ========================= */
 .time-badge-container {
     display: flex;
-    gap: 7px;
+    gap: 5px;
     flex-wrap: wrap;
 }
 

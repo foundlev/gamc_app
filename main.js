@@ -1,5 +1,7 @@
 // Инициализация переменной offlineMode из localStorage или по умолчанию
 let offlineMode = JSON.parse(localStorage.getItem('offlineMode')) || false;
+// Автоматическое изменение режима в offline, если отсутствует соединение
+let autoGoOffline = JSON.parse(localStorage.getItem('autoGoOffline')) || false;
 
 let nowIcao = null;
 
@@ -221,7 +223,7 @@ async function getWeather(icao, isRefresh = false) {
         } else {
             const res = await fetch(url);
             rawData = await res.text();
-            rawData = rawData.replaceAll('<br>', ' ');
+            rawData = rawData.replace(/<br>/g, ' ');
         }
 
         // Парсим <pre>
@@ -1050,4 +1052,31 @@ offlineToggleBtn.addEventListener('click', () => {
     offlineMode = !offlineMode;
     localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
     updateOfflineButton();
+});
+
+function checkInternetConnection() {
+    if (!navigator.onLine && !offlineMode && autoGoOffline) {
+        offlineMode = true;
+        localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
+        updateOfflineButton();
+    }
+}
+
+// Проверять соединение каждые 30 секунд
+setInterval(checkInternetConnection, 5000);
+// Выполнить первую проверку сразу при запуске
+checkInternetConnection();
+
+// Найти чекбокс
+const autoOfflineCheckbox = document.getElementById('autoOfflineCheckbox');
+
+// Установить состояние чекбокса при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+    autoOfflineCheckbox.checked = autoGoOffline; // Установить состояние
+});
+
+// Обработчик изменения чекбокса
+autoOfflineCheckbox.addEventListener('change', () => {
+    autoGoOffline = autoOfflineCheckbox.checked; // Обновить переменную
+    localStorage.setItem('autoGoOffline', JSON.stringify(autoGoOffline)); // Сохранить в localStorage
 });

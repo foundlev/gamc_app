@@ -2,20 +2,13 @@
 let offlineMode = JSON.parse(localStorage.getItem('offlineMode')) || false;
 // Автоматическое изменение режима в offline, если отсутствует соединение
 let autoGoOffline = JSON.parse(localStorage.getItem('autoGoOffline')) || false;
+let doHighlight = JSON.parse(localStorage.getItem('doHighlight')) || false;
 
 let nowIcao = null;
 
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
 const ICAO_HISTORY_KEY = 'icaoHistory';
-
-let doHighlight = false;
-
-// При загрузке страницы пытаемся загрузить сохранённое состояние
-const savedState = localStorage.getItem('doHighlight');
-if (savedState !== null) {
-    doHighlight = JSON.parse(savedState);
-}
 
 // Селекторы
 const icaoInput = document.getElementById('icao');
@@ -654,7 +647,7 @@ const confirmNoBtn = document.getElementById('confirmNoBtn');
  * Показывает модалку подтверждения с заголовком, сообщением и коллбэком,
  * который вызывается по нажатию "Да".
  */
-function showConfirmModal(title, message, onYes) {
+function showConfirmModal(title, message, onYes, onYesBgColor = "", onNoBgColor = "") {
     confirmModalTitle.textContent = title;
     confirmModalMessage.textContent = message;
 
@@ -663,6 +656,9 @@ function showConfirmModal(title, message, onYes) {
         hideConfirmModal();
         onYes(); // вызываем переданный коллбэк
     };
+
+    confirmYesBtn.style.backgroundColor = onYesBgColor;
+    confirmNoBtn.style.backgroundColor = onNoBgColor;
 
     confirmModalBackdrop.classList.add('show');
 }
@@ -683,14 +679,15 @@ confirmNoBtn.addEventListener('click', hideConfirmModal);
 // ------------------------------
 removeSavedIcaosBtn.addEventListener('click', () => {
     showConfirmModal(
-        'Удаление сохранённых ICAO',
-        'Вы действительно хотите удалить все сохранённые аэродромы?',
+        'Удаление метеоинформации',
+        'Вы действительно хотите удалить всю сохранённую метеоинформацию?',
         () => {
             // Действие, если пользователь подтвердил
             localStorage.removeItem(ICAO_HISTORY_KEY);
             localStorage.removeItem('icaoData');
             location.reload();
-        }
+        },
+        onYesBgColor = "var(--badge-orange-bg)"
     );
 });
 
@@ -705,7 +702,8 @@ resetPasswordBtn.addEventListener('click', () => {
             // Действие, если пользователь подтвердил
             localStorage.removeItem(PASSWORD_KEY);
             location.reload();
-        }
+        },
+        onYesBgColor = "var(--badge-orange-bg)"
     );
 });
 
@@ -984,31 +982,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-function updateHighlightButton() {
-    const button = document.getElementById('changeHighlight');
-    if (!button) return; // если кнопка не найдена, выходим
-    if (doHighlight) {
-        button.innerHTML = '<i class="fa-solid fa-marker"></i>Выкл подсветку';
-    } else {
-        button.innerHTML = '<i class="fa-solid fa-highlighter"></i>Вкл подсветку';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    updateHighlightButton()
-    const button = document.getElementById('changeHighlight');
-    if (!button) return; // если кнопка не найдена, выходим
-
-    button.addEventListener('click', () => {
-        // Переключаем значение
-        doHighlight = !doHighlight;
-        updateHighlightButton()
-
-        // Сохраняем новое состояние в localStorage
-        localStorage.setItem('doHighlight', JSON.stringify(doHighlight));
-    });
-});
-
 const settingsBtn = document.getElementById('settingsBtn');
 const settingsModalBackdrop = document.getElementById('settingsModalBackdrop');
 const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
@@ -1062,21 +1035,29 @@ function checkInternetConnection() {
     }
 }
 
-// Проверять соединение каждые 30 секунд
-setInterval(checkInternetConnection, 5000);
+// Проверять соединение каждые 15 секунд
+setInterval(checkInternetConnection, 15000);
 // Выполнить первую проверку сразу при запуске
 checkInternetConnection();
 
 // Найти чекбокс
 const autoOfflineCheckbox = document.getElementById('autoOfflineCheckbox');
+const doHighlightCheckbox = document.getElementById('doHighlightCheckbox');
 
 // Установить состояние чекбокса при загрузке
 document.addEventListener('DOMContentLoaded', () => {
     autoOfflineCheckbox.checked = autoGoOffline; // Установить состояние
+    doHighlightCheckbox.checked = doHighlight; // Установить состояние
 });
 
 // Обработчик изменения чекбокса
 autoOfflineCheckbox.addEventListener('change', () => {
     autoGoOffline = autoOfflineCheckbox.checked; // Обновить переменную
     localStorage.setItem('autoGoOffline', JSON.stringify(autoGoOffline)); // Сохранить в localStorage
+});
+
+// Обработчик изменения чекбокса
+doHighlightCheckbox.addEventListener('change', () => {
+    doHighlight = doHighlightCheckbox.checked; // Обновить переменную
+    localStorage.setItem('doHighlight', JSON.stringify(doHighlight)); // Сохранить в localStorage
 });

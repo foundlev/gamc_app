@@ -114,10 +114,13 @@
             <button class="modal-close-btn" id="closeSettingsModalBtn"><i class="fas fa-times"></i></button>
             <h2>Настройки</h2>
             <div class="modal-button-container">
-                <button id="removeSavedIcaos" class="modal-button"><i class="fa-solid fa-trash"></i>Удалить сохранённые ICAO</button>
+                <button id="removeSavedIcaos" class="modal-button"><i class="fa-solid fa-trash"></i>Очистить метеоинформацию</button>
                 <button id="resetPasswordBtn" class="modal-button"><i class="fas fa-unlock-alt"></i>Сбросить пароль</button>
-                <button id="changeHighlight" class="modal-button"><i class="fa-solid fa-highlighter"></i>Вкл подсветку</button>
                 <div class="modal-checkbox-group">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="doHighlightCheckbox">
+                        <span>Выделение и расшифровка кода</span>
+                    </label>
                     <label class="custom-checkbox">
                         <input type="checkbox" id="autoOfflineCheckbox">
                         <span>Автоматически включать режим оффлайн, если нет интернета</span>

@@ -1034,56 +1034,59 @@ footer {
 /* Стилизация чекбокса */
 /* Контейнер для чекбокса */
 .modal-checkbox-group {
-  margin-top: 20px;
-  text-align: left;
+    margin-top: 20px;
+    text-align: left;
 }
 
 /* Стилизация чекбокса */
 .custom-checkbox {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 1rem;
-  color: var(--text-color);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 10px;
 }
 
 .custom-checkbox input[type="checkbox"] {
-  display: none; /* Скрываем стандартный чекбокс */
+    display: none;
+    /* Скрываем стандартный чекбокс */
 }
 
-.custom-checkbox input[type="checkbox"] + span {
-  position: relative;
-  padding-left: 30px; /* Оставляем место для галочки */
+.custom-checkbox input[type="checkbox"]+span {
+    position: relative;
+    padding-left: 30px;
+    /* Оставляем место для галочки */
 }
 
-.custom-checkbox input[type="checkbox"] + span::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--border-color);
-  border-radius: 4px;
-  background-color: var(--card-bg);
-  transition: background-color 0.2s, border-color 0.2s;
-  box-sizing: border-box;
+.custom-checkbox input[type="checkbox"]+span::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    transition: background-color 0.2s, border-color 0.2s;
+    box-sizing: border-box;
 }
 
-.custom-checkbox input[type="checkbox"]:checked + span::before {
-  content: "\f00c"; /* Галочка из Font Awesome */
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  background-color: var(--accent-color);
-  border-color: var(--accent-color);
+.custom-checkbox input[type="checkbox"]:checked+span::before {
+    content: "\f00c";
+    /* Галочка из Font Awesome */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
 }
 
-.custom-checkbox:hover input[type="checkbox"] + span::before {
-  border-color: var(--accent-color);
+.custom-checkbox:hover input[type="checkbox"]+span::before {
+    border-color: var(--accent-color);
 }
-

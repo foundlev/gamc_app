@@ -12,7 +12,7 @@ let doHighlight = false;
 // При загрузке страницы пытаемся загрузить сохранённое состояние
 const savedState = localStorage.getItem('doHighlight');
 if (savedState !== null) {
-  doHighlight = JSON.parse(savedState);
+    doHighlight = JSON.parse(savedState);
 }
 
 // Селекторы
@@ -50,6 +50,18 @@ function getGamcUID() {
         localStorage.setItem('gamcUid', gamcUid);
     }
     return gamcUid;
+}
+
+function addTimeBadgeContainerBottomGap() {
+    if (timeBadgeContainer.classList.contains('remove-bottom-gap')) {
+        timeBadgeContainer.classList.remove('remove-bottom-gap');
+    }
+}
+
+function removeTimeBadgeContainerBottomGap() {
+    if (!timeBadgeContainer.classList.contains('remove-bottom-gap')) {
+        timeBadgeContainer.classList.add('remove-bottom-gap');
+    }
 }
 
 function generateUID() {
@@ -132,6 +144,7 @@ function showOfflineWarning() {
         <i class="fa-solid fa-triangle-exclamation"></i>Нет подключения. Данные взяты из сохраненных.
     `;
     timeBadgeContainer.insertAdjacentElement('afterend', warning);
+    addTimeBadgeContainerBottomGap();
 }
 
 function showOfflineWarningNoInfo() {
@@ -141,6 +154,7 @@ function showOfflineWarningNoInfo() {
         <i class="fa-solid fa-ban"></i>Нет подключения. Нет сохраненных данных.
     `;
     timeBadgeContainer.insertAdjacentElement('afterend', warning);
+    addTimeBadgeContainerBottomGap();
 }
 
 savePasswordBtn.addEventListener('click', () => {
@@ -183,14 +197,16 @@ async function getWeather(icao, isRefresh = false) {
 
     responseContainer.textContent = 'Загрузка...';
     timeBadgeContainer.innerHTML = '';
+    removeTimeBadgeContainerBottomGap();
+
+    let toShowOfflineWarning = false;
 
     // Проверка сохраненных данных
     const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
     if ((!navigator.onLine) || offlineMode) {
         if (savedData[icao]) {
-            showOfflineWarning(); // Показать предупреждение
             responseContainer.innerHTML = savedData[icao];
-            return;
+            toShowOfflineWarning = true;
         } else {
             showOfflineWarningNoInfo(); // Показать предупреждение
             responseContainer.innerHTML = 'Нет данных.';
@@ -199,9 +215,14 @@ async function getWeather(icao, isRefresh = false) {
     }
 
     try {
-        const res = await fetch(url);
-        let rawData = await res.text();
-        rawData = rawData.replaceAll('<br>', ' ');
+        let rawData = null;
+        if (offlineMode && toShowOfflineWarning) {
+            rawData = savedData[icao];
+        } else {
+            const res = await fetch(url);
+            rawData = await res.text();
+            rawData = rawData.replaceAll('<br>', ' ');
+        }
 
         // Парсим <pre>
         const parser = new DOMParser();
@@ -282,6 +303,7 @@ async function getWeather(icao, isRefresh = false) {
 
         // ========= Формируем плашки с временем в новом порядке =======
         timeBadgeContainer.innerHTML = '';
+        removeTimeBadgeContainerBottomGap();
 
         const nowUTC = new Date();
         const hhUTC = String(nowUTC.getUTCHours()).padStart(2, '0');
@@ -292,7 +314,11 @@ async function getWeather(icao, isRefresh = false) {
         utcBadge.textContent = `UTC ${hhUTC}:${mmUTC}`;
 
         // Добавляем в контейнер первым
+        if (toShowOfflineWarning) {
+            showOfflineWarning();
+        }
         timeBadgeContainer.appendChild(utcBadge);
+        addTimeBadgeContainerBottomGap();
 
         blockObjects.forEach(obj => {
             const re = /^(TAF|TAF AMD|TAF COR|TAF RTD|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
@@ -339,9 +365,6 @@ async function getWeather(icao, isRefresh = false) {
             }
         });
 
-        // ========= Добавляем HTML-выделение =========
-        //  1) слова TEMPO, BECMG, PROB40, PROB30, FMXXXXXX (подчёркивание)
-        //  2) "METAR LTAI 111030Z" или "SPECI ...", а также "TAF" - делаем жирным
         finalText = insertLineBreaks(finalText);
         if (doHighlight) {
             finalText = highlightKeywords(finalText);
@@ -356,7 +379,7 @@ async function getWeather(icao, isRefresh = false) {
             // Сохранение finalText в localStorage
             if (icao && finalText) {
                 const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
-                savedData[icao] = finalText;
+                savedData[icao] = rawData;
                 localStorage.setItem('icaoData', JSON.stringify(savedData));
             }
         }
@@ -417,13 +440,13 @@ function highlightKeywords(text) {
     text = text.replace(/(^|\s)(\d{4})(?=$|\s)/g, (match, prefix, numStr) => {
         let num = parseInt(numStr, 10);
         let colorClass = '';
-        if(num > 3500) {
+        if (num > 3500) {
             colorClass = 'color-green';
-        } else if(num > 1200 && num <= 3500) {
+        } else if (num > 1200 && num <= 3500) {
             colorClass = 'color-yellow';
-        } else if(num >= 550 && num <= 1200) {
+        } else if (num >= 550 && num <= 1200) {
             colorClass = 'color-red';
-        } else if(num < 550) {
+        } else if (num < 550) {
             colorClass = 'color-darkred';
         }
         return prefix + (colorClass ? `<span class="${colorClass}">${numStr}</span>` : numStr);
@@ -434,41 +457,41 @@ function highlightKeywords(text) {
     text = text.replace(/\b(WS)\b/g, '<span class="color-purple">$1</span>');
 
     // Ищем группы ветра по формату dddff(f)(Ggg)?(MPS|KT)
-//    text = text.replace(/\b(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)\b/g, (match, dir, speed, gust, unit) => {
-//        let speedNum = parseInt(speed, 10);
-//        let highlight = false;
-//
-//        if(unit === 'MPS') {
-//            // Проверяем скорость ветра в м/с
-//            if(speedNum >= 15) {
-//                highlight = true;
-//            }
-//            // Проверяем порывы в м/с
-//            else if(gust) {
-//                let gustNum = parseInt(gust.slice(1), 10); // удаляем букву "G"
-//                if(gustNum >= 15) {
-//                    highlight = true;
-//                }
-//            }
-//        } else if(unit === 'KT') {
-//            // Проверяем скорость ветра в узлах
-//            if(speedNum >= 30) {
-//                highlight = true;
-//            }
-//            // Проверяем порывы в узлах
-//            else if(gust) {
-//                let gustNum = parseInt(gust.slice(1), 10);
-//                if(gustNum >= 30) {
-//                    highlight = true;
-//                }
-//            }
-//        }
-//
-//        if(highlight) {
-//            return `<span class="color-purple">${match}</span>`;
-//        }
-//        return match;
-//    });
+    //    text = text.replace(/\b(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)\b/g, (match, dir, speed, gust, unit) => {
+    //        let speedNum = parseInt(speed, 10);
+    //        let highlight = false;
+    //
+    //        if(unit === 'MPS') {
+    //            // Проверяем скорость ветра в м/с
+    //            if(speedNum >= 15) {
+    //                highlight = true;
+    //            }
+    //            // Проверяем порывы в м/с
+    //            else if(gust) {
+    //                let gustNum = parseInt(gust.slice(1), 10); // удаляем букву "G"
+    //                if(gustNum >= 15) {
+    //                    highlight = true;
+    //                }
+    //            }
+    //        } else if(unit === 'KT') {
+    //            // Проверяем скорость ветра в узлах
+    //            if(speedNum >= 30) {
+    //                highlight = true;
+    //            }
+    //            // Проверяем порывы в узлах
+    //            else if(gust) {
+    //                let gustNum = parseInt(gust.slice(1), 10);
+    //                if(gustNum >= 30) {
+    //                    highlight = true;
+    //                }
+    //            }
+    //        }
+    //
+    //        if(highlight) {
+    //            return `<span class="color-purple">${match}</span>`;
+    //        }
+    //        return match;
+    //    });
 
     // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
     text = text.replace(/\b(OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
@@ -477,9 +500,9 @@ function highlightKeywords(text) {
 
         if (height < 2) {
             colorClass = 'color-darkred';
-        } else if (height >= 2 && height <= 4 ) {
+        } else if (height >= 2 && height <= 4) {
             colorClass = 'color-red';
-        } else if (height >= 5 && height <= 10 ) {
+        } else if (height >= 5 && height <= 10) {
             colorClass = 'color-yellow';
         } else {
             colorClass = 'color-green';
@@ -506,21 +529,21 @@ function highlightKeywords(text) {
     text = text.replace(/\b((\d{3})\d{2,3}(?:G\d{2,3})?(?:MPS|KT))\b/g, (match) => {
         let pattern = /^(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)$/;
         let m = match.match(pattern);
-        if(!m) return match;
-        let [ , dir, speed, gust, unit] = m;
+        if (!m) return match;
+        let [, dir, speed, gust, unit] = m;
         let highlight = false;
         let speedNum = parseInt(speed, 10);
-        if(unit === 'MPS') {
-            if(speedNum >= 15) highlight = true;
-            else if(gust) {
+        if (unit === 'MPS') {
+            if (speedNum >= 15) highlight = true;
+            else if (gust) {
                 let gustNum = parseInt(gust.slice(1), 10);
-                if(gustNum >= 15) highlight = true;
+                if (gustNum >= 15) highlight = true;
             }
-        } else if(unit === 'KT') {
-            if(speedNum >= 30) highlight = true;
-            else if(gust) {
+        } else if (unit === 'KT') {
+            if (speedNum >= 30) highlight = true;
+            else if (gust) {
                 let gustNum = parseInt(gust.slice(1), 10);
-                if(gustNum >= 30) highlight = true;
+                if (gustNum >= 30) highlight = true;
             }
         }
         let colorClass = highlight ? "color-purple" : "";
@@ -731,20 +754,20 @@ function decodeRunwayInfo(runway, info) {
         7: "лёд",
         8: "уплотнённый, укатанный снег",
         9: "замёрзшая или неровная поверхность"
-    }[condition] || "Нет данных";
+    } [condition] || "Нет данных";
 
     const coverageDesc = {
         1: "менее 10% ВПП",
         2: "от 11% до 25% ВПП",
         5: "от 26% до 50% ВПП",
         9: "от 51% до 100% ВПП"
-    }[coverage] || "нет данных";
+    } [coverage] || "нет данных";
 
-    const depthDesc = depth >= 91
-        ? `${(depth - 90) * 5} см`
-        : depth === 0
-            ? "менее 1 мм"
-            : `${depth} мм`;
+    const depthDesc = depth >= 91 ?
+        `${(depth - 90) * 5} см` :
+        depth === 0 ?
+        "менее 1 мм" :
+        `${depth} мм`;
 
     let frictionDesc = {
         91: "плохой",
@@ -752,7 +775,7 @@ function decodeRunwayInfo(runway, info) {
         93: "средний",
         94: "средний/хороший",
         95: "хороший"
-    }[friction] || "нет данных";
+    } [friction] || "нет данных";
 
     // Если frictionDesc === "Нет данных" и является числом от 10 до 90
     if (frictionDesc === "нет данных" && friction >= 10 && friction <= 90) {
@@ -796,7 +819,7 @@ document.getElementById('closeWindInfoModalBtn').addEventListener('click', hideW
 
 document.addEventListener('click', (e) => {
     const modal = document.getElementById('windInfoModal');
-    if(e.target === modal) hideWindInfoModal();
+    if (e.target === modal) hideWindInfoModal();
 });
 
 function closestRunway(windDirInt, heading, headingOpp) {
@@ -816,20 +839,20 @@ function closestRunway(windDirInt, heading, headingOpp) {
 
 document.addEventListener('click', (e) => {
     const windTarget = e.target.closest('.wind-info');
-    if(windTarget) {
-         const dir = windTarget.dataset.dir;
-         const speed = windTarget.dataset.speed;
-         const gust = windTarget.dataset.gust;
-         const unit = windTarget.dataset.unit;
+    if (windTarget) {
+        const dir = windTarget.dataset.dir;
+        const speed = windTarget.dataset.speed;
+        const gust = windTarget.dataset.gust;
+        const unit = windTarget.dataset.unit;
 
-         const runwayElems = document.querySelectorAll('.runway-info');
-         let content = "";
+        const runwayElems = document.querySelectorAll('.runway-info');
+        let content = "";
 
-         if (gust) {
+        if (gust) {
             content += `Ветер: ${dir}° ${parseInt(speed)} <i class="fa-solid fa-wind"></i> ${parseInt(gust.replace('G', ''))} ${unit}<br><br>`;
-         } else {
+        } else {
             content += `Ветер: ${dir}° ${parseInt(speed)} ${unit}<br><br>`;
-         }
+        }
 
         let uniqueRunways = new Set();
         runwayElems.forEach(elem => {
@@ -839,19 +862,19 @@ document.addEventListener('click', (e) => {
             let headingOpp = null;
             let reciprocalRunway = rwy; // название обратной ВПП
 
-            if(/[LCR]$/.test(rwyNumber)) {
+            if (/[LCR]$/.test(rwyNumber)) {
                 let num = rwyNumber.slice(0, 2);
                 let suffix = rwyNumber.slice(2);
                 let numVal = parseInt(num, 10);
 
                 // Определяем обратный суффикс
                 let oppSuffix = suffix;
-                if(suffix === 'L') oppSuffix = 'R';
-                else if(suffix === 'R') oppSuffix = 'L';
+                if (suffix === 'L') oppSuffix = 'R';
+                else if (suffix === 'R') oppSuffix = 'L';
                 // Для "C" оставляем без изменений
 
                 let oppNumVal = (numVal + 18) % 36;
-                if(oppNumVal === 0) oppNumVal = 36;
+                if (oppNumVal === 0) oppNumVal = 36;
                 heading = numVal * 10;
                 headingOpp = oppNumVal * 10;
 
@@ -860,7 +883,7 @@ document.addEventListener('click', (e) => {
                 let numVal = parseInt(rwyNumber, 10);
                 heading = numVal * 10;
                 let oppNumVal = (numVal + 18) % 36;
-                if(oppNumVal === 0) oppNumVal = 36;
+                if (oppNumVal === 0) oppNumVal = 36;
                 headingOpp = oppNumVal * 10;
 
                 reciprocalRunway = String(oppNumVal).padStart(2, '0');
@@ -871,12 +894,12 @@ document.addEventListener('click', (e) => {
             let windGust = gust ? parseFloat(gust.slice(1)) : null;
 
             function calcCrosswind(angle, spd) {
-                let rad = (windDir - angle) * Math.PI/180;
+                let rad = (windDir - angle) * Math.PI / 180;
                 return spd * Math.sin(rad);
             }
 
             function calcLatwind(angle, spd) {
-                let rad = (windDir - angle) * Math.PI/180;
+                let rad = (windDir - angle) * Math.PI / 180;
                 return spd * Math.cos(rad);
             }
 
@@ -902,22 +925,22 @@ document.addEventListener('click', (e) => {
 
                         // Формируем вывод для основного направления ВПП
                         content += `<strong>ВПП ${rwy}</strong>: `;
-                        if(windDir === null) {
+                        if (windDir === null) {
                             content += `Ветер переменный<br><br>`;
                         } else {
-                            if(windGust) {
-                                const result = crossConst
-                                    ? (crossConst < 0
-                                        ? '' + Math.abs(crossConst).toFixed(0)
-                                        : '' + Math.abs(crossConst).toFixed(0))
-                                    : 'N/A';
+                            if (windGust) {
+                                const result = crossConst ?
+                                    (crossConst < 0 ?
+                                        '' + Math.abs(crossConst).toFixed(0) :
+                                        '' + Math.abs(crossConst).toFixed(0)) :
+                                    'N/A';
                                 content += `HW: ${latConst.toFixed(1)} <i class="fa-solid fa-wind"></i> ${latGust.toFixed(1)} ${unit}, XW: ${result} <i class="fa-solid fa-wind"></i> ${crossGust ? Math.abs(crossGust).toFixed(1) : 'N/A'} ${unit}<br><br>`;
                             } else {
-                                const result = crossConst
-                                    ? (crossConst < 0
-                                        ? '' + Math.abs(crossConst).toFixed(1)
-                                        : '' + Math.abs(crossConst).toFixed(1))
-                                    : 'N/A';
+                                const result = crossConst ?
+                                    (crossConst < 0 ?
+                                        '' + Math.abs(crossConst).toFixed(1) :
+                                        '' + Math.abs(crossConst).toFixed(1)) :
+                                    'N/A';
                                 content += `HW: ${latConst.toFixed(1)} ${unit}, XW: ${result} ${unit}<br><br>`;
                             }
                         }
@@ -931,22 +954,22 @@ document.addEventListener('click', (e) => {
 
                         // Формируем вывод для обратного направления с новым названием ВПП
                         content += `<strong>ВПП ${reciprocalRunway}</strong>: `;
-                        if(windDir === null) {
+                        if (windDir === null) {
                             content += `Ветер переменный<br><br>`;
                         } else {
-                            if(windGust) {
-                                const result = crossConst
-                                    ? (crossConst < 0
-                                        ? '' + Math.abs(crossConst).toFixed(1)
-                                        : '' + Math.abs(crossConst).toFixed(1))
-                                    : 'N/A';
+                            if (windGust) {
+                                const result = crossConst ?
+                                    (crossConst < 0 ?
+                                        '' + Math.abs(crossConst).toFixed(1) :
+                                        '' + Math.abs(crossConst).toFixed(1)) :
+                                    'N/A';
                                 content += `HW: ${latConstOpp.toFixed(1)} <i class="fa-solid fa-wind"></i> ${latGustOpp.toFixed(1)} ${unit}, XW: ${result} <i class="fa-solid fa-wind"></i> ${crossGustOpp ? Math.abs(crossGustOpp).toFixed(1) : 'N/A'} ${unit}<br><br>`;
                             } else {
-                                const result = crossConst
-                                    ? (crossConst < 0
-                                        ? '' + Math.abs(crossConst).toFixed(1)
-                                        : '' + Math.abs(crossConst).toFixed(1))
-                                    : 'N/A';
+                                const result = crossConst ?
+                                    (crossConst < 0 ?
+                                        '' + Math.abs(crossConst).toFixed(1) :
+                                        '' + Math.abs(crossConst).toFixed(1)) :
+                                    'N/A';
                                 content += `HW: ${latConstOpp.toFixed(1)} ${unit}, XW: ${result} ${unit}<br><br>`;
                             }
                         }
@@ -955,33 +978,33 @@ document.addEventListener('click', (e) => {
             }
         });
 
-         showWindInfoModal(content);
+        showWindInfoModal(content);
     }
 });
 
 function updateHighlightButton() {
-  const button = document.getElementById('changeHighlight');
-  if (!button) return; // если кнопка не найдена, выходим
-  if (doHighlight) {
-    button.innerHTML = '<i class="fa-solid fa-marker"></i>Выкл подсветку';
-  } else {
-    button.innerHTML = '<i class="fa-solid fa-highlighter"></i>Вкл подсветку';
-  }
+    const button = document.getElementById('changeHighlight');
+    if (!button) return; // если кнопка не найдена, выходим
+    if (doHighlight) {
+        button.innerHTML = '<i class="fa-solid fa-marker"></i>Выкл подсветку';
+    } else {
+        button.innerHTML = '<i class="fa-solid fa-highlighter"></i>Вкл подсветку';
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     updateHighlightButton()
-  const button = document.getElementById('changeHighlight');
-  if (!button) return; // если кнопка не найдена, выходим
+    const button = document.getElementById('changeHighlight');
+    if (!button) return; // если кнопка не найдена, выходим
 
-  button.addEventListener('click', () => {
-    // Переключаем значение
-    doHighlight = !doHighlight;
-    updateHighlightButton()
+    button.addEventListener('click', () => {
+        // Переключаем значение
+        doHighlight = !doHighlight;
+        updateHighlightButton()
 
-    // Сохраняем новое состояние в localStorage
-    localStorage.setItem('doHighlight', JSON.stringify(doHighlight));
-  });
+        // Сохраняем новое состояние в localStorage
+        localStorage.setItem('doHighlight', JSON.stringify(doHighlight));
+    });
 });
 
 const settingsBtn = document.getElementById('settingsBtn');

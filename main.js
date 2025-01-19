@@ -344,6 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const utcBadge = document.createElement('div');
             utcBadge.className = 'time-badge';
+            utcBadge.id = 'utcBadge';
             utcBadge.textContent = `UTC ${hhUTC}:${mmUTC}`;
 
             // Добавляем в контейнер первым
@@ -379,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const badge = document.createElement('div');
                     badge.className = 'time-badge';
                     badge.textContent = `${t} ${hh}:${String(mm).padStart(2,'0')}`;
+                    badge.dataset.msgDate = msgDate.toISOString();
 
                     // Добавляем классы в зависимости от условий
                     if (diffAbs <= 10) {
@@ -1271,4 +1273,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function updateBadgesTimeAndColors() {
+        // 1) Обновляем время UTC
+        const utcBadge = document.getElementById('utcBadge');
+        if (utcBadge) {
+            const nowUTC = new Date();
+            const hhUTC = String(nowUTC.getUTCHours()).padStart(2, '0');
+            const mmUTC = String(nowUTC.getUTCMinutes()).padStart(2, '0');
+            utcBadge.textContent = `UTC ${hhUTC}:${mmUTC}`;
+        }
+
+        // 2) Находим все .time-badge (которые у нас METAR/TAF) и пересчитываем разницу
+        const badges = document.querySelectorAll('.time-badge');
+        badges.forEach(badge => {
+            // Пропускаем плашку UTC и плашку «Wrench»
+            if (badge.id === 'utcBadge' || badge.id === 'showMaintenanceInfoModal') return;
+
+            // Извлекаем дату, которую мы записали в badge.dataset.msgDate
+            const msgDateStr = badge.dataset.msgDate;
+            if (!msgDateStr) return; // если дата не задана — уходим
+
+            const msgDate = new Date(msgDateStr);
+            const now = new Date();
+            const diffMin = (now - msgDate) / 60000;
+            const diffAbs = Math.abs(diffMin);
+
+            // Сначала убираем все «цветные» классы, чтобы потом назначить заново
+            badge.classList.remove('badge-green', 'badge-orange', 'badge-red', 'badge-default');
+
+            // Восстанавливаем оригинальный тип (METAR, TAF и т.п.) из badge.textContent или ещё откуда:
+            const text = badge.textContent;
+            // Можно отловить "METAR", "SPECI", "TAF" и т.д.
+            // Здесь покажу самый короткий путь – просто проверить, содержит ли текст "METAR/TAF"
+            const isMetarSpeci = /^(METAR|SPECI)/i.test(text);
+            const isTaf = /^TAF/i.test(text);
+
+            // Пересчитываем классы
+            if (diffAbs <= 10) {
+                // до 10 минут — badge-green
+                badge.classList.add('badge-green');
+            } else if (isMetarSpeci && diffAbs >= 30) {
+                if (diffAbs >= 180) {
+                    badge.classList.add('badge-red');
+                } else {
+                    badge.classList.add('badge-orange');
+                }
+            } else if (isTaf && diffAbs <= 60) {
+                badge.classList.add('badge-green');
+            } else if (isTaf && diffAbs >= 360) {
+                if (diffAbs >= 18 * 60) {
+                    badge.classList.add('badge-red');
+                } else {
+                    badge.classList.add('badge-orange');
+                }
+            } else {
+                badge.classList.add('badge-default');
+            }
+        });
+    }
+
+    setInterval(updateBadgesTimeAndColors, 15000);
 });

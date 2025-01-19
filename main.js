@@ -384,11 +384,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (diffAbs <= 10) {
                         badge.classList.add('badge-green');
                     } else if ((t === 'METAR' || t === 'SPECI') && diffAbs >= 30) {
-                        badge.classList.add('badge-orange');
+                        if (diffAbs >= 180) {
+                            badge.classList.add('badge-red');
+                        } else {
+                            badge.classList.add('badge-orange');
+                        }
                     } else if ((t === 'TAF' || t === 'TAF AMD' || t === 'TAF COR' || t === 'TAF RTD') && diffAbs <= 60) {
                         badge.classList.add('badge-green');
                     } else if ((t === 'TAF' || t === 'TAF AMD' || t === 'TAF COR' || t === 'TAF RTD') && diffAbs >= 360) {
-                        badge.classList.add('badge-orange');
+                        if (diffAbs >= 18 * 60) {
+                            badge.classList.add('badge-red');
+                        } else {
+                            badge.classList.add('badge-orange');
+                        }
                     } else {
                         badge.classList.add('badge-default');
                     }

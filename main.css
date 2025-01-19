@@ -4,12 +4,11 @@
     --accent-color: #0077ff;
     --border-color: #dddddd;
     --card-bg: #f9f9f9;
-}
 
-:root {
     /* Светлая тема */
     --badge-green-bg: #27ae60;
     --badge-orange-bg: #eb862d;
+    --badge-red-bg: #b22222;
     --badge-default-bg: #ecf0f1;
     --badge-text-color: #ffffff;
 }
@@ -34,6 +33,10 @@
 
 .badge-orange {
     background-color: var(--badge-orange-bg);
+}
+
+.badge-red {
+    background-color: var(--badge-red-bg);
 }
 
 .badge-default {
@@ -759,6 +762,7 @@ footer {
 
         --badge-green-bg: #249152;
         --badge-orange-bg: #d17320;
+        --badge-red-bg: #881818;
         --badge-default-bg: #34495e;
         --badge-text-color: #ecf0f1;
     }

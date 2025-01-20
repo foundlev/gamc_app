@@ -1,0 +1,5966 @@
+[
+    {
+        "icao": "DTMB",
+        "iata": "MIR",
+        "geo": [
+            "MONASTIR/HABIB BOU",
+            "TUNISIA"
+        ],
+        "elevation": 9,
+        "latitude": 35.758056,
+        "longitude": 10.754722,
+        "declination": 3.1,
+        "runways": {
+            "07": {
+                "hdg": 72.0
+            },
+            "25": {
+                "hdg": 252.0
+            }
+        }
+    },
+    {
+        "icao": "DTNH",
+        "iata": "NBE",
+        "geo": [
+            "ENFIDHA / HAMMAMET",
+            "TUNISIA"
+        ],
+        "elevation": 21,
+        "latitude": 36.075833,
+        "longitude": 10.438611,
+        "declination": 3.07,
+        "runways": {
+            "09": {
+                "hdg": 88.0
+            },
+            "27": {
+                "hdg": 268.0
+            }
+        }
+    },
+    {
+        "icao": "DTTA",
+        "iata": "TUN",
+        "geo": [
+            "TUNIS/CARTHAGE",
+            "TUNISIA"
+        ],
+        "elevation": 21,
+        "latitude": 36.851111,
+        "longitude": 10.226944,
+        "declination": 3.08,
+        "runways": {
+            "01": {
+                "hdg": 9.0
+            },
+            "11": {
+                "hdg": 109.0
+            },
+            "19": {
+                "hdg": 189.0
+            },
+            "29": {
+                "hdg": 289.0
+            }
+        }
+    },
+    {
+        "icao": "EETN",
+        "iata": "TLL",
+        "geo": [
+            "TALLINN/LENNART ME",
+            "ESTONIA"
+        ],
+        "elevation": 135,
+        "latitude": 59.413333,
+        "longitude": 24.8325,
+        "declination": 9.72,
+        "runways": {
+            "08": {
+                "hdg": 81.0
+            },
+            "26": {
+                "hdg": 261.0
+            }
+        }
+    },
+    {
+        "icao": "EFHK",
+        "iata": "HEL",
+        "geo": [
+            "HELSINKI/VANTAA",
+            "FINLAND"
+        ],
+        "elevation": 180,
+        "latitude": 60.317222,
+        "longitude": 24.963333,
+        "declination": 10.07,
+        "runways": {
+            "04L": {
+                "hdg": 37.0
+            },
+            "04R": {
+                "hdg": 37.0
+            },
+            "15": {
+                "hdg": 143.0
+            },
+            "22L": {
+                "hdg": 217.0
+            },
+            "22R": {
+                "hdg": 217.0
+            },
+            "33": {
+                "hdg": 323.0
+            }
+        }
+    },
+    {
+        "icao": "ESSA",
+        "iata": "ARN",
+        "geo": [
+            "STOCKHOLM/ARLANDA",
+            "SWEDEN"
+        ],
+        "elevation": 138,
+        "latitude": 59.651944,
+        "longitude": 17.918611,
+        "declination": 7.23,
+        "runways": {
+            "01L": {
+                "hdg": 4.0
+            },
+            "01R": {
+                "hdg": 4.0
+            },
+            "08": {
+                "hdg": 70.0
+            },
+            "19L": {
+                "hdg": 184.0
+            },
+            "19R": {
+                "hdg": 184.0
+            },
+            "26": {
+                "hdg": 250.0
+            }
+        }
+    },
+    {
+        "icao": "EVRA",
+        "iata": "RIX",
+        "geo": [
+            "RIGA",
+            "LATVIA"
+        ],
+        "elevation": 37,
+        "latitude": 56.923611,
+        "longitude": 23.971111,
+        "declination": 8.67,
+        "runways": {
+            "18": {
+                "hdg": 175.0
+            },
+            "36": {
+                "hdg": 355.0
+            }
+        }
+    },
+    {
+        "icao": "EYVI",
+        "iata": "VNO",
+        "geo": [
+            "VILNIUS INTL",
+            "LITHUANIA"
+        ],
+        "elevation": 649,
+        "latitude": 54.636944,
+        "longitude": 25.287778,
+        "declination": 8.42,
+        "runways": {
+            "01": {
+                "hdg": 14.0
+            },
+            "19": {
+                "hdg": 194.0
+            }
+        }
+    },
+    {
+        "icao": "HECA",
+        "iata": "CAI",
+        "geo": [
+            "CAIRO INTL",
+            "EGYPT"
+        ],
+        "elevation": 467,
+        "latitude": 30.111389,
+        "longitude": 31.413889,
+        "declination": 5.01,
+        "runways": {
+            "05C": {
+                "hdg": 45.0
+            },
+            "05L": {
+                "hdg": 45.0
+            },
+            "05R": {
+                "hdg": 45.0
+            },
+            "23C": {
+                "hdg": 225.0
+            },
+            "23L": {
+                "hdg": 225.0
+            },
+            "23R": {
+                "hdg": 225.0
+            }
+        }
+    },
+    {
+        "icao": "HEGN",
+        "iata": "HRG",
+        "geo": [
+            "HURGHADA INTL",
+            "EGYPT"
+        ],
+        "elevation": 109,
+        "latitude": 27.178611,
+        "longitude": 33.800833,
+        "declination": 4.77,
+        "runways": {
+            "16L": {
+                "hdg": 161.0
+            },
+            "16R": {
+                "hdg": 161.0
+            },
+            "34L": {
+                "hdg": 341.0
+            },
+            "34R": {
+                "hdg": 341.0
+            }
+        }
+    },
+    {
+        "icao": "HELX",
+        "iata": "LXR",
+        "geo": [
+            "LUXOR INTL",
+            "EGYPT"
+        ],
+        "elevation": 294,
+        "latitude": 25.670833,
+        "longitude": 32.706389,
+        "declination": 4.65,
+        "runways": {
+            "02": {
+                "hdg": 19.0
+            },
+            "20": {
+                "hdg": 199.0
+            }
+        }
+    },
+    {
+        "icao": "HESH",
+        "iata": "SSH",
+        "geo": [
+            "SHARM EL SHEIKH IN",
+            "EGYPT"
+        ],
+        "elevation": 143,
+        "latitude": 27.978611,
+        "longitude": 34.393333,
+        "declination": 4.84,
+        "runways": {
+            "04L": {
+                "hdg": 39.0
+            },
+            "04R": {
+                "hdg": 39.0
+            },
+            "22L": {
+                "hdg": 219.0
+            },
+            "22R": {
+                "hdg": 219.0
+            }
+        }
+    },
+    {
+        "icao": "LCLK",
+        "iata": "LCA",
+        "geo": [
+            "LARNAKA INTL",
+            "CYPRUS"
+        ],
+        "elevation": 10,
+        "latitude": 34.878889,
+        "longitude": 33.630278,
+        "declination": 5.61,
+        "runways": {
+            "04": {
+                "hdg": 40.0
+            },
+            "22": {
+                "hdg": 220.0
+            }
+        }
+    },
+    {
+        "icao": "LCPH",
+        "iata": "PFO",
+        "geo": [
+            "PAFOS INTL",
+            "CYPRUS"
+        ],
+        "elevation": 43,
+        "latitude": 34.718056,
+        "longitude": 32.485,
+        "declination": 5.54,
+        "runways": {
+            "11": {
+                "hdg": 105.0
+            },
+            "29": {
+                "hdg": 285.0
+            }
+        }
+    },
+    {
+        "icao": "LLBG",
+        "iata": "TLV",
+        "geo": [
+            "TEL AVIV/BEN GURIO",
+            "ISRAEL"
+        ],
+        "elevation": 134,
+        "latitude": 32.009444,
+        "longitude": 34.885556,
+        "declination": 5.27,
+        "runways": {
+            "03": {
+                "hdg": 24.0
+            },
+            "08": {
+                "hdg": 75.0
+            },
+            "12": {
+                "hdg": 116.0
+            },
+            "21": {
+                "hdg": 204.0
+            },
+            "26": {
+                "hdg": 255.0
+            },
+            "30": {
+                "hdg": 296.0
+            }
+        }
+    },
+    {
+        "icao": "LTAC",
+        "iata": "ESB",
+        "geo": [
+            "ANKARA/ESENBOGA IN",
+            "TURKEY"
+        ],
+        "elevation": 3127,
+        "latitude": 40.128333,
+        "longitude": 32.995278,
+        "declination": 6.39,
+        "runways": {
+            "03L": {
+                "hdg": 32.0
+            },
+            "03R": {
+                "hdg": 32.0
+            },
+            "21L": {
+                "hdg": 212.0
+            },
+            "21R": {
+                "hdg": 212.0
+            }
+        }
+    },
+    {
+        "icao": "LTAF",
+        "iata": "ADA",
+        "geo": [
+            "ADANA",
+            "TURKEY"
+        ],
+        "elevation": 63,
+        "latitude": 36.982222,
+        "longitude": 35.280278,
+        "declination": 5.97,
+        "runways": {
+            "05": {
+                "hdg": 48.0
+            },
+            "23": {
+                "hdg": 228.0
+            }
+        }
+    },
+    {
+        "icao": "LTAI",
+        "iata": "AYT",
+        "geo": [
+            "ANTALYA INTL",
+            "TURKEY"
+        ],
+        "elevation": 177,
+        "latitude": 36.900278,
+        "longitude": 30.793056,
+        "declination": 5.73,
+        "runways": {
+            "18C": {
+                "hdg": 182.0
+            },
+            "18L": {
+                "hdg": 182.0
+            },
+            "18R": {
+                "hdg": 182.0
+            },
+            "36C": {
+                "hdg": 2.0
+            },
+            "36L": {
+                "hdg": 2.0
+            },
+            "36R": {
+                "hdg": 2.0
+            }
+        }
+    },
+    {
+        "icao": "LTBA",
+        "iata": "ISL",
+        "geo": [
+            "ISTANBUL/ATATURK I",
+            "TURKEY"
+        ],
+        "elevation": 94,
+        "latitude": 40.976111,
+        "longitude": 28.814167,
+        "declination": 6.14,
+        "runways": {
+            "05": {
+                "hdg": 53.0
+            },
+            "23": {
+                "hdg": 233.0
+            }
+        }
+    },
+    {
+        "icao": "LTBJ",
+        "iata": "ADB",
+        "geo": [
+            "IZMIR/ADNAN MENDER",
+            "TURKEY"
+        ],
+        "elevation": 410,
+        "latitude": 38.289167,
+        "longitude": 27.155,
+        "declination": 5.58,
+        "runways": {
+            "16L": {
+                "hdg": 163.0
+            },
+            "16R": {
+                "hdg": 163.0
+            },
+            "34L": {
+                "hdg": 343.0
+            },
+            "34R": {
+                "hdg": 343.0
+            }
+        }
+    },
+    {
+        "icao": "LTBS",
+        "iata": "DLM",
+        "geo": [
+            "MUGLA/DALAMAN",
+            "TURKEY"
+        ],
+        "elevation": 20,
+        "latitude": 36.7125,
+        "longitude": 28.791389,
+        "declination": 5.55,
+        "runways": {
+            "01": {
+                "hdg": 10.0
+            },
+            "19": {
+                "hdg": 190.0
+            }
+        }
+    },
+    {
+        "icao": "LTFE",
+        "iata": "BJV",
+        "geo": [
+            "MILAS/BODRUM",
+            "TURKEY"
+        ],
+        "elevation": 21,
+        "latitude": 37.247222,
+        "longitude": 27.681389,
+        "declination": 5.51,
+        "runways": {
+            "10L": {
+                "hdg": 102.0
+            },
+            "10R": {
+                "hdg": 102.0
+            },
+            "28L": {
+                "hdg": 282.0
+            },
+            "28R": {
+                "hdg": 282.0
+            }
+        }
+    },
+    {
+        "icao": "LTFG",
+        "iata": "GZP",
+        "geo": [
+            "GAZIPASA/ALANYA",
+            "TURKEY"
+        ],
+        "elevation": 126,
+        "latitude": 36.299444,
+        "longitude": 32.301389,
+        "declination": 5.74,
+        "runways": {
+            "08": {
+                "hdg": 77.0
+            },
+            "26": {
+                "hdg": 257.0
+            }
+        }
+    },
+    {
+        "icao": "LTFJ",
+        "iata": "SAW",
+        "geo": [
+            "ISTANBUL/SABIHA GO",
+            "TURKEY"
+        ],
+        "elevation": 312,
+        "latitude": 40.898611,
+        "longitude": 29.309167,
+        "declination": 6.18,
+        "runways": {
+            "06L": {
+                "hdg": 59.0
+            },
+            "06R": {
+                "hdg": 59.0
+            },
+            "24L": {
+                "hdg": 239.0
+            },
+            "24R": {
+                "hdg": 239.0
+            }
+        }
+    },
+    {
+        "icao": "LTFM",
+        "iata": "IST",
+        "geo": [
+            "ISTANBUL AIRPORT",
+            "TURKEY"
+        ],
+        "elevation": 325,
+        "latitude": 41.275278,
+        "longitude": 28.751944,
+        "declination": 6.18,
+        "runways": {
+            "16L": {
+                "hdg": 174.0
+            },
+            "16R": {
+                "hdg": 174.0
+            },
+            "17L": {
+                "hdg": 174.0
+            },
+            "17R": {
+                "hdg": 174.0
+            },
+            "18": {
+                "hdg": 174.0
+            },
+            "34L": {
+                "hdg": 354.0
+            },
+            "34R": {
+                "hdg": 354.0
+            },
+            "35L": {
+                "hdg": 354.0
+            },
+            "35R": {
+                "hdg": 354.0
+            },
+            "36": {
+                "hdg": 354.0
+            }
+        }
+    },
+    {
+        "icao": "OAKB",
+        "iata": "KBL",
+        "geo": [
+            "HAMID KARZAI INTL/",
+            "AFGHANISTAN"
+        ],
+        "elevation": 5877,
+        "latitude": 34.565833,
+        "longitude": 69.2125,
+        "declination": 3.57,
+        "runways": {
+            "11": {
+                "hdg": 104.0
+            },
+            "29": {
+                "hdg": 284.0
+            }
+        }
+    },
+    {
+        "icao": "OBBI",
+        "iata": "BAH",
+        "geo": [
+            "BAHRAIN INTL",
+            "BAHRAIN"
+        ],
+        "elevation": 8,
+        "latitude": 26.270833,
+        "longitude": 50.633611,
+        "declination": 3.1,
+        "runways": {
+            "12L": {
+                "hdg": 120.0
+            },
+            "12R": {
+                "hdg": 120.0
+            },
+            "30L": {
+                "hdg": 300.0
+            },
+            "30R": {
+                "hdg": 300.0
+            }
+        }
+    },
+    {
+        "icao": "OIBB",
+        "iata": "BUZ",
+        "geo": [
+            "BUSHEHR",
+            "IRAN, ISLAMIC REPUBLIC"
+        ],
+        "elevation": 72,
+        "latitude": 28.949444,
+        "longitude": 50.830278,
+        "declination": 3.58,
+        "runways": {
+            "13L": {
+                "hdg": 129.0
+            },
+            "13R": {
+                "hdg": 129.0
+            },
+            "31L": {
+                "hdg": 309.0
+            },
+            "31R": {
+                "hdg": 309.0
+            }
+        }
+    },
+    {
+        "icao": "OIFM",
+        "iata": "IFN",
+        "geo": [
+            "ESFAHAN/SHAHID BEH",
+            "IRAN, ISLAMIC REPUBLIC"
+        ],
+        "elevation": 5058,
+        "latitude": 32.750833,
+        "longitude": 51.862778,
+        "declination": 4.33,
+        "runways": {
+            "07L": {
+                "hdg": 74.0
+            },
+            "07R": {
+                "hdg": 74.0
+            },
+            "25L": {
+                "hdg": 254.0
+            },
+            "25R": {
+                "hdg": 254.0
+            }
+        }
+    },
+    {
+        "icao": "OIIE",
+        "iata": "IKA",
+        "geo": [
+            "TEHRAN/IMAM KHOMAI",
+            "IRAN, ISLAMIC REPUBLIC"
+        ],
+        "elevation": 3305,
+        "latitude": 35.416111,
+        "longitude": 51.152222,
+        "declination": 5.08,
+        "runways": {
+            "11L": {
+                "hdg": 104.0
+            },
+            "11R": {
+                "hdg": 104.0
+            },
+            "29L": {
+                "hdg": 284.0
+            },
+            "29R": {
+                "hdg": 284.0
+            }
+        }
+    },
+    {
+        "icao": "OIII",
+        "iata": "THR",
+        "geo": [
+            "TEHRAN/MEHRABAD IN",
+            "IRAN, ISLAMIC REPUBLIC"
+        ],
+        "elevation": 3965,
+        "latitude": 35.688889,
+        "longitude": 51.314722,
+        "declination": 5.15,
+        "runways": {
+            "11L": {
+                "hdg": 105.0
+            },
+            "11R": {
+                "hdg": 105.0
+            },
+            "29L": {
+                "hdg": 285.0
+            },
+            "29R": {
+                "hdg": 285.0
+            }
+        }
+    },
+    {
+        "icao": "OISS",
+        "iata": "SYZ",
+        "geo": [
+            "SHIRAZ/SHAHID DAST",
+            "IRAN, ISLAMIC REPUBLIC"
+        ],
+        "elevation": 4927,
+        "latitude": 29.540278,
+        "longitude": 52.588611,
+        "declination": 3.52,
+        "runways": {
+            "11L": {
+                "hdg": 111.0
+            },
+            "11R": {
+                "hdg": 111.0
+            },
+            "29L": {
+                "hdg": 291.0
+            },
+            "29R": {
+                "hdg": 291.0
+            }
+        }
+    },
+    {
+        "icao": "OJAI",
+        "iata": "AMM",
+        "geo": [
+            "AMMAN/QUEEN ALIA I",
+            "JORDAN"
+        ],
+        "elevation": 2395,
+        "latitude": 31.724167,
+        "longitude": 35.994722,
+        "declination": 5.22,
+        "runways": {
+            "08L": {
+                "hdg": 76.0
+            },
+            "08R": {
+                "hdg": 76.0
+            },
+            "26L": {
+                "hdg": 256.0
+            },
+            "26R": {
+                "hdg": 256.0
+            }
+        }
+    },
+    {
+        "icao": "OJAM",
+        "iata": "ADJ",
+        "geo": [
+            "AMMAN MARKA INTL",
+            "JORDAN"
+        ],
+        "elevation": 2555,
+        "latitude": 31.972778,
+        "longitude": 35.991667,
+        "declination": 5.25,
+        "runways": {
+            "06": {
+                "hdg": 61.0
+            },
+            "24": {
+                "hdg": 241.0
+            }
+        }
+    },
+    {
+        "icao": "OJAQ",
+        "iata": "AQJ",
+        "geo": [
+            "AQABA/KING HUSSEIN",
+            "JORDAN"
+        ],
+        "elevation": 175,
+        "latitude": 29.611667,
+        "longitude": 35.018056,
+        "declination": 4.99,
+        "runways": {
+            "01": {
+                "hdg": 14.0
+            },
+            "19": {
+                "hdg": 194.0
+            }
+        }
+    },
+    {
+        "icao": "OLBA",
+        "iata": "BEY",
+        "geo": [
+            "BEIRUT/RAFIC HARIR",
+            "LEBANON"
+        ],
+        "elevation": 85,
+        "latitude": 33.819167,
+        "longitude": 35.49,
+        "declination": 5.5,
+        "runways": {
+            "03": {
+                "hdg": 28.0
+            },
+            "16": {
+                "hdg": 162.0
+            },
+            "17": {
+                "hdg": 172.0
+            },
+            "21": {
+                "hdg": 208.0
+            },
+            "34": {
+                "hdg": 342.0
+            },
+            "35": {
+                "hdg": 352.0
+            }
+        }
+    },
+    {
+        "icao": "OMAA",
+        "iata": "AUH",
+        "geo": [
+            "ABU DHABI INTL",
+            "UNITED ARAB EMIRATES"
+        ],
+        "elevation": 83,
+        "latitude": 24.433056,
+        "longitude": 54.651111,
+        "declination": 2.31,
+        "runways": {
+            "13L": {
+                "hdg": 126.0
+            },
+            "13R": {
+                "hdg": 126.0
+            },
+            "31L": {
+                "hdg": 306.0
+            },
+            "31R": {
+                "hdg": 306.0
+            }
+        }
+    },
+    {
+        "icao": "OMAL",
+        "iata": "AAN",
+        "geo": [
+            "AL AIN INTL",
+            "UNITED ARAB EMIRATES"
+        ],
+        "elevation": 865,
+        "latitude": 24.261667,
+        "longitude": 55.609167,
+        "declination": 2.18,
+        "runways": {
+            "01": {
+                "hdg": 6.0
+            },
+            "19": {
+                "hdg": 186.0
+            }
+        }
+    },
+    {
+        "icao": "OMDB",
+        "iata": "DXB",
+        "geo": [
+            "DUBAI INTL",
+            "UNITED ARAB EMIRATES"
+        ],
+        "elevation": 62,
+        "latitude": 25.252778,
+        "longitude": 55.364444,
+        "declination": 2.39,
+        "runways": {
+            "12L": {
+                "hdg": 119.0
+            },
+            "12R": {
+                "hdg": 119.0
+            },
+            "30L": {
+                "hdg": 299.0
+            },
+            "30R": {
+                "hdg": 299.0
+            }
+        }
+    },
+    {
+        "icao": "OMDW",
+        "iata": "DWC",
+        "geo": [
+            "DUBAI/AL MAKTOUM I",
+            "UNITED ARAB EMIRATES"
+        ],
+        "elevation": 171,
+        "latitude": 24.918333,
+        "longitude": 55.175556,
+        "declination": 2.34,
+        "runways": {
+            "12": {
+                "hdg": 119.0
+            },
+            "30": {
+                "hdg": 299.0
+            }
+        }
+    },
+    {
+        "icao": "OMFJ",
+        "iata": "FJR",
+        "geo": [
+            "FUJAIRAH INTL",
+            "UNITED ARAB EMIRATES"
+        ],
+        "elevation": 153,
+        "latitude": 25.112222,
+        "longitude": 56.324167,
+        "declination": 2.27,
+        "runways": {
+            "11": {
+                "hdg": 111.0
+            },
+            "11R": {
+                "hdg": 110.0
+            },
+            "29": {
+                "hdg": 291.0
+            },
+            "29L": {
+                "hdg": 290.0
+            }
+        }
+    },
+    {
+        "icao": "OMRK",
+        "iata": "RKT",
+        "geo": [
+            "RAS AL KHAIMAH INT",
+            "UNITED ARAB EMIRATES"
+        ],
+        "elevation": 94,
+        "latitude": 25.613333,
+        "longitude": 55.938889,
+        "declination": 2.4,
+        "runways": {
+            "16": {
+                "hdg": 163.0
+            },
+            "34": {
+                "hdg": 343.0
+            }
+        }
+    },
+    {
+        "icao": "OMSJ",
+        "iata": "SHJ",
+        "geo": [
+            "SHARJAH INTL",
+            "UNITED ARAB EMIRATES"
+        ],
+        "elevation": 118,
+        "latitude": 25.329167,
+        "longitude": 55.516111,
+        "declination": 2.39,
+        "runways": {
+            "12": {
+                "hdg": 121.0
+            },
+            "30": {
+                "hdg": 301.0
+            }
+        }
+    },
+    {
+        "icao": "OOMS",
+        "iata": "MCT",
+        "geo": [
+            "MUSCAT INTL",
+            "OMAN"
+        ],
+        "elevation": 25,
+        "latitude": 23.600278,
+        "longitude": 58.283611,
+        "declination": 1.82,
+        "runways": {
+            "08L": {
+                "hdg": 83.0
+            },
+            "26R": {
+                "hdg": 263.0
+            }
+        }
+    },
+    {
+        "icao": "OPKC",
+        "iata": "KHI",
+        "geo": [
+            "KARACHI/JINNAH INT",
+            "PAKISTAN"
+        ],
+        "elevation": 100,
+        "latitude": 24.908611,
+        "longitude": 67.162778,
+        "declination": 1.51,
+        "runways": {
+            "07L": {
+                "hdg": 73.0
+            },
+            "07R": {
+                "hdg": 73.0
+            },
+            "25L": {
+                "hdg": 253.0
+            },
+            "25R": {
+                "hdg": 253.0
+            }
+        }
+    },
+    {
+        "icao": "OPLA",
+        "iata": "LHE",
+        "geo": [
+            "LAHORE/ALLAMA IQBA",
+            "PAKISTAN"
+        ],
+        "elevation": 712,
+        "latitude": 31.521667,
+        "longitude": 74.404444,
+        "declination": 2.43,
+        "runways": {
+            "18L": {
+                "hdg": 179.0
+            },
+            "18R": {
+                "hdg": 179.0
+            },
+            "36L": {
+                "hdg": 359.0
+            },
+            "36R": {
+                "hdg": 359.0
+            }
+        }
+    },
+    {
+        "icao": "OPPS",
+        "iata": "PEW",
+        "geo": [
+            "BACHA KHAN INTL",
+            "PAKISTAN"
+        ],
+        "elevation": 1211,
+        "latitude": 33.993889,
+        "longitude": 71.514722,
+        "declination": 3.24,
+        "runways": {
+            "17": {
+                "hdg": 174.0
+            },
+            "35": {
+                "hdg": 354.0
+            }
+        }
+    },
+    {
+        "icao": "ORBI",
+        "iata": "BGW",
+        "geo": [
+            "BAGHDAD INTL",
+            "IRAQ"
+        ],
+        "elevation": 114,
+        "latitude": 33.2625,
+        "longitude": 44.234444,
+        "declination": 5.08,
+        "runways": {
+            "15L": {
+                "hdg": 146.0
+            },
+            "15R": {
+                "hdg": 146.0
+            },
+            "33L": {
+                "hdg": 326.0
+            },
+            "33R": {
+                "hdg": 326.0
+            }
+        }
+    },
+    {
+        "icao": "ORMM",
+        "iata": "BSR",
+        "geo": [
+            "BASRAH INTL",
+            "IRAQ"
+        ],
+        "elevation": 11,
+        "latitude": 30.549167,
+        "longitude": 47.662222,
+        "declination": 4.24,
+        "runways": {
+            "14": {
+                "hdg": 135.0
+            },
+            "32": {
+                "hdg": 315.0
+            }
+        }
+    },
+    {
+        "icao": "OTBD",
+        "iata": "DIA",
+        "geo": [
+            "DOHA INTL",
+            "QATAR"
+        ],
+        "elevation": 37,
+        "latitude": 25.261111,
+        "longitude": 51.565,
+        "declination": 2.81,
+        "runways": {
+            "15": {
+                "hdg": 156.0
+            },
+            "33": {
+                "hdg": 336.0
+            }
+        }
+    },
+    {
+        "icao": "OTHH",
+        "iata": "DOH",
+        "geo": [
+            "DOHA/HAMAD INTL",
+            "QATAR"
+        ],
+        "elevation": 13,
+        "latitude": 25.274444,
+        "longitude": 51.608333,
+        "declination": 2.81,
+        "runways": {
+            "16L": {
+                "hdg": 156.0
+            },
+            "16R": {
+                "hdg": 156.0
+            },
+            "34L": {
+                "hdg": 336.0
+            },
+            "34R": {
+                "hdg": 336.0
+            }
+        }
+    },
+    {
+        "icao": "RKPC",
+        "iata": "CJU",
+        "geo": [
+            "JEJU INTL",
+            "KOREA, REPUBLIC OF"
+        ],
+        "elevation": 118,
+        "latitude": 33.512222,
+        "longitude": 126.492778,
+        "declination": -7.75,
+        "runways": {
+            "07": {
+                "hdg": 66.0
+            },
+            "25": {
+                "hdg": 246.0
+            },
+            "31": {
+                "hdg": 313.0
+            }
+        }
+    },
+    {
+        "icao": "RKPK",
+        "iata": "PUS",
+        "geo": [
+            "BUSAN/GIMHAE INTL",
+            "KOREA, REPUBLIC OF"
+        ],
+        "elevation": 13,
+        "latitude": 35.180556,
+        "longitude": 128.938056,
+        "declination": -8.39,
+        "runways": {
+            "18L": {
+                "hdg": 182.0
+            },
+            "18R": {
+                "hdg": 182.0
+            },
+            "36L": {
+                "hdg": 2.0
+            },
+            "36R": {
+                "hdg": 2.0
+            }
+        }
+    },
+    {
+        "icao": "RKSI",
+        "iata": "ICN",
+        "geo": [
+            "SEOUL/INCHEON INTL",
+            "KOREA, REPUBLIC OF"
+        ],
+        "elevation": 23,
+        "latitude": 37.4625,
+        "longitude": 126.439167,
+        "declination": -8.83,
+        "runways": {
+            "15L": {
+                "hdg": 154.0
+            },
+            "15R": {
+                "hdg": 154.0
+            },
+            "16L": {
+                "hdg": 154.0
+            },
+            "16R": {
+                "hdg": 154.0
+            },
+            "33L": {
+                "hdg": 334.0
+            },
+            "33R": {
+                "hdg": 334.0
+            },
+            "34L": {
+                "hdg": 334.0
+            },
+            "34R": {
+                "hdg": 334.0
+            }
+        }
+    },
+    {
+        "icao": "RKSS",
+        "iata": "GMP",
+        "geo": [
+            "SEOUL/GIMPO INTL",
+            "KOREA, REPUBLIC OF"
+        ],
+        "elevation": 59,
+        "latitude": 37.556944,
+        "longitude": 126.7975,
+        "declination": -8.9,
+        "runways": {
+            "14L": {
+                "hdg": 144.0
+            },
+            "14R": {
+                "hdg": 144.0
+            },
+            "32L": {
+                "hdg": 324.0
+            },
+            "32R": {
+                "hdg": 324.0
+            }
+        }
+    },
+    {
+        "icao": "UAAA",
+        "iata": "ALA",
+        "geo": [
+            "ALMATY",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 2238,
+        "latitude": 43.355556,
+        "longitude": 77.043889,
+        "declination": 5.48,
+        "runways": {
+            "05L": {
+                "hdg": 51.0
+            },
+            "05R": {
+                "hdg": 51.0
+            },
+            "23L": {
+                "hdg": 231.0
+            },
+            "23R": {
+                "hdg": 231.0
+            }
+        }
+    },
+    {
+        "icao": "UACC",
+        "iata": "NQZ",
+        "geo": [
+            "NUR-SULTAN/N. NAZA",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 1166,
+        "latitude": 51.0225,
+        "longitude": 71.466111,
+        "declination": 10.2,
+        "runways": {
+            "04": {
+                "hdg": 35.0
+            },
+            "22": {
+                "hdg": 215.0
+            }
+        }
+    },
+    {
+        "icao": "UAII",
+        "iata": "CIT",
+        "geo": [
+            "SHYMKENT",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 1387,
+        "latitude": 42.365,
+        "longitude": 69.475556,
+        "declination": 6.21,
+        "runways": {
+            "10": {
+                "hdg": 101.0
+            },
+            "28": {
+                "hdg": 281.0
+            }
+        }
+    },
+    {
+        "icao": "UAIT",
+        "iata": "HSA",
+        "geo": [
+            "TURKISTAN",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 989,
+        "latitude": 43.311111,
+        "longitude": 68.550278,
+        "declination": 6.72,
+        "runways": {
+            "05": {
+                "hdg": 49.0
+            },
+            "23": {
+                "hdg": 229.0
+            }
+        }
+    },
+    {
+        "icao": "UAKK",
+        "iata": "KGF",
+        "geo": [
+            "KARAGANDA",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 1766,
+        "latitude": 49.671667,
+        "longitude": 73.335278,
+        "declination": 9.05,
+        "runways": {
+            "05": {
+                "hdg": 50.0
+            },
+            "23": {
+                "hdg": 230.0
+            }
+        }
+    },
+    {
+        "icao": "UAOL",
+        "iata": "BXY",
+        "geo": [
+            "KRAINIY",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 328,
+        "latitude": 45.621667,
+        "longitude": 63.211667,
+        "declination": 8.31,
+        "runways": {
+            "05": {
+                "hdg": 50.0
+            },
+            "23": {
+                "hdg": 230.0
+            }
+        }
+    },
+    {
+        "icao": "UAOO",
+        "iata": "KZO",
+        "geo": [
+            "KYZYLORDA",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 433,
+        "latitude": 44.706389,
+        "longitude": 65.590833,
+        "declination": 7.66,
+        "runways": {
+            "05": {
+                "hdg": 54.0
+            },
+            "23": {
+                "hdg": 234.0
+            }
+        }
+    },
+    {
+        "icao": "UARR",
+        "iata": "URA",
+        "geo": [
+            "URALSK",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 128,
+        "latitude": 51.151944,
+        "longitude": 51.543889,
+        "declination": 11.56,
+        "runways": {
+            "04": {
+                "hdg": 41.0
+            },
+            "22": {
+                "hdg": 221.0
+            }
+        }
+    },
+    {
+        "icao": "UATE",
+        "iata": "SCO",
+        "geo": [
+            "AKTAU",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 75,
+        "latitude": 43.86,
+        "longitude": 51.090833,
+        "declination": 7.98,
+        "runways": {
+            "11": {
+                "hdg": 115.0
+            },
+            "29": {
+                "hdg": 295.0
+            }
+        }
+    },
+    {
+        "icao": "UATG",
+        "iata": "GUW",
+        "geo": [
+            "ATYRAU",
+            "KAZAKHSTAN"
+        ],
+        "elevation": -71,
+        "latitude": 47.121944,
+        "longitude": 51.82,
+        "declination": 9.45,
+        "runways": {
+            "14": {
+                "hdg": 141.0
+            },
+            "32": {
+                "hdg": 321.0
+            }
+        }
+    },
+    {
+        "icao": "UATT",
+        "iata": "AKX",
+        "geo": [
+            "AKTOBE/AKTOBE",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 741,
+        "latitude": 50.246111,
+        "longitude": 57.205556,
+        "declination": 11.14,
+        "runways": {
+            "12": {
+                "hdg": 124.0
+            },
+            "30": {
+                "hdg": 304.0
+            }
+        }
+    },
+    {
+        "icao": "UAUU",
+        "iata": "KSN",
+        "geo": [
+            "KOSTANAY",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 601,
+        "latitude": 53.208611,
+        "longitude": 63.548056,
+        "declination": 12.74,
+        "runways": {
+            "14": {
+                "hdg": 144.0
+            },
+            "32": {
+                "hdg": 324.0
+            }
+        }
+    },
+    {
+        "icao": "UBBB",
+        "iata": "GYD",
+        "geo": [
+            "BAKU/HEYDAR ALIYEV",
+            "AZERBAIJAN"
+        ],
+        "elevation": 11,
+        "latitude": 40.469722,
+        "longitude": 50.051389,
+        "declination": 6.72,
+        "runways": {
+            "16": {
+                "hdg": 161.0
+            },
+            "17": {
+                "hdg": 173.0
+            },
+            "34": {
+                "hdg": 341.0
+            },
+            "35": {
+                "hdg": 353.0
+            }
+        }
+    },
+    {
+        "icao": "UBBG",
+        "iata": "GNJ",
+        "geo": [
+            "GANJA",
+            "AZERBAIJAN"
+        ],
+        "elevation": 1089,
+        "latitude": 40.738889,
+        "longitude": 46.32,
+        "declination": 6.9,
+        "runways": {
+            "12": {
+                "hdg": 122.0
+            },
+            "30": {
+                "hdg": 302.0
+            }
+        }
+    },
+    {
+        "icao": "UCFL",
+        "iata": "IKU",
+        "geo": [
+            "ISSYK-KUL",
+            "KYRGYZSTAN"
+        ],
+        "elevation": 5426,
+        "latitude": 42.585833,
+        "longitude": 76.701944,
+        "declination": 5.27,
+        "runways": {
+            "07": {
+                "hdg": 69.0
+            },
+            "25": {
+                "hdg": 249.0
+            }
+        }
+    },
+    {
+        "icao": "UCFM",
+        "iata": "FRU",
+        "geo": [
+            "BISHKEK/MANAS",
+            "KYRGYZSTAN"
+        ],
+        "elevation": 2090,
+        "latitude": 43.061389,
+        "longitude": 74.4775,
+        "declination": 5.82,
+        "runways": {
+            "07": {
+                "hdg": 74.0
+            },
+            "25": {
+                "hdg": 254.0
+            }
+        }
+    },
+    {
+        "icao": "UCFO",
+        "iata": "OSS",
+        "geo": [
+            "OSH",
+            "KYRGYZSTAN"
+        ],
+        "elevation": 2938,
+        "latitude": 40.608333,
+        "longitude": 72.793333,
+        "declination": 5.15,
+        "runways": {
+            "12": {
+                "hdg": 121.0
+            },
+            "30": {
+                "hdg": 301.0
+            }
+        }
+    },
+    {
+        "icao": "UDSG",
+        "iata": "LWN",
+        "geo": [
+            "GYUMRI/SHIRAK",
+            "ARMENIA"
+        ],
+        "elevation": 5000,
+        "latitude": 40.750556,
+        "longitude": 43.859444,
+        "declination": 6.92,
+        "runways": {
+            "02": {
+                "hdg": 17.0
+            },
+            "20": {
+                "hdg": 197.0
+            }
+        }
+    },
+    {
+        "icao": "UDYZ",
+        "iata": "EVN",
+        "geo": [
+            "YEREVAN/ZVARTNOTS",
+            "ARMENIA"
+        ],
+        "elevation": 2838,
+        "latitude": 40.147222,
+        "longitude": 44.395833,
+        "declination": 6.74,
+        "runways": {
+            "08": {
+                "hdg": 83.0
+            },
+            "26": {
+                "hdg": 263.0
+            }
+        }
+    },
+    {
+        "icao": "UECT",
+        "iata": "TLK",
+        "geo": [
+            "TALAKAN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1329,
+        "latitude": 59.881667,
+        "longitude": 111.045556,
+        "declination": -9.18,
+        "runways": {
+            "01": {
+                "hdg": 10.0
+            },
+            "19": {
+                "hdg": 190.0
+            }
+        }
+    },
+    {
+        "icao": "UEEE",
+        "iata": "YKS",
+        "geo": [
+            "YAKUTSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 328,
+        "latitude": 62.093333,
+        "longitude": 129.773333,
+        "declination": -15.75,
+        "runways": {
+            "05": {
+                "hdg": 53.0
+            },
+            "23": {
+                "hdg": 233.0
+            }
+        }
+    },
+    {
+        "icao": "UELL",
+        "iata": "NER",
+        "geo": [
+            "NERYUNGRI CHULMAN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 2811,
+        "latitude": 56.913889,
+        "longitude": 124.913889,
+        "declination": -14.0,
+        "runways": {
+            "08": {
+                "hdg": 83.0
+            },
+            "26": {
+                "hdg": 263.0
+            }
+        }
+    },
+    {
+        "icao": "UERP",
+        "iata": "PYJ",
+        "geo": [
+            "POLYARNY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1673,
+        "latitude": 66.400556,
+        "longitude": 112.033889,
+        "declination": -10.14,
+        "runways": {
+            "17": {
+                "hdg": 175.0
+            },
+            "35": {
+                "hdg": 355.0
+            }
+        }
+    },
+    {
+        "icao": "UERR",
+        "iata": "MJZ",
+        "geo": [
+            "MIRNY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1161,
+        "latitude": 62.534722,
+        "longitude": 114.038889,
+        "declination": -11.32,
+        "runways": {
+            "07": {
+                "hdg": 68.0
+            },
+            "25": {
+                "hdg": 248.0
+            }
+        }
+    },
+    {
+        "icao": "UGSB",
+        "iata": "BUS",
+        "geo": [
+            "BATUMI",
+            "GEORGIA"
+        ],
+        "elevation": 37,
+        "latitude": 41.610278,
+        "longitude": 41.599444,
+        "declination": 7.14,
+        "runways": {
+            "12": {
+                "hdg": 124.0
+            },
+            "31": {
+                "hdg": 304.0
+            }
+        }
+    },
+    {
+        "icao": "UGTB",
+        "iata": "TBS",
+        "geo": [
+            "TBILISI/TBILISI",
+            "GEORGIA"
+        ],
+        "elevation": 1578,
+        "latitude": 41.669167,
+        "longitude": 44.954722,
+        "declination": 7.2,
+        "runways": {
+            "13R": {
+                "hdg": 130.0
+            },
+            "31L": {
+                "hdg": 310.0
+            }
+        }
+    },
+    {
+        "icao": "UHBB",
+        "iata": "BQS",
+        "geo": [
+            "BLAGOVESCHENSK/IGN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 648,
+        "latitude": 50.425556,
+        "longitude": 127.4125,
+        "declination": -12.58,
+        "runways": {
+            "18": {
+                "hdg": 181.0
+            },
+            "36": {
+                "hdg": 1.0
+            }
+        }
+    },
+    {
+        "icao": "UHHH",
+        "iata": "KHV",
+        "geo": [
+            "KHABAROVSK NOVY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 243,
+        "latitude": 48.528056,
+        "longitude": 135.188056,
+        "declination": -12.16,
+        "runways": {
+            "05L": {
+                "hdg": 54.0
+            },
+            "05R": {
+                "hdg": 54.0
+            },
+            "23L": {
+                "hdg": 234.0
+            },
+            "23R": {
+                "hdg": 234.0
+            }
+        }
+    },
+    {
+        "icao": "UHKD",
+        "iata": "XKD",
+        "geo": [
+            "KOMSOMOLSK NA AMUR",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 82,
+        "latitude": 50.605556,
+        "longitude": 137.081389,
+        "declination": -12.52,
+        "runways": {
+            "01": {
+                "hdg": 12.0
+            },
+            "19": {
+                "hdg": 192.0
+            }
+        }
+    },
+    {
+        "icao": "UHMA",
+        "iata": "DYR",
+        "geo": [
+            "ANADYR/UGOLNY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 196,
+        "latitude": 64.735,
+        "longitude": 177.738333,
+        "declination": -0.07,
+        "runways": {
+            "02": {
+                "hdg": 15.0
+            },
+            "20": {
+                "hdg": 195.0
+            }
+        }
+    },
+    {
+        "icao": "UHMM",
+        "iata": "GDX",
+        "geo": [
+            "MAGADAN/SOKOL",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 574,
+        "latitude": 59.910833,
+        "longitude": 150.720278,
+        "declination": -11.08,
+        "runways": {
+            "10": {
+                "hdg": 104.0
+            },
+            "28": {
+                "hdg": 284.0
+            }
+        }
+    },
+    {
+        "icao": "UHPP",
+        "iata": "PKC",
+        "geo": [
+            "PETROPAVLOVSK-KAMC",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 128,
+        "latitude": 53.169444,
+        "longitude": 158.450556,
+        "declination": -6.96,
+        "runways": {
+            "16R": {
+                "hdg": 164.0
+            },
+            "34L": {
+                "hdg": 344.0
+            }
+        }
+    },
+    {
+        "icao": "UHSS",
+        "iata": "UUS",
+        "geo": [
+            "YUZHNO-SAKHALINSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 59,
+        "latitude": 46.888333,
+        "longitude": 142.716667,
+        "declination": -10.59,
+        "runways": {
+            "01": {
+                "hdg": 12.0
+            },
+            "19": {
+                "hdg": 192.0
+            }
+        }
+    },
+    {
+        "icao": "UHWW",
+        "iata": "VVO",
+        "geo": [
+            "VLADIVOSTOK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 59,
+        "latitude": 43.398056,
+        "longitude": 132.148889,
+        "declination": -10.84,
+        "runways": {
+            "07R": {
+                "hdg": 72.0
+            },
+            "25L": {
+                "hdg": 252.0
+            }
+        }
+    },
+    {
+        "icao": "UIAA",
+        "iata": "HTA",
+        "geo": [
+            "CHITA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 2270,
+        "latitude": 52.026111,
+        "longitude": 113.305,
+        "declination": -8.92,
+        "runways": {
+            "11": {
+                "hdg": 109.0
+            },
+            "29": {
+                "hdg": 289.0
+            }
+        }
+    },
+    {
+        "icao": "UIBB",
+        "iata": "BTK",
+        "geo": [
+            "BRATSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1611,
+        "latitude": 56.370556,
+        "longitude": 101.698611,
+        "declination": -2.56,
+        "runways": {
+            "12": {
+                "hdg": 117.0
+            },
+            "30": {
+                "hdg": 297.0
+            }
+        }
+    },
+    {
+        "icao": "UIII",
+        "iata": "IKT",
+        "geo": [
+            "IRKUTSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1688,
+        "latitude": 52.267222,
+        "longitude": 104.394722,
+        "declination": -4.19,
+        "runways": {
+            "12": {
+                "hdg": 118.0
+            },
+            "30": {
+                "hdg": 298.0
+            }
+        }
+    },
+    {
+        "icao": "UIUU",
+        "iata": "UUD",
+        "geo": [
+            "ULAN-UDE/MUKHINO",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1699,
+        "latitude": 51.809722,
+        "longitude": 107.440556,
+        "declination": -5.88,
+        "runways": {
+            "08": {
+                "hdg": 83.0
+            },
+            "26": {
+                "hdg": 263.0
+            }
+        }
+    },
+    {
+        "icao": "ULAA",
+        "iata": "ARH",
+        "geo": [
+            "ARCHANGELSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 62,
+        "latitude": 64.600278,
+        "longitude": 40.716667,
+        "declination": 18.06,
+        "runways": {
+            "08": {
+                "hdg": 78.0
+            },
+            "26": {
+                "hdg": 258.0
+            }
+        }
+    },
+    {
+        "icao": "ULAM",
+        "iata": "NNM",
+        "geo": [
+            "NARYAN MAR",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 43,
+        "latitude": 67.640278,
+        "longitude": 53.121389,
+        "declination": 24.36,
+        "runways": {
+            "06": {
+                "hdg": 58.0
+            },
+            "24": {
+                "hdg": 238.0
+            }
+        }
+    },
+    {
+        "icao": "ULLI",
+        "iata": "LED",
+        "geo": [
+            "SANKT-PETERBURG/PU",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 79,
+        "latitude": 59.800278,
+        "longitude": 30.2625,
+        "declination": 11.76,
+        "runways": {
+            "10L": {
+                "hdg": 95.0
+            },
+            "10R": {
+                "hdg": 95.0
+            },
+            "28L": {
+                "hdg": 275.0
+            },
+            "28R": {
+                "hdg": 275.0
+            }
+        }
+    },
+    {
+        "icao": "ULMK",
+        "iata": "KVK",
+        "geo": [
+            "APATITY/KHIBINY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 525,
+        "latitude": 67.462778,
+        "longitude": 33.585556,
+        "declination": 17.0,
+        "runways": {
+            "11": {
+                "hdg": 112.0
+            },
+            "29": {
+                "hdg": 292.0
+            }
+        }
+    },
+    {
+        "icao": "ULMM",
+        "iata": "MMK",
+        "geo": [
+            "MURMANSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 267,
+        "latitude": 68.781667,
+        "longitude": 32.751111,
+        "declination": 17.38,
+        "runways": {
+            "13": {
+                "hdg": 130.0
+            },
+            "31": {
+                "hdg": 310.0
+            }
+        }
+    },
+    {
+        "icao": "ULOO",
+        "iata": "PKV",
+        "geo": [
+            "PSKOV",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 154,
+        "latitude": 57.781944,
+        "longitude": 28.394167,
+        "declination": 10.35,
+        "runways": {
+            "01": {
+                "hdg": 9.0
+            },
+            "19": {
+                "hdg": 189.0
+            }
+        }
+    },
+    {
+        "icao": "ULPB",
+        "iata": "PES",
+        "geo": [
+            "PETROZAVODSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 150,
+        "latitude": 61.885278,
+        "longitude": 34.154722,
+        "declination": 14.1,
+        "runways": {
+            "01": {
+                "hdg": 10.0
+            },
+            "19": {
+                "hdg": 190.0
+            }
+        }
+    },
+    {
+        "icao": "ULWC",
+        "iata": "CEE",
+        "geo": [
+            "CHEREPOVETS",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 377,
+        "latitude": 59.276111,
+        "longitude": 38.018889,
+        "declination": 13.92,
+        "runways": {
+            "03": {
+                "hdg": 29.0
+            },
+            "21": {
+                "hdg": 209.0
+            }
+        }
+    },
+    {
+        "icao": "UMKK",
+        "iata": "KGD",
+        "geo": [
+            "KALININGRAD",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 43,
+        "latitude": 54.891667,
+        "longitude": 20.598611,
+        "declination": 7.15,
+        "runways": {
+            "06": {
+                "hdg": 59.0
+            },
+            "24": {
+                "hdg": 239.0
+            }
+        }
+    },
+    {
+        "icao": "UMMS",
+        "iata": "MSQ",
+        "geo": [
+            "MINSK-2",
+            "BELARUS"
+        ],
+        "elevation": 681,
+        "latitude": 53.8825,
+        "longitude": 28.030833,
+        "declination": 8.93,
+        "runways": {
+            "13L": {
+                "hdg": 130.0
+            },
+            "13R": {
+                "hdg": 130.0
+            },
+            "31L": {
+                "hdg": 310.0
+            },
+            "31R": {
+                "hdg": 310.0
+            }
+        }
+    },
+    {
+        "icao": "UNAA",
+        "iata": "ABA",
+        "geo": [
+            "ABAKAN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 830,
+        "latitude": 53.74,
+        "longitude": 91.385278,
+        "declination": 3.8,
+        "runways": {
+            "02": {
+                "hdg": 22.0
+            },
+            "20": {
+                "hdg": 202.0
+            }
+        }
+    },
+    {
+        "icao": "UNBB",
+        "iata": "BAX",
+        "geo": [
+            "BARNAUL/MIKHAYLOVK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 838,
+        "latitude": 53.363333,
+        "longitude": 83.539722,
+        "declination": 7.68,
+        "runways": {
+            "06": {
+                "hdg": 60.0
+            },
+            "24": {
+                "hdg": 240.0
+            }
+        }
+    },
+    {
+        "icao": "UNBG",
+        "iata": "RGK",
+        "geo": [
+            "GORNO-ALTAISK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 968,
+        "latitude": 51.969167,
+        "longitude": 85.836389,
+        "declination": 6.06,
+        "runways": {
+            "02": {
+                "hdg": 19.0
+            },
+            "20": {
+                "hdg": 199.0
+            }
+        }
+    },
+    {
+        "icao": "UNEE",
+        "iata": "KEJ",
+        "geo": [
+            "KEMEROVO/ALEXEY LE",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 873,
+        "latitude": 55.27,
+        "longitude": 86.1075,
+        "declination": 7.33,
+        "runways": {
+            "05": {
+                "hdg": 47.0
+            },
+            "23": {
+                "hdg": 227.0
+            }
+        }
+    },
+    {
+        "icao": "UNKL",
+        "iata": "KJA",
+        "geo": [
+            "KRASNOYARSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 942,
+        "latitude": 56.173056,
+        "longitude": 92.493333,
+        "declination": 3.84,
+        "runways": {
+            "11": {
+                "hdg": 109.0
+            },
+            "29": {
+                "hdg": 289.0
+            }
+        }
+    },
+    {
+        "icao": "UNNT",
+        "iata": "OVB",
+        "geo": [
+            "NOVOSIBIRSK/TOLMAC",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 367,
+        "latitude": 55.033333,
+        "longitude": 82.599167,
+        "declination": 8.96,
+        "runways": {
+            "07": {
+                "hdg": 72.0
+            },
+            "16": {
+                "hdg": 161.0
+            },
+            "25": {
+                "hdg": 252.0
+            },
+            "34": {
+                "hdg": 341.0
+            }
+        }
+    },
+    {
+        "icao": "UNOO",
+        "iata": "OMS",
+        "geo": [
+            "OMSK TSENTRALNY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 312,
+        "latitude": 54.967222,
+        "longitude": 73.310278,
+        "declination": 12.3,
+        "runways": {
+            "07": {
+                "hdg": 65.0
+            },
+            "25": {
+                "hdg": 245.0
+            }
+        }
+    },
+    {
+        "icao": "UNTT",
+        "iata": "TOF",
+        "geo": [
+            "TOMSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 598,
+        "latitude": 56.383056,
+        "longitude": 85.210556,
+        "declination": 8.38,
+        "runways": {
+            "03": {
+                "hdg": 25.0
+            },
+            "21": {
+                "hdg": 205.0
+            }
+        }
+    },
+    {
+        "icao": "UNWW",
+        "iata": "NOZ",
+        "geo": [
+            "NOVOKUZNETSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1024,
+        "latitude": 53.81,
+        "longitude": 86.878333,
+        "declination": 6.29,
+        "runways": {
+            "01": {
+                "hdg": 14.0
+            },
+            "19": {
+                "hdg": 194.0
+            }
+        }
+    },
+    {
+        "icao": "UOHH",
+        "iata": "HTG",
+        "geo": [
+            "KHATANGA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 98,
+        "latitude": 71.978333,
+        "longitude": 102.493333,
+        "declination": 3.68,
+        "runways": {
+            "06": {
+                "hdg": 60.0
+            },
+            "24": {
+                "hdg": 240.0
+            }
+        }
+    },
+    {
+        "icao": "UOII",
+        "iata": "IAA",
+        "geo": [
+            "IGARKA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 82,
+        "latitude": 67.4375,
+        "longitude": 86.621944,
+        "declination": 16.58,
+        "runways": {
+            "12": {
+                "hdg": 118.0
+            },
+            "30": {
+                "hdg": 298.0
+            }
+        }
+    },
+    {
+        "icao": "UOOO",
+        "iata": "NSK",
+        "geo": [
+            "NORILSK ALYKEL",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 597,
+        "latitude": 69.308611,
+        "longitude": 87.327778,
+        "declination": 18.59,
+        "runways": {
+            "01": {
+                "hdg": 13.0
+            },
+            "19": {
+                "hdg": 193.0
+            }
+        }
+    },
+    {
+        "icao": "URFF",
+        "iata": "SIP",
+        "geo": [
+            "SIMFEROPOL INTL",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 631,
+        "latitude": 45.051944,
+        "longitude": 33.973611,
+        "declination": 7.53,
+        "runways": {
+            "01L": {
+                "hdg": 7.0
+            },
+            "19R": {
+                "hdg": 187.0
+            },
+            "01R": {
+                "hdg": 3.0
+            },
+            "19L": {
+                "hdg": 183.0
+            }
+        }
+    },
+    {
+        "icao": "URKA",
+        "iata": "AAQ",
+        "geo": [
+            "ANAPA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 176,
+        "latitude": 45.002222,
+        "longitude": 37.347222,
+        "declination": 7.86,
+        "runways": {
+            "03": {
+                "hdg": 34.0
+            },
+            "21": {
+                "hdg": 214.0
+            }
+        }
+    },
+    {
+        "icao": "URKG",
+        "iata": "GDZ",
+        "geo": [
+            "GELENDZHIK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 131,
+        "latitude": 44.581944,
+        "longitude": 38.013056,
+        "declination": 7.8,
+        "runways": {
+            "01": {
+                "hdg": 7.0
+            },
+            "01/1800": {
+                "hdg": 7.0
+            },
+            "19": {
+                "hdg": 187.0
+            }
+        }
+    },
+    {
+        "icao": "URKK",
+        "iata": "KRR",
+        "geo": [
+            "KRASNODAR PASHKOVS",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 120,
+        "latitude": 45.034722,
+        "longitude": 39.170278,
+        "declination": 8.03,
+        "runways": {
+            "05R": {
+                "hdg": 45.0
+            },
+            "23L": {
+                "hdg": 225.0
+            }
+        }
+    },
+    {
+        "icao": "URMG",
+        "iata": "GRV",
+        "geo": [
+            "GROZNY/SEVERNY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 538,
+        "latitude": 43.388333,
+        "longitude": 45.7,
+        "declination": 7.79,
+        "runways": {
+            "08": {
+                "hdg": 80.0
+            },
+            "26": {
+                "hdg": 260.0
+            }
+        }
+    },
+    {
+        "icao": "URML",
+        "iata": "MCX",
+        "geo": [
+            "MAKHACHKALA/UYTASH",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 16,
+        "latitude": 42.816944,
+        "longitude": 47.6525,
+        "declination": 7.6,
+        "runways": {
+            "14": {
+                "hdg": 141.0
+            },
+            "32": {
+                "hdg": 321.0
+            }
+        }
+    },
+    {
+        "icao": "URMM",
+        "iata": "MRV",
+        "geo": [
+            "MINERALNYYE VODY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1047,
+        "latitude": 44.226944,
+        "longitude": 43.083056,
+        "declination": 8.01,
+        "runways": {
+            "11": {
+                "hdg": 114.0
+            },
+            "29": {
+                "hdg": 294.0
+            }
+        }
+    },
+    {
+        "icao": "URMN",
+        "iata": "NAL",
+        "geo": [
+            "NALCHIK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1463,
+        "latitude": 43.513056,
+        "longitude": 43.636667,
+        "declination": 7.79,
+        "runways": {
+            "06": {
+                "hdg": 56.0
+            },
+            "24": {
+                "hdg": 236.0
+            }
+        }
+    },
+    {
+        "icao": "URMO",
+        "iata": "OGZ",
+        "geo": [
+            "VLADIKAVKAZ",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1673,
+        "latitude": 43.205278,
+        "longitude": 44.606667,
+        "declination": 7.71,
+        "runways": {
+            "09": {
+                "hdg": 94.0
+            },
+            "27": {
+                "hdg": 274.0
+            }
+        }
+    },
+    {
+        "icao": "URMS",
+        "iata": "IGT",
+        "geo": [
+            "MAGAS",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1207,
+        "latitude": 43.323611,
+        "longitude": 45.012222,
+        "declination": 7.76,
+        "runways": {
+            "09": {
+                "hdg": 88.0
+            },
+            "27": {
+                "hdg": 268.0
+            }
+        }
+    },
+    {
+        "icao": "URMT",
+        "iata": "STW",
+        "geo": [
+            "STAVROPOL SHPAKOVS",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1486,
+        "latitude": 45.109167,
+        "longitude": 42.112778,
+        "declination": 8.26,
+        "runways": {
+            "07": {
+                "hdg": 68.0
+            },
+            "25": {
+                "hdg": 248.0
+            }
+        }
+    },
+    {
+        "icao": "URRP",
+        "iata": "ROV",
+        "geo": [
+            "ROSTOV NA DONU/PLA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 281,
+        "latitude": 47.493889,
+        "longitude": 39.924722,
+        "declination": 8.92,
+        "runways": {
+            "05": {
+                "hdg": 46.0
+            },
+            "23": {
+                "hdg": 226.0
+            }
+        }
+    },
+    {
+        "icao": "URSS",
+        "iata": "AER",
+        "geo": [
+            "SOCHI",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 90,
+        "latitude": 43.444722,
+        "longitude": 39.946944,
+        "declination": 7.61,
+        "runways": {
+            "02": {
+                "hdg": 22.0
+            },
+            "06": {
+                "hdg": 58.0
+            },
+            "20": {
+                "hdg": 202.0
+            },
+            "24": {
+                "hdg": 238.0
+            }
+        }
+    },
+    {
+        "icao": "URWA",
+        "iata": "ASF",
+        "geo": [
+            "ASTRAKHAN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": -64,
+        "latitude": 46.283333,
+        "longitude": 48.006389,
+        "declination": 8.98,
+        "runways": {
+            "09": {
+                "hdg": 88.0
+            },
+            "27": {
+                "hdg": 268.0
+            }
+        }
+    },
+    {
+        "icao": "URWI",
+        "iata": "ESL",
+        "geo": [
+            "ELISTA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 502,
+        "latitude": 46.374722,
+        "longitude": 44.323889,
+        "declination": 8.86,
+        "runways": {
+            "09": {
+                "hdg": 90.0
+            },
+            "27": {
+                "hdg": 270.0
+            }
+        }
+    },
+    {
+        "icao": "URWW",
+        "iata": "VOG",
+        "geo": [
+            "VOLGOGRAD",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 476,
+        "latitude": 48.780278,
+        "longitude": 44.335556,
+        "declination": 9.85,
+        "runways": {
+            "06": {
+                "hdg": 55.0
+            },
+            "24": {
+                "hdg": 235.0
+            }
+        }
+    },
+    {
+        "icao": "USCC",
+        "iata": "CEK",
+        "geo": [
+            "CHELYABINSK BALAND",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 769,
+        "latitude": 55.305833,
+        "longitude": 61.503611,
+        "declination": 14.36,
+        "runways": {
+            "09": {
+                "hdg": 90.0
+            },
+            "27": {
+                "hdg": 270.0
+            }
+        }
+    },
+    {
+        "icao": "USCM",
+        "iata": "MQF",
+        "geo": [
+            "MAGNITOGORSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1432,
+        "latitude": 53.393056,
+        "longitude": 58.755556,
+        "declination": 13.1,
+        "runways": {
+            "18": {
+                "hdg": 184.0
+            },
+            "36": {
+                "hdg": 4.0
+            }
+        }
+    },
+    {
+        "icao": "USDA",
+        "iata": "SBT",
+        "geo": [
+            "SABETTA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 46,
+        "latitude": 71.214444,
+        "longitude": 72.038889,
+        "declination": 30.13,
+        "runways": {
+            "04": {
+                "hdg": 36.0
+            },
+            "22": {
+                "hdg": 216.0
+            }
+        }
+    },
+    {
+        "icao": "USDD",
+        "iata": "SLY",
+        "geo": [
+            "SALEKHARD",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 219,
+        "latitude": 66.590556,
+        "longitude": 66.611111,
+        "declination": 24.52,
+        "runways": {
+            "04": {
+                "hdg": 38.0
+            },
+            "22": {
+                "hdg": 218.0
+            }
+        }
+    },
+    {
+        "icao": "USHH",
+        "iata": "HMA",
+        "geo": [
+            "KHANTY-MANSIYSK/KH",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 141,
+        "latitude": 61.028611,
+        "longitude": 69.086111,
+        "declination": 18.25,
+        "runways": {
+            "06": {
+                "hdg": 58.0
+            },
+            "24": {
+                "hdg": 238.0
+            }
+        }
+    },
+    {
+        "icao": "USHQ",
+        "iata": "EYK",
+        "geo": [
+            "BELOYARSKIY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 80,
+        "latitude": 63.688056,
+        "longitude": 66.699722,
+        "declination": 21.28,
+        "runways": {
+            "16": {
+                "hdg": 161.0
+            },
+            "34": {
+                "hdg": 341.0
+            }
+        }
+    },
+    {
+        "icao": "USII",
+        "iata": "IJK",
+        "geo": [
+            "IZHEVSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 535,
+        "latitude": 56.835278,
+        "longitude": 53.4625,
+        "declination": 15.31,
+        "runways": {
+            "01": {
+                "hdg": 10.0
+            },
+            "19": {
+                "hdg": 190.0
+            }
+        }
+    },
+    {
+        "icao": "USKK",
+        "iata": "KVX",
+        "geo": [
+            "KIROV",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 486,
+        "latitude": 58.503611,
+        "longitude": 49.346944,
+        "declination": 15.99,
+        "runways": {
+            "03": {
+                "hdg": 33.0
+            },
+            "21": {
+                "hdg": 213.0
+            }
+        }
+    },
+    {
+        "icao": "USMM",
+        "iata": "NYM",
+        "geo": [
+            "NADYM",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 49,
+        "latitude": 65.482222,
+        "longitude": 72.698333,
+        "declination": 22.06,
+        "runways": {
+            "14": {
+                "hdg": 135.0
+            },
+            "32": {
+                "hdg": 315.0
+            }
+        }
+    },
+    {
+        "icao": "USMQ",
+        "iata": "YMB",
+        "geo": [
+            "YAMBURG",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 109,
+        "latitude": 67.988333,
+        "longitude": 75.096944,
+        "declination": 24.48,
+        "runways": {
+            "13": {
+                "hdg": 132.0
+            },
+            "31": {
+                "hdg": 312.0
+            }
+        }
+    },
+    {
+        "icao": "USMU",
+        "iata": "NUX",
+        "geo": [
+            "NOVY URENGOY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 213,
+        "latitude": 66.07,
+        "longitude": 76.519444,
+        "declination": 21.39,
+        "runways": {
+            "09": {
+                "hdg": 87.0
+            },
+            "27": {
+                "hdg": 267.0
+            }
+        }
+    },
+    {
+        "icao": "USNN",
+        "iata": "NJC",
+        "geo": [
+            "NIZHNEVARTOVSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 178,
+        "latitude": 60.948611,
+        "longitude": 76.480556,
+        "declination": 15.96,
+        "runways": {
+            "03": {
+                "hdg": 26.0
+            },
+            "21": {
+                "hdg": 206.0
+            }
+        }
+    },
+    {
+        "icao": "USPP",
+        "iata": "PEE",
+        "geo": [
+            "PERM/BOLSHOE SAVIN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 403,
+        "latitude": 57.914444,
+        "longitude": 56.021389,
+        "declination": 16.3,
+        "runways": {
+            "03": {
+                "hdg": 30.0
+            },
+            "21": {
+                "hdg": 210.0
+            }
+        }
+    },
+    {
+        "icao": "USRK",
+        "iata": "KGP",
+        "geo": [
+            "KOGALYM",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 220,
+        "latitude": 62.190556,
+        "longitude": 74.533611,
+        "declination": 17.89,
+        "runways": {
+            "17": {
+                "hdg": 172.0
+            },
+            "35": {
+                "hdg": 352.0
+            }
+        }
+    },
+    {
+        "icao": "USRO",
+        "iata": "NOJ",
+        "geo": [
+            "NOYABRSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 447,
+        "latitude": 63.183889,
+        "longitude": 75.268889,
+        "declination": 18.62,
+        "runways": {
+            "01": {
+                "hdg": 6.0
+            },
+            "19": {
+                "hdg": 186.0
+            }
+        }
+    },
+    {
+        "icao": "USRR",
+        "iata": "SGC",
+        "geo": [
+            "SURGUT",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 200,
+        "latitude": 61.343889,
+        "longitude": 73.402222,
+        "declination": 17.45,
+        "runways": {
+            "07": {
+                "hdg": 73.0
+            },
+            "25": {
+                "hdg": 253.0
+            }
+        }
+    },
+    {
+        "icao": "USSS",
+        "iata": "SVX",
+        "geo": [
+            "YEKATERINBURG/KOLT",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 766,
+        "latitude": 56.743056,
+        "longitude": 60.803056,
+        "declination": 15.46,
+        "runways": {
+            "08L": {
+                "hdg": 75.0
+            },
+            "08R": {
+                "hdg": 79.0
+            },
+            "26L": {
+                "hdg": 259.0
+            },
+            "26R": {
+                "hdg": 255.0
+            }
+        }
+    },
+    {
+        "icao": "USTJ",
+        "iata": "RMZ",
+        "geo": [
+            "TOBOLSK/REMEZOV",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 157,
+        "latitude": 58.058333,
+        "longitude": 68.348611,
+        "declination": 15.77,
+        "runways": {
+            "08": {
+                "hdg": 75.0
+            },
+            "26": {
+                "hdg": 255.0
+            }
+        }
+    },
+    {
+        "icao": "USTR",
+        "iata": "TJM",
+        "geo": [
+            "TYUMEN/ROSHCHINO",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 378,
+        "latitude": 57.168333,
+        "longitude": 65.316111,
+        "declination": 15.48,
+        "runways": {
+            "03": {
+                "hdg": 33.0
+            },
+            "12": {
+                "hdg": 120.0
+            },
+            "21": {
+                "hdg": 213.0
+            },
+            "30": {
+                "hdg": 300.0
+            }
+        }
+    },
+    {
+        "icao": "USUU",
+        "iata": "KRO",
+        "geo": [
+            "KURGAN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 238,
+        "latitude": 55.475,
+        "longitude": 65.415278,
+        "declination": 14.16,
+        "runways": {
+            "02": {
+                "hdg": 16.0
+            },
+            "20": {
+                "hdg": 196.0
+            }
+        }
+    },
+    {
+        "icao": "UTAA",
+        "iata": "ASB",
+        "geo": [
+            "ASHGABAT",
+            "UZBEKISTAN"
+        ],
+        "elevation": 692,
+        "latitude": 37.991667,
+        "longitude": 58.361944,
+        "declination": 5.41,
+        "runways": {
+            "11L": {
+                "hdg": 114.0
+            },
+            "11R": {
+                "hdg": 114.0
+            },
+            "29L": {
+                "hdg": 294.0
+            },
+            "29R": {
+                "hdg": 294.0
+            }
+        }
+    },
+    {
+        "icao": "UTAK",
+        "iata": "KRW",
+        "geo": [
+            "TURKMENBASHI",
+            "UZBEKISTAN"
+        ],
+        "elevation": 283,
+        "latitude": 40.063333,
+        "longitude": 53.007222,
+        "declination": 6.45,
+        "runways": {
+            "16L": {
+                "hdg": 161.0
+            },
+            "16R": {
+                "hdg": 161.0
+            },
+            "34L": {
+                "hdg": 341.0
+            },
+            "34R": {
+                "hdg": 341.0
+            }
+        }
+    },
+    {
+        "icao": "UTDD",
+        "iata": "DYU",
+        "geo": [
+            "DUSHANBE",
+            "UZBEKISTAN"
+        ],
+        "elevation": 2569,
+        "latitude": 38.543611,
+        "longitude": 68.824722,
+        "declination": 4.84,
+        "runways": {
+            "09": {
+                "hdg": 86.0
+            },
+            "27": {
+                "hdg": 266.0
+            }
+        }
+    },
+    {
+        "icao": "UTDK",
+        "iata": "TJU",
+        "geo": [
+            "KULOB",
+            "UZBEKISTAN"
+        ],
+        "elevation": 2293,
+        "latitude": 37.988333,
+        "longitude": 69.806667,
+        "declination": 4.56,
+        "runways": {
+            "01": {
+                "hdg": 13.0
+            },
+            "19": {
+                "hdg": 193.0
+            }
+        }
+    },
+    {
+        "icao": "UTDL",
+        "iata": "LBD",
+        "geo": [
+            "KHUJAND",
+            "UZBEKISTAN"
+        ],
+        "elevation": 1450,
+        "latitude": 40.215,
+        "longitude": 69.696667,
+        "declination": 5.35,
+        "runways": {
+            "08": {
+                "hdg": 78.0
+            },
+            "26": {
+                "hdg": 258.0
+            }
+        }
+    },
+    {
+        "icao": "UTFA",
+        "iata": "AZN",
+        "geo": [
+            "ANDIZHAN",
+            "UZBEKISTAN"
+        ],
+        "elevation": 1558,
+        "latitude": 40.726944,
+        "longitude": 72.2925,
+        "declination": 5.25,
+        "runways": {
+            "04": {
+                "hdg": 41.0
+            },
+            "22": {
+                "hdg": 221.0
+            }
+        }
+    },
+    {
+        "icao": "UTFF",
+        "iata": "FEG",
+        "geo": [
+            "FERGANA",
+            "UZBEKISTAN"
+        ],
+        "elevation": 2052,
+        "latitude": 40.358333,
+        "longitude": 71.744722,
+        "declination": 5.18,
+        "runways": {
+            "18": {
+                "hdg": 178.0
+            },
+            "36": {
+                "hdg": 358.0
+            }
+        }
+    },
+    {
+        "icao": "UTFN",
+        "iata": "NMA",
+        "geo": [
+            "NAMANGAN",
+            "UZBEKISTAN"
+        ],
+        "elevation": 1703,
+        "latitude": 40.985,
+        "longitude": 71.556667,
+        "declination": 5.43,
+        "runways": {
+            "10": {
+                "hdg": 103.0
+            },
+            "28": {
+                "hdg": 283.0
+            }
+        }
+    },
+    {
+        "icao": "UTNN",
+        "iata": "NCU",
+        "geo": [
+            "NUKUS",
+            "UZBEKISTAN"
+        ],
+        "elevation": 250,
+        "latitude": 42.489167,
+        "longitude": 59.622778,
+        "declination": 7.09,
+        "runways": {
+            "15": {
+                "hdg": 148.0
+            },
+            "33": {
+                "hdg": 328.0
+            }
+        }
+    },
+    {
+        "icao": "UTNU",
+        "iata": "UGC",
+        "geo": [
+            "URGENCH",
+            "UZBEKISTAN"
+        ],
+        "elevation": 322,
+        "latitude": 41.5825,
+        "longitude": 60.643611,
+        "declination": 6.64,
+        "runways": {
+            "13": {
+                "hdg": 133.0
+            },
+            "31": {
+                "hdg": 313.0
+            }
+        }
+    },
+    {
+        "icao": "UTSA",
+        "iata": "NVI",
+        "geo": [
+            "NAVOI",
+            "UZBEKISTAN"
+        ],
+        "elevation": 1142,
+        "latitude": 40.117222,
+        "longitude": 65.171111,
+        "declination": 5.72,
+        "runways": {
+            "07": {
+                "hdg": 72.0
+            },
+            "25": {
+                "hdg": 252.0
+            }
+        }
+    },
+    {
+        "icao": "UTSB",
+        "iata": "BHK",
+        "geo": [
+            "BUKHARA",
+            "UZBEKISTAN"
+        ],
+        "elevation": 751,
+        "latitude": 39.775278,
+        "longitude": 64.482222,
+        "declination": 5.64,
+        "runways": {
+            "01": {
+                "hdg": 5.0
+            },
+            "19": {
+                "hdg": 185.0
+            }
+        }
+    },
+    {
+        "icao": "UTSK",
+        "iata": "KSQ",
+        "geo": [
+            "KARSHI",
+            "UZBEKISTAN"
+        ],
+        "elevation": 1232,
+        "latitude": 38.8025,
+        "longitude": 65.773056,
+        "declination": 5.18,
+        "runways": {
+            "16": {
+                "hdg": 159.0
+            },
+            "34": {
+                "hdg": 339.0
+            }
+        }
+    },
+    {
+        "icao": "UTSS",
+        "iata": "SKD",
+        "geo": [
+            "SAMARKAND",
+            "UZBEKISTAN"
+        ],
+        "elevation": 2223,
+        "latitude": 39.701667,
+        "longitude": 66.9825,
+        "declination": 5.41,
+        "runways": {
+            "09": {
+                "hdg": 91.0
+            },
+            "27": {
+                "hdg": 271.0
+            }
+        }
+    },
+    {
+        "icao": "UTTT",
+        "iata": "TAS",
+        "geo": [
+            "TASHKENT INTL/ISLA",
+            "UZBEKISTAN"
+        ],
+        "elevation": 1417,
+        "latitude": 41.256667,
+        "longitude": 69.281667,
+        "declination": 5.79,
+        "runways": {
+            "08L": {
+                "hdg": 76.0
+            },
+            "08R": {
+                "hdg": 76.0
+            },
+            "26L": {
+                "hdg": 256.0
+            },
+            "26R": {
+                "hdg": 256.0
+            }
+        }
+    },
+    {
+        "icao": "UUBP",
+        "iata": "BZK",
+        "geo": [
+            "BRYANSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 665,
+        "latitude": 53.214444,
+        "longitude": 34.175833,
+        "declination": 10.14,
+        "runways": {
+            "16": {
+                "hdg": 161.0
+            },
+            "34": {
+                "hdg": 341.0
+            }
+        }
+    },
+    {
+        "icao": "UUBW",
+        "iata": "ZIA",
+        "geo": [
+            "RAMENSKOYE",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 404,
+        "latitude": 55.552778,
+        "longitude": 38.149722,
+        "declination": 12.03,
+        "runways": {
+            "12": {
+                "hdg": 120.0
+            },
+            "30": {
+                "hdg": 300.0
+            }
+        }
+    },
+    {
+        "icao": "UUDD",
+        "iata": "DME",
+        "geo": [
+            "MOSCOW/DOMODEDOVO",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 592,
+        "latitude": 55.409167,
+        "longitude": 37.9075,
+        "declination": 11.91,
+        "runways": {
+            "14C": {
+                "hdg": 135.0
+            },
+            "14L": {
+                "hdg": 135.0
+            },
+            "14R": {
+                "hdg": 135.0
+            },
+            "32C": {
+                "hdg": 315.0
+            },
+            "32L": {
+                "hdg": 315.0
+            },
+            "32R": {
+                "hdg": 315.0
+            }
+        }
+    },
+    {
+        "icao": "UUDL",
+        "iata": "IAR",
+        "geo": [
+            "YAROSLAVL / TUNOSH",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 305,
+        "latitude": 57.560556,
+        "longitude": 40.157222,
+        "declination": 13.54,
+        "runways": {
+            "05": {
+                "hdg": 51.0
+            },
+            "23": {
+                "hdg": 231.0
+            }
+        }
+    },
+    {
+        "icao": "UUEE",
+        "iata": "SVO",
+        "geo": [
+            "MOSCOW/SHEREMETYEV",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 630,
+        "latitude": 55.9725,
+        "longitude": 37.413056,
+        "declination": 12.07,
+        "runways": {
+            "06C": {
+                "hdg": 63.0
+            },
+            "06L": {
+                "hdg": 63.0
+            },
+            "06R": {
+                "hdg": 63.0
+            },
+            "24C": {
+                "hdg": 243.0
+            },
+            "24L": {
+                "hdg": 243.0
+            },
+            "24R": {
+                "hdg": 243.0
+            }
+        }
+    },
+    {
+        "icao": "UUOB",
+        "iata": "EGO",
+        "geo": [
+            "BELGOROD",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 735,
+        "latitude": 50.643889,
+        "longitude": 36.59,
+        "declination": 9.63,
+        "runways": {
+            "11": {
+                "hdg": 109.0
+            },
+            "29": {
+                "hdg": 289.0
+            }
+        }
+    },
+    {
+        "icao": "UUOK",
+        "iata": "URS",
+        "geo": [
+            "KURSK VOSTOCHNY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 686,
+        "latitude": 51.751667,
+        "longitude": 36.296667,
+        "declination": 10.0,
+        "runways": {
+            "12": {
+                "hdg": 116.0
+            },
+            "30": {
+                "hdg": 296.0
+            }
+        }
+    },
+    {
+        "icao": "UUOL",
+        "iata": "LPK",
+        "geo": [
+            "LIPETSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 587,
+        "latitude": 52.7025,
+        "longitude": 39.538333,
+        "declination": 10.98,
+        "runways": {
+            "15": {
+                "hdg": 150.0
+            },
+            "33": {
+                "hdg": 330.0
+            }
+        }
+    },
+    {
+        "icao": "UUOO",
+        "iata": "VOZ",
+        "geo": [
+            "VORONEZH",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 517,
+        "latitude": 51.815,
+        "longitude": 39.229722,
+        "declination": 10.53,
+        "runways": {
+            "12": {
+                "hdg": 121.0
+            },
+            "30": {
+                "hdg": 301.0
+            }
+        }
+    },
+    {
+        "icao": "UUWW",
+        "iata": "VKO",
+        "geo": [
+            "MOSCOW/VNUKOVO",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 685,
+        "latitude": 55.599167,
+        "longitude": 37.273056,
+        "declination": 11.86,
+        "runways": {
+            "01": {
+                "hdg": 12.0
+            },
+            "06": {
+                "hdg": 57.0
+            },
+            "19": {
+                "hdg": 192.0
+            },
+            "24": {
+                "hdg": 237.0
+            }
+        }
+    },
+    {
+        "icao": "UUYH",
+        "iata": "UCT",
+        "geo": [
+            "UKHTA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 482,
+        "latitude": 63.566944,
+        "longitude": 53.804444,
+        "declination": 20.72,
+        "runways": {
+            "18": {
+                "hdg": 175.0
+            },
+            "36": {
+                "hdg": 355.0
+            }
+        }
+    },
+    {
+        "icao": "UUYS",
+        "iata": "USK",
+        "geo": [
+            "USINSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 261,
+        "latitude": 66.004722,
+        "longitude": 57.367222,
+        "declination": 23.56,
+        "runways": {
+            "13": {
+                "hdg": 134.0
+            },
+            "31": {
+                "hdg": 314.0
+            }
+        }
+    },
+    {
+        "icao": "UUYW",
+        "iata": "VKT",
+        "geo": [
+            "VORKUTA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 604,
+        "latitude": 67.488889,
+        "longitude": 63.993056,
+        "declination": 25.68,
+        "runways": {
+            "08": {
+                "hdg": 77.0
+            },
+            "26": {
+                "hdg": 257.0
+            }
+        }
+    },
+    {
+        "icao": "UUYY",
+        "iata": "SCW",
+        "geo": [
+            "SYKTYVKAR",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 339,
+        "latitude": 61.646944,
+        "longitude": 50.845,
+        "declination": 18.6,
+        "runways": {
+            "18": {
+                "hdg": 184.0
+            },
+            "36": {
+                "hdg": 4.0
+            }
+        }
+    },
+    {
+        "icao": "UWGG",
+        "iata": "GOJ",
+        "geo": [
+            "NIZHNY NOVGOROD/ST",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 258,
+        "latitude": 56.23,
+        "longitude": 43.784167,
+        "declination": 13.56,
+        "runways": {
+            "18L": {
+                "hdg": 179.0
+            },
+            "18R": {
+                "hdg": 179.0
+            },
+            "36L": {
+                "hdg": 359.0
+            },
+            "36R": {
+                "hdg": 359.0
+            }
+        }
+    },
+    {
+        "icao": "UWKD",
+        "iata": "KZN",
+        "geo": [
+            "KAZAN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 410,
+        "latitude": 55.606944,
+        "longitude": 49.280278,
+        "declination": 14.05,
+        "runways": {
+            "11": {
+                "hdg": 110.0
+            },
+            "29": {
+                "hdg": 290.0
+            }
+        }
+    },
+    {
+        "icao": "UWKE",
+        "iata": "NBC",
+        "geo": [
+            "NIZHNEKAMSK/BEGISH",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 643,
+        "latitude": 55.564722,
+        "longitude": 52.0925,
+        "declination": 14.32,
+        "runways": {
+            "03": {
+                "hdg": 33.0
+            },
+            "21": {
+                "hdg": 213.0
+            }
+        }
+    },
+    {
+        "icao": "UWKJ",
+        "iata": "JOK",
+        "geo": [
+            "YOSHKAR-OLA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 348,
+        "latitude": 56.705,
+        "longitude": 47.895278,
+        "declination": 14.56,
+        "runways": {
+            "16": {
+                "hdg": 159.0
+            },
+            "34": {
+                "hdg": 339.0
+            }
+        }
+    },
+    {
+        "icao": "UWKS",
+        "iata": "CSY",
+        "geo": [
+            "CHEBOKSARY",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 561,
+        "latitude": 56.090278,
+        "longitude": 47.347222,
+        "declination": 14.08,
+        "runways": {
+            "06": {
+                "hdg": 58.0
+            },
+            "24": {
+                "hdg": 238.0
+            }
+        }
+    },
+    {
+        "icao": "UWLL",
+        "iata": "ULV",
+        "geo": [
+            "ULYANOVSK-BARATAEW",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 449,
+        "latitude": 54.271111,
+        "longitude": 48.226667,
+        "declination": 13.09,
+        "runways": {
+            "02": {
+                "hdg": 19.0
+            },
+            "20": {
+                "hdg": 199.0
+            }
+        }
+    },
+    {
+        "icao": "UWLW",
+        "iata": "ULY",
+        "geo": [
+            "ULYANOVSK/VOSTOCHN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 251,
+        "latitude": 54.399444,
+        "longitude": 48.801111,
+        "declination": 13.24,
+        "runways": {
+            "02": {
+                "hdg": 18.0
+            },
+            "20": {
+                "hdg": 198.0
+            }
+        }
+    },
+    {
+        "icao": "UWOO",
+        "iata": "REN",
+        "geo": [
+            "ORENBURG",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 387,
+        "latitude": 51.796944,
+        "longitude": 55.458333,
+        "declination": 12.07,
+        "runways": {
+            "08": {
+                "hdg": 79.0
+            },
+            "26": {
+                "hdg": 259.0
+            }
+        }
+    },
+    {
+        "icao": "UWOR",
+        "iata": "OSW",
+        "geo": [
+            "ORSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 909,
+        "latitude": 51.0725,
+        "longitude": 58.595833,
+        "declination": 11.61,
+        "runways": {
+            "07": {
+                "hdg": 66.0
+            },
+            "25": {
+                "hdg": 246.0
+            }
+        }
+    },
+    {
+        "icao": "UWPP",
+        "iata": "PEZ",
+        "geo": [
+            "PENZA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 604,
+        "latitude": 53.109167,
+        "longitude": 45.026111,
+        "declination": 12.03,
+        "runways": {
+            "10": {
+                "hdg": 105.0
+            },
+            "28": {
+                "hdg": 285.0
+            }
+        }
+    },
+    {
+        "icao": "UWPS",
+        "iata": "SKX",
+        "geo": [
+            "SARANSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 709,
+        "latitude": 54.125278,
+        "longitude": 45.212778,
+        "declination": 12.61,
+        "runways": {
+            "02": {
+                "hdg": 21.0
+            },
+            "20": {
+                "hdg": 201.0
+            }
+        }
+    },
+    {
+        "icao": "UWSG",
+        "iata": "GSV",
+        "geo": [
+            "SARATOV/GAGARIN",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 103,
+        "latitude": 51.712778,
+        "longitude": 46.171111,
+        "declination": 11.43,
+        "runways": {
+            "08": {
+                "hdg": 81.0
+            },
+            "26": {
+                "hdg": 261.0
+            }
+        }
+    },
+    {
+        "icao": "UWUU",
+        "iata": "UFA",
+        "geo": [
+            "UFA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 449,
+        "latitude": 54.557778,
+        "longitude": 55.873889,
+        "declination": 13.87,
+        "runways": {
+            "14L": {
+                "hdg": 138.0
+            },
+            "14R": {
+                "hdg": 138.0
+            },
+            "32L": {
+                "hdg": 318.0
+            },
+            "32R": {
+                "hdg": 318.0
+            }
+        }
+    },
+    {
+        "icao": "UWWW",
+        "iata": "KUF",
+        "geo": [
+            "SAMARA/KURUMOCH",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 477,
+        "latitude": 53.501111,
+        "longitude": 50.153889,
+        "declination": 12.83,
+        "runways": {
+            "05": {
+                "hdg": 49.0
+            },
+            "15": {
+                "hdg": 148.0
+            },
+            "23": {
+                "hdg": 229.0
+            },
+            "33": {
+                "hdg": 328.0
+            }
+        }
+    },
+    {
+        "icao": "VAAH",
+        "iata": "AMD",
+        "geo": [
+            "AHMEDABAD/VALLABH",
+            "INDIA"
+        ],
+        "elevation": 189,
+        "latitude": 23.071111,
+        "longitude": 72.626389,
+        "declination": 0.94,
+        "runways": {
+            "05": {
+                "hdg": 45.0
+            },
+            "23": {
+                "hdg": 225.0
+            }
+        }
+    },
+    {
+        "icao": "VABB",
+        "iata": "BOM",
+        "geo": [
+            "MUMBAI/CHHATRAPATI",
+            "INDIA"
+        ],
+        "elevation": 40,
+        "latitude": 19.091667,
+        "longitude": 72.866111,
+        "declination": 0.3,
+        "runways": {
+            "09": {
+                "hdg": 90.0
+            },
+            "14": {
+                "hdg": 135.0
+            },
+            "27": {
+                "hdg": 270.0
+            },
+            "32": {
+                "hdg": 315.0
+            }
+        }
+    },
+    {
+        "icao": "VCBI",
+        "iata": "CMB",
+        "geo": [
+            "KATUNAYAKE/BAN. IN",
+            "SRI LANKA"
+        ],
+        "elevation": 30,
+        "latitude": 7.180278,
+        "longitude": 79.885278,
+        "declination": -1.56,
+        "runways": {
+            "04": {
+                "hdg": 40.0
+            },
+            "22": {
+                "hdg": 220.0
+            }
+        }
+    },
+    {
+        "icao": "VCRI",
+        "iata": "HRI",
+        "geo": [
+            "MATTALA RAJAPAKSA",
+            "SRI LANKA"
+        ],
+        "elevation": 159,
+        "latitude": 6.284444,
+        "longitude": 81.124167,
+        "declination": -1.64,
+        "runways": {
+            "05": {
+                "hdg": 48.0
+            },
+            "23": {
+                "hdg": 228.0
+            }
+        }
+    },
+    {
+        "icao": "VDPP",
+        "iata": "PNH",
+        "geo": [
+            "PHNOM PENH",
+            "CAMBODIA"
+        ],
+        "elevation": 40,
+        "latitude": 11.546667,
+        "longitude": 104.844167,
+        "declination": -0.61,
+        "runways": {
+            "05": {
+                "hdg": 46.0
+            },
+            "23": {
+                "hdg": 226.0
+            }
+        }
+    },
+    {
+        "icao": "VECC",
+        "iata": "CCU",
+        "geo": [
+            "KOLKATA INTL",
+            "INDIA"
+        ],
+        "elevation": 20,
+        "latitude": 22.653889,
+        "longitude": 88.446667,
+        "declination": 0.11,
+        "runways": {
+            "01L": {
+                "hdg": 7.0
+            },
+            "01R": {
+                "hdg": 7.0
+            },
+            "19L": {
+                "hdg": 187.0
+            },
+            "19R": {
+                "hdg": 187.0
+            }
+        }
+    },
+    {
+        "icao": "VGHS",
+        "iata": "DAC",
+        "geo": [
+            "DHAKA/HAZRAT SHAHJ",
+            "BANGLADESH"
+        ],
+        "elevation": 27,
+        "latitude": 23.843333,
+        "longitude": 90.397778,
+        "declination": 0.06,
+        "runways": {
+            "14": {
+                "hdg": 144.0
+            },
+            "32": {
+                "hdg": 324.0
+            }
+        }
+    },
+    {
+        "icao": "VHHH",
+        "iata": "HKG",
+        "geo": [
+            "HONG KONG INTL",
+            "HONG KONG"
+        ],
+        "elevation": 28,
+        "latitude": 22.308889,
+        "longitude": 113.914722,
+        "declination": -3.28,
+        "runways": {
+            "07L": {
+                "hdg": 74.0
+            },
+            "07R": {
+                "hdg": 74.0
+            },
+            "25L": {
+                "hdg": 254.0
+            },
+            "25R": {
+                "hdg": 254.0
+            },
+            "07C": {
+                "hdg": 74.0
+            },
+            "25C": {
+                "hdg": 254.0
+            }
+        }
+    },
+    {
+        "icao": "VIAR",
+        "iata": "ATQ",
+        "geo": [
+            "AMRITSAR/SRI GURU",
+            "INDIA"
+        ],
+        "elevation": 760,
+        "latitude": 31.710556,
+        "longitude": 74.800278,
+        "declination": 2.44,
+        "runways": {
+            "16": {
+                "hdg": 156.0
+            },
+            "34": {
+                "hdg": 336.0
+            }
+        }
+    },
+    {
+        "icao": "VIDP",
+        "iata": "DEL",
+        "geo": [
+            "DELHI/INDIRA GANDH",
+            "INDIA"
+        ],
+        "elevation": 778,
+        "latitude": 28.568611,
+        "longitude": 77.112222,
+        "declination": 1.64,
+        "runways": {
+            "09": {
+                "hdg": 91.0
+            },
+            "10": {
+                "hdg": 104.0
+            },
+            "11L": {
+                "hdg": 103.0
+            },
+            "11R": {
+                "hdg": 103.0
+            },
+            "27": {
+                "hdg": 271.0
+            },
+            "28": {
+                "hdg": 284.0
+            },
+            "29L": {
+                "hdg": 283.0
+            },
+            "29R": {
+                "hdg": 283.0
+            }
+        }
+    },
+    {
+        "icao": "VILK",
+        "iata": "LKO",
+        "geo": [
+            "CHAUDHARY CHARAN S",
+            "INDIA"
+        ],
+        "elevation": 406,
+        "latitude": 26.761944,
+        "longitude": 80.883333,
+        "declination": 1.08,
+        "runways": {
+            "09": {
+                "hdg": 89.0
+            },
+            "27": {
+                "hdg": 269.0
+            }
+        }
+    },
+    {
+        "icao": "VLVT",
+        "iata": "VTE",
+        "geo": [
+            "VIENTIANE WATTAY",
+            "LAOS PEOPLES DEMOCRATIC REPUBLIC"
+        ],
+        "elevation": 566,
+        "latitude": 17.988333,
+        "longitude": 102.563333,
+        "declination": -0.94,
+        "runways": {
+            "13": {
+                "hdg": 135.0
+            },
+            "31": {
+                "hdg": 315.0
+            }
+        }
+    },
+    {
+        "icao": "VMMC",
+        "iata": "MFM",
+        "geo": [
+            "MACAO INTL",
+            "CHINA"
+        ],
+        "elevation": 20,
+        "latitude": 22.149444,
+        "longitude": 113.591389,
+        "declination": -3.2,
+        "runways": {
+            "16": {
+                "hdg": 164.0
+            },
+            "34": {
+                "hdg": 344.0
+            }
+        }
+    },
+    {
+        "icao": "VOBL",
+        "iata": "BLR",
+        "geo": [
+            "BENGALURU/KEMPEGOW",
+            "INDIA"
+        ],
+        "elevation": 3003,
+        "latitude": 13.198889,
+        "longitude": 77.705556,
+        "declination": -0.69,
+        "runways": {
+            "09L": {
+                "hdg": 92.0
+            },
+            "09R": {
+                "hdg": 92.0
+            },
+            "27L": {
+                "hdg": 272.0
+            },
+            "27R": {
+                "hdg": 272.0
+            }
+        }
+    },
+    {
+        "icao": "VOGO",
+        "iata": "GOI",
+        "geo": [
+            "GOA/DABOLIM NAVY",
+            "INDIA"
+        ],
+        "elevation": 186,
+        "latitude": 15.380833,
+        "longitude": 73.826944,
+        "declination": -0.29,
+        "runways": {
+            "08": {
+                "hdg": 80.0
+            },
+            "26": {
+                "hdg": 260.0
+            }
+        }
+    },
+    {
+        "icao": "VOHS",
+        "iata": "HYD",
+        "geo": [
+            "HYDERABAD/RAJIV GA",
+            "INDIA"
+        ],
+        "elevation": 2030,
+        "latitude": 17.240556,
+        "longitude": 78.428889,
+        "declination": -0.14,
+        "runways": {
+            "09L": {
+                "hdg": 90.0
+            },
+            "09R": {
+                "hdg": 90.0
+            },
+            "27L": {
+                "hdg": 270.0
+            },
+            "27R": {
+                "hdg": 270.0
+            }
+        }
+    },
+    {
+        "icao": "VOMM",
+        "iata": "MAA",
+        "geo": [
+            "CHENNAI INTL",
+            "INDIA"
+        ],
+        "elevation": 54,
+        "latitude": 12.995,
+        "longitude": 80.173611,
+        "declination": -0.73,
+        "runways": {
+            "07": {
+                "hdg": 71.0
+            },
+            "12": {
+                "hdg": 119.0
+            },
+            "25": {
+                "hdg": 251.0
+            },
+            "30": {
+                "hdg": 299.0
+            }
+        }
+    },
+    {
+        "icao": "VOTV",
+        "iata": "TRV",
+        "geo": [
+            "THIRUVANANTHAPURAM",
+            "INDIA"
+        ],
+        "elevation": 17,
+        "latitude": 8.479444,
+        "longitude": 76.92,
+        "declination": -1.42,
+        "runways": {
+            "14": {
+                "hdg": 138.0
+            },
+            "32": {
+                "hdg": 318.0
+            }
+        }
+    },
+    {
+        "icao": "VRMM",
+        "iata": "MLE",
+        "geo": [
+            "MALE/VELANA INTL",
+            "MALDIVES"
+        ],
+        "elevation": 6,
+        "latitude": 4.191667,
+        "longitude": 73.529167,
+        "declination": -2.3,
+        "runways": {
+            "18": {
+                "hdg": 182.0
+            },
+            "36": {
+                "hdg": 2.0
+            }
+        }
+    },
+    {
+        "icao": "VTBS",
+        "iata": "BKK",
+        "geo": [
+            "BANGKOK/SUVARNABHU",
+            "THAILAND"
+        ],
+        "elevation": 5,
+        "latitude": 13.685833,
+        "longitude": 100.748889,
+        "declination": -0.53,
+        "runways": {
+            "02R": {
+                "hdg": 15.0
+            },
+            "20L": {
+                "hdg": 195.0
+            },
+            "02L": {
+                "hdg": 15.0
+            },
+            "20R": {
+                "hdg": 195.0
+            },
+            "01": {
+                "hdg": 15.0
+            },
+            "19": {
+                "hdg": 195.0
+            }
+        }
+    },
+    {
+        "icao": "VTBU",
+        "iata": "UTP",
+        "geo": [
+            "RAYONG/U-TAPAO PAT",
+            "THAILAND"
+        ],
+        "elevation": 59,
+        "latitude": 12.679444,
+        "longitude": 101.004722,
+        "declination": -0.48,
+        "runways": {
+            "18": {
+                "hdg": 184.0
+            },
+            "36": {
+                "hdg": 4.0
+            }
+        }
+    },
+    {
+        "icao": "VTSP",
+        "iata": "HKT",
+        "geo": [
+            "PHUKET INTL",
+            "THAILAND"
+        ],
+        "elevation": 82,
+        "latitude": 8.1125,
+        "longitude": 98.309167,
+        "declination": -0.27,
+        "runways": {
+            "09": {
+                "hdg": 85.0
+            },
+            "27": {
+                "hdg": 265.0
+            }
+        }
+    },
+    {
+        "icao": "VVCR",
+        "iata": "CXR",
+        "geo": [
+            "KHANH HOA/CAM RANH",
+            "VIETNAM"
+        ],
+        "elevation": 46,
+        "latitude": 11.995556,
+        "longitude": 109.218333,
+        "declination": -1.08,
+        "runways": {
+            "02L": {
+                "hdg": 20.0
+            },
+            "02R": {
+                "hdg": 20.0
+            },
+            "20L": {
+                "hdg": 200.0
+            },
+            "20R": {
+                "hdg": 200.0
+            }
+        }
+    },
+    {
+        "icao": "VVDN",
+        "iata": "DAD",
+        "geo": [
+            "DANANG INTL",
+            "VIETNAM"
+        ],
+        "elevation": 30,
+        "latitude": 16.043889,
+        "longitude": 108.200278,
+        "declination": -1.44,
+        "runways": {
+            "17L": {
+                "hdg": 173.0
+            },
+            "17R": {
+                "hdg": 173.0
+            },
+            "35L": {
+                "hdg": 353.0
+            },
+            "35R": {
+                "hdg": 353.0
+            }
+        }
+    },
+    {
+        "icao": "VVNB",
+        "iata": "HAN",
+        "geo": [
+            "HANOI/NOIBAI INTL",
+            "VIETNAM"
+        ],
+        "elevation": 40,
+        "latitude": 21.221667,
+        "longitude": 105.805556,
+        "declination": -1.65,
+        "runways": {
+            "11L": {
+                "hdg": 109.0
+            },
+            "11R": {
+                "hdg": 109.0
+            },
+            "29L": {
+                "hdg": 289.0
+            },
+            "29R": {
+                "hdg": 289.0
+            }
+        }
+    },
+    {
+        "icao": "VVTS",
+        "iata": "SGN",
+        "geo": [
+            "HO CHI MINH/TAN SO",
+            "VIETNAM"
+        ],
+        "elevation": 33,
+        "latitude": 10.820556,
+        "longitude": 106.660833,
+        "declination": -0.69,
+        "runways": {
+            "07L": {
+                "hdg": 70.0
+            },
+            "07R": {
+                "hdg": 70.0
+            },
+            "25L": {
+                "hdg": 250.0
+            },
+            "25R": {
+                "hdg": 250.0
+            }
+        }
+    },
+    {
+        "icao": "VYMD",
+        "iata": "MDL",
+        "geo": [
+            "MANDALAY INTL",
+            "MYANMAR"
+        ],
+        "elevation": 301,
+        "latitude": 21.701111,
+        "longitude": 95.9775,
+        "declination": -0.46,
+        "runways": {
+            "17": {
+                "hdg": 171.0
+            },
+            "35": {
+                "hdg": 351.0
+            }
+        }
+    },
+    {
+        "icao": "VYYY",
+        "iata": "RGN",
+        "geo": [
+            "YANGON INTL",
+            "MYANMAR"
+        ],
+        "elevation": 110,
+        "latitude": 16.907222,
+        "longitude": 96.133333,
+        "declination": -0.45,
+        "runways": {
+            "03": {
+                "hdg": 34.0
+            },
+            "21": {
+                "hdg": 214.0
+            }
+        }
+    },
+    {
+        "icao": "WMKK",
+        "iata": "KUL",
+        "geo": [
+            "KUALA LUMPUR/SEPAN",
+            "MALAYSIA"
+        ],
+        "elevation": 69,
+        "latitude": 2.743333,
+        "longitude": 101.698056,
+        "declination": 0.06,
+        "runways": {
+            "14L": {
+                "hdg": 146.0
+            },
+            "14R": {
+                "hdg": 146.0
+            },
+            "15": {
+                "hdg": 146.0
+            },
+            "32L": {
+                "hdg": 326.0
+            },
+            "32R": {
+                "hdg": 326.0
+            },
+            "33": {
+                "hdg": 326.0
+            }
+        }
+    },
+    {
+        "icao": "WSSS",
+        "iata": "SIN",
+        "geo": [
+            "SINGAPORE/CHANGI",
+            "SINGAPORE"
+        ],
+        "elevation": 22,
+        "latitude": 1.359167,
+        "longitude": 103.989444,
+        "declination": 0.19,
+        "runways": {
+            "02C": {
+                "hdg": 23.0
+            },
+            "02L": {
+                "hdg": 23.0
+            },
+            "02R": {
+                "hdg": 23.0
+            },
+            "20C": {
+                "hdg": 203.0
+            },
+            "20L": {
+                "hdg": 203.0
+            },
+            "20R": {
+                "hdg": 203.0
+            }
+        }
+    },
+    {
+        "icao": "ZBAA",
+        "iata": "PEK",
+        "geo": [
+            "BEIJING/CAPITAL",
+            "CHINA"
+        ],
+        "elevation": 115,
+        "latitude": 40.073333,
+        "longitude": 116.598333,
+        "declination": -7.4,
+        "runways": {
+            "01": {
+                "hdg": 1.0
+            },
+            "18L": {
+                "hdg": 181.0
+            },
+            "18R": {
+                "hdg": 181.0
+            },
+            "19": {
+                "hdg": 181.0
+            },
+            "36L": {
+                "hdg": 1.0
+            },
+            "36R": {
+                "hdg": 1.0
+            }
+        }
+    },
+    {
+        "icao": "ZBAD",
+        "iata": "PKX",
+        "geo": [
+            "BEIJING/DAXING",
+            "CHINA"
+        ],
+        "elevation": 82,
+        "latitude": 39.5,
+        "longitude": 116.4,
+        "declination": -7.21,
+        "runways": {
+            "01L": {
+                "hdg": 1.0
+            },
+            "11L": {
+                "hdg": 111.0
+            },
+            "17L": {
+                "hdg": 181.0
+            },
+            "17R": {
+                "hdg": 181.0
+            },
+            "19R": {
+                "hdg": 181.0
+            },
+            "29R": {
+                "hdg": 291.0
+            },
+            "35L": {
+                "hdg": 1.0
+            },
+            "35R": {
+                "hdg": 1.0
+            }
+        }
+    },
+    {
+        "icao": "ZBHH",
+        "iata": "HET",
+        "geo": [
+            "HOHHOT/BAITA",
+            "CHINA"
+        ],
+        "elevation": 3556,
+        "latitude": 40.848333,
+        "longitude": 111.823333,
+        "declination": -5.95,
+        "runways": {
+            "08": {
+                "hdg": 79.0
+            },
+            "26": {
+                "hdg": 259.0
+            }
+        }
+    },
+    {
+        "icao": "ZBSJ",
+        "iata": "SJW",
+        "geo": [
+            "SHIJIAZHUANG/ZHENG",
+            "CHINA"
+        ],
+        "elevation": 233,
+        "latitude": 38.281667,
+        "longitude": 114.698333,
+        "declination": -6.41,
+        "runways": {
+            "15": {
+                "hdg": 153.0
+            },
+            "33": {
+                "hdg": 333.0
+            }
+        }
+    },
+    {
+        "icao": "ZBTJ",
+        "iata": "TSN",
+        "geo": [
+            "TIANJIN/BINHAI INT",
+            "CHINA"
+        ],
+        "elevation": 6,
+        "latitude": 39.123333,
+        "longitude": 117.345,
+        "declination": -7.4,
+        "runways": {
+            "16L": {
+                "hdg": 161.0
+            },
+            "16R": {
+                "hdg": 161.0
+            },
+            "34L": {
+                "hdg": 341.0
+            },
+            "34R": {
+                "hdg": 341.0
+            }
+        }
+    },
+    {
+        "icao": "ZBYN",
+        "iata": "TYN",
+        "geo": [
+            "TAIYUAN/WUSU",
+            "CHINA"
+        ],
+        "elevation": 2579,
+        "latitude": 37.748333,
+        "longitude": 112.63,
+        "declination": -5.64,
+        "runways": {
+            "13": {
+                "hdg": 131.0
+            },
+            "31": {
+                "hdg": 311.0
+            }
+        }
+    },
+    {
+        "icao": "ZGGG",
+        "iata": "CAN",
+        "geo": [
+            "GUANGZHOU/BAIYUN",
+            "CHINA"
+        ],
+        "elevation": 50,
+        "latitude": 23.393333,
+        "longitude": 113.308333,
+        "declination": -3.34,
+        "runways": {
+            "01": {
+                "hdg": 16.0
+            },
+            "02L": {
+                "hdg": 16.0
+            },
+            "02R": {
+                "hdg": 16.0
+            },
+            "19": {
+                "hdg": 196.0
+            },
+            "20L": {
+                "hdg": 196.0
+            },
+            "20R": {
+                "hdg": 196.0
+            }
+        }
+    },
+    {
+        "icao": "ZGHA",
+        "iata": "CSX",
+        "geo": [
+            "CHANGSHA/HUANGHUA",
+            "CHINA"
+        ],
+        "elevation": 219,
+        "latitude": 28.19,
+        "longitude": 113.218333,
+        "declination": -4.11,
+        "runways": {
+            "18L": {
+                "hdg": 181.0
+            },
+            "18R": {
+                "hdg": 181.0
+            },
+            "36L": {
+                "hdg": 1.0
+            },
+            "36R": {
+                "hdg": 1.0
+            }
+        }
+    },
+    {
+        "icao": "ZGSZ",
+        "iata": "SZX",
+        "geo": [
+            "SHENZHEN/BAOAN",
+            "CHINA"
+        ],
+        "elevation": 13,
+        "latitude": 22.638333,
+        "longitude": 113.811667,
+        "declination": -3.32,
+        "runways": {
+            "15": {
+                "hdg": 155.0
+            },
+            "16": {
+                "hdg": 155.0
+            },
+            "33": {
+                "hdg": 335.0
+            },
+            "34": {
+                "hdg": 335.0
+            }
+        }
+    },
+    {
+        "icao": "ZHCC",
+        "iata": "CGO",
+        "geo": [
+            "ZHENGZHOU/XINZHENG",
+            "CHINA"
+        ],
+        "elevation": 495,
+        "latitude": 34.518333,
+        "longitude": 113.84,
+        "declination": -5.41,
+        "runways": {
+            "12L": {
+                "hdg": 116.0
+            },
+            "12R": {
+                "hdg": 116.0
+            },
+            "30L": {
+                "hdg": 296.0
+            },
+            "30R": {
+                "hdg": 296.0
+            }
+        }
+    },
+    {
+        "icao": "ZHHH",
+        "iata": "WUH",
+        "geo": [
+            "WUHAN/TIANHE",
+            "CHINA"
+        ],
+        "elevation": 115,
+        "latitude": 30.785,
+        "longitude": 114.206667,
+        "declination": -4.81,
+        "runways": {
+            "04L": {
+                "hdg": 46.0
+            },
+            "04R": {
+                "hdg": 46.0
+            },
+            "22L": {
+                "hdg": 226.0
+            },
+            "22R": {
+                "hdg": 226.0
+            }
+        }
+    },
+    {
+        "icao": "ZJHK",
+        "iata": "HAK",
+        "geo": [
+            "HAIKOU/MEILAN",
+            "CHINA"
+        ],
+        "elevation": 74,
+        "latitude": 19.933333,
+        "longitude": 110.46,
+        "declination": -2.29,
+        "runways": {
+            "09": {
+                "hdg": 92.0
+            },
+            "10": {
+                "hdg": 92.0
+            },
+            "27": {
+                "hdg": 272.0
+            },
+            "28": {
+                "hdg": 272.0
+            }
+        }
+    },
+    {
+        "icao": "ZJSY",
+        "iata": "SYX",
+        "geo": [
+            "SANYA/PHOENIX INTL",
+            "CHINA"
+        ],
+        "elevation": 94,
+        "latitude": 18.301667,
+        "longitude": 109.413333,
+        "declination": -1.9,
+        "runways": {
+            "08": {
+                "hdg": 84.0
+            },
+            "26": {
+                "hdg": 264.0
+            }
+        }
+    },
+    {
+        "icao": "ZLLL",
+        "iata": "LHW",
+        "geo": [
+            "LANZHOU/ZHONGCHUAN",
+            "CHINA"
+        ],
+        "elevation": 6388,
+        "latitude": 36.515,
+        "longitude": 103.62,
+        "declination": -2.48,
+        "runways": {
+            "18": {
+                "hdg": 179.0
+            },
+            "36": {
+                "hdg": 359.0
+            }
+        }
+    },
+    {
+        "icao": "ZLXY",
+        "iata": "XIY",
+        "geo": [
+            "XI AN XIANYANG",
+            "CHINA"
+        ],
+        "elevation": 1572,
+        "latitude": 34.445,
+        "longitude": 108.75,
+        "declination": -3.87,
+        "runways": {
+            "05L": {
+                "hdg": 52.0
+            },
+            "05R": {
+                "hdg": 52.0
+            },
+            "23L": {
+                "hdg": 232.0
+            },
+            "23R": {
+                "hdg": 232.0
+            }
+        }
+    },
+    {
+        "icao": "ZMCK",
+        "iata": "UBN",
+        "geo": [
+            "ULAANBAATAR/CHINGG",
+            "MONGOLIA"
+        ],
+        "elevation": 4485,
+        "latitude": 47.646944,
+        "longitude": 106.82,
+        "declination": -4.97,
+        "runways": {
+            "11": {
+                "hdg": 110.0
+            },
+            "29": {
+                "hdg": 290.0
+            }
+        }
+    },
+    {
+        "icao": "ZSAM",
+        "iata": "XMN",
+        "geo": [
+            "XIAMEN/GAOQI",
+            "CHINA"
+        ],
+        "elevation": 59,
+        "latitude": 24.545,
+        "longitude": 118.126667,
+        "declination": -4.46,
+        "runways": {
+            "05": {
+                "hdg": 55.0
+            },
+            "23": {
+                "hdg": 235.0
+            }
+        }
+    },
+    {
+        "icao": "ZSHC",
+        "iata": "HGH",
+        "geo": [
+            "HANGZHOU/XIAOSHAN",
+            "CHINA"
+        ],
+        "elevation": 22,
+        "latitude": 30.228333,
+        "longitude": 120.433333,
+        "declination": -6.08,
+        "runways": {
+            "06": {
+                "hdg": 69.0
+            },
+            "07": {
+                "hdg": 69.0
+            },
+            "24": {
+                "hdg": 249.0
+            },
+            "25": {
+                "hdg": 249.0
+            }
+        }
+    },
+    {
+        "icao": "ZSJN",
+        "iata": "TNA",
+        "geo": [
+            "JINAN/YAOQIANG",
+            "CHINA"
+        ],
+        "elevation": 76,
+        "latitude": 36.858333,
+        "longitude": 117.215,
+        "declination": -6.85,
+        "runways": {
+            "01": {
+                "hdg": 6.0
+            },
+            "19": {
+                "hdg": 186.0
+            }
+        }
+    },
+    {
+        "icao": "ZSNJ",
+        "iata": "NKG",
+        "geo": [
+            "NANJING/LUKOU",
+            "CHINA"
+        ],
+        "elevation": 49,
+        "latitude": 31.743333,
+        "longitude": 118.863333,
+        "declination": -6.11,
+        "runways": {
+            "06": {
+                "hdg": 64.0
+            },
+            "07": {
+                "hdg": 64.0
+            },
+            "24": {
+                "hdg": 244.0
+            },
+            "25": {
+                "hdg": 244.0
+            }
+        }
+    },
+    {
+        "icao": "ZSOF",
+        "iata": "HFE",
+        "geo": [
+            "HEFEI/XINQIAO",
+            "CHINA"
+        ],
+        "elevation": 207,
+        "latitude": 31.986667,
+        "longitude": 116.975,
+        "declination": -5.73,
+        "runways": {
+            "15": {
+                "hdg": 154.0
+            },
+            "33": {
+                "hdg": 334.0
+            }
+        }
+    },
+    {
+        "icao": "ZSPD",
+        "iata": "PVG",
+        "geo": [
+            "SHANGHAI/PUDONG",
+            "CHINA"
+        ],
+        "elevation": 12,
+        "latitude": 31.145,
+        "longitude": 121.793333,
+        "declination": -6.53,
+        "runways": {
+            "16L": {
+                "hdg": 168.0
+            },
+            "16R": {
+                "hdg": 168.0
+            },
+            "17L": {
+                "hdg": 168.0
+            },
+            "17R": {
+                "hdg": 168.0
+            },
+            "34L": {
+                "hdg": 348.0
+            },
+            "34R": {
+                "hdg": 348.0
+            },
+            "35L": {
+                "hdg": 348.0
+            },
+            "35R": {
+                "hdg": 348.0
+            }
+        }
+    },
+    {
+        "icao": "ZSQD",
+        "iata": "TAO",
+        "geo": [
+            "QINGDAO/JIAODONG",
+            "CHINA"
+        ],
+        "elevation": 30,
+        "latitude": 36.365,
+        "longitude": 120.098333,
+        "declination": -7.45,
+        "runways": {
+            "16": {
+                "hdg": 170.0
+            },
+            "17": {
+                "hdg": 170.0
+            },
+            "34": {
+                "hdg": 350.0
+            },
+            "35": {
+                "hdg": 350.0
+            }
+        }
+    },
+    {
+        "icao": "ZSSS",
+        "iata": "SHA",
+        "geo": [
+            "SHANGHAI/HONGQIAO",
+            "CHINA"
+        ],
+        "elevation": 10,
+        "latitude": 31.196667,
+        "longitude": 121.335,
+        "declination": -6.46,
+        "runways": {
+            "18L": {
+                "hdg": 183.0
+            },
+            "18R": {
+                "hdg": 183.0
+            },
+            "36L": {
+                "hdg": 3.0
+            },
+            "36R": {
+                "hdg": 3.0
+            }
+        }
+    },
+    {
+        "icao": "ZUCK",
+        "iata": "CKG",
+        "geo": [
+            "CHONGQING/JIANGBEI",
+            "CHINA"
+        ],
+        "elevation": 1364,
+        "latitude": 29.72,
+        "longitude": 106.64,
+        "declination": -2.7,
+        "runways": {
+            "02L": {
+                "hdg": 19.0
+            },
+            "02R": {
+                "hdg": 19.0
+            },
+            "03": {
+                "hdg": 19.0
+            },
+            "20L": {
+                "hdg": 199.0
+            },
+            "20R": {
+                "hdg": 199.0
+            },
+            "21": {
+                "hdg": 199.0
+            }
+        }
+    },
+    {
+        "icao": "ZUUU",
+        "iata": "CTU",
+        "geo": [
+            "CHENGDU/SHUANGLIU",
+            "CHINA"
+        ],
+        "elevation": 1681,
+        "latitude": 30.578333,
+        "longitude": 103.948333,
+        "declination": -2.1,
+        "runways": {
+            "02L": {
+                "hdg": 24.0
+            },
+            "02R": {
+                "hdg": 24.0
+            },
+            "20L": {
+                "hdg": 204.0
+            },
+            "20R": {
+                "hdg": 204.0
+            }
+        }
+    },
+    {
+        "icao": "ZWWW",
+        "iata": "URC",
+        "geo": [
+            "URUMQI/DIWOPU",
+            "CHINA"
+        ],
+        "elevation": 2126,
+        "latitude": 43.908333,
+        "longitude": 87.475,
+        "declination": 3.09,
+        "runways": {
+            "07": {
+                "hdg": 71.0
+            },
+            "25": {
+                "hdg": 251.0
+            }
+        }
+    },
+    {
+        "icao": "ZYTL",
+        "iata": "DLC",
+        "geo": [
+            "DALIAN/ZHOUSHUIZI",
+            "CHINA"
+        ],
+        "elevation": 107,
+        "latitude": 38.966667,
+        "longitude": 121.54,
+        "declination": -8.42,
+        "runways": {
+            "10": {
+                "hdg": 103.0
+            },
+            "28": {
+                "hdg": 283.0
+            }
+        }
+    },
+    {
+        "icao": "ZYTX",
+        "iata": "SHE",
+        "geo": [
+            "SHENYANG/TAOXIAN",
+            "CHINA"
+        ],
+        "elevation": 198,
+        "latitude": 41.641667,
+        "longitude": 123.485,
+        "declination": -9.53,
+        "runways": {
+            "06": {
+                "hdg": 56.0
+            },
+            "24": {
+                "hdg": 236.0
+            }
+        }
+    },
+    {
+        "icao": "VOGA",
+        "iata": "GOX",
+        "geo": [
+            "MOPA",
+            "INDIA",
+            " "
+        ],
+        "elevation": 564,
+        "latitude": 15.7425,
+        "longitude": 73.866944,
+        "declination": -0.24,
+        "runways": {
+            "10": {
+                "hdg": 96.0
+            },
+            "28": {
+                "hdg": 276.0
+            }
+        }
+    },
+    {
+        "icao": "UUBC",
+        "iata": "KLF",
+        "geo": [
+            "KALUGA",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 666,
+        "latitude": 54.548611,
+        "longitude": 36.371389,
+        "declination": 11.17,
+        "runways": {
+            "13": {
+                "hdg": 134.0
+            },
+            "31": {
+                "hdg": 314.0
+            }
+        }
+    },
+    {
+        "icao": "ZYCC",
+        "iata": "CGQ",
+        "geo": [
+            "CHANGCHUN LONGJIA",
+            "CHINA",
+            " "
+        ],
+        "elevation": 707,
+        "latitude": 43.998333,
+        "longitude": 125.688333,
+        "declination": -10.55,
+        "runways": {
+            "06": {
+                "hdg": 58.0
+            },
+            "24": {
+                "hdg": 238.0
+            }
+        }
+    },
+    {
+        "icao": "ZUTF",
+        "iata": "TFU ",
+        "geo": [
+            "TIANFU ",
+            "CHINA",
+            " "
+        ],
+        "elevation": 1451,
+        "latitude": 30.29,
+        "longitude": 104.443333,
+        "declination": -2.2,
+        "runways": {
+            "01": {
+                "hdg": 25.0
+            },
+            "19": {
+                "hdg": 205.0
+            },
+            "02": {
+                "hdg": 25.0
+            },
+            "20": {
+                "hdg": 205.0
+            },
+            "11": {
+                "hdg": 115.0
+            }
+        }
+    },
+    {
+        "icao": "UNKY",
+        "iata": "KYZ",
+        "geo": [
+            "KYZYL",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 2129,
+        "latitude": 51.669444,
+        "longitude": 94.400556,
+        "declination": 1.63,
+        "runways": {
+            "05": {
+                "hdg": 50.0
+            },
+            "23": {
+                "hdg": 230.0
+            }
+        }
+    },
+    {
+        "icao": "UMBB",
+        "iata": "BAT",
+        "geo": [
+            "BREST",
+            "BELARUS"
+        ],
+        "elevation": 469,
+        "latitude": 52.108333,
+        "longitude": 23.896389,
+        "declination": 7.43,
+        "runways": {
+            "11": {
+                "hdg": 107.0
+            },
+            "29": {
+                "hdg": 287.0
+            }
+        }
+    },
+    {
+        "icao": "USDB",
+        "iata": "BVJ",
+        "geo": [
+            "BOVANENKOVO",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 24,
+        "latitude": 70.313889,
+        "longitude": 68.333333,
+        "declination": 29.21,
+        "runways": {
+            "10": {
+                "hdg": 96.0
+            },
+            "28": {
+                "hdg": 276.0
+            }
+        }
+    },
+    {
+        "icao": "DTTJ",
+        "iata": "DJE",
+        "geo": [
+            "DJERBA",
+            "ZARZIS",
+            "TUNISIA"
+        ],
+        "elevation": 20,
+        "latitude": 33.875556,
+        "longitude": 10.777222,
+        "declination": 2.98,
+        "runways": {
+            "09": {
+                "hdg": 85.0
+            },
+            "27": {
+                "hdg": 265.0
+            }
+        }
+    },
+    {
+        "icao": "VIJP",
+        "iata": "JAI",
+        "geo": [
+            "JAIPUR INTL",
+            "JAIPUR",
+            "INDIA"
+        ],
+        "elevation": 1268,
+        "latitude": 26.824167,
+        "longitude": 75.8025,
+        "declination": 1.42,
+        "runways": {
+            "08": {
+                "hdg": 84.0
+            },
+            "26": {
+                "hdg": 264.0
+            }
+        }
+    },
+    {
+        "icao": "UIIR",
+        "iata": "NIL",
+        "geo": [
+            "VOSTOCHNY",
+            "IRKUTSK",
+            "RUSSIAN FEDERATION"
+        ],
+        "elevation": 1436,
+        "latitude": 52.367778,
+        "longitude": 104.183333,
+        "declination": -4.08,
+        "runways": {
+            "14": {
+                "hdg": 142.0
+            },
+            "32": {
+                "hdg": 322.0
+            }
+        }
+    },
+    {
+        "icao": "UASK",
+        "iata": "UKK",
+        "geo": [
+            "UST-KAMENOGORSK",
+            "KAZAKHSTAN"
+        ],
+        "elevation": 942,
+        "latitude": 50.035833,
+        "longitude": 82.495278,
+        "declination": 6.63,
+        "runways": {
+            "12": {
+                "hdg": 124.0
+            },
+            "30": {
+                "hdg": 304.0
+            }
+        }
+    },
+    {
+        "icao": "ZSCN",
+        "iata": "KHN",
+        "geo": [
+            "NANGHANG CHANGBEI IN",
+            "NANGHANG",
+            "CHINA"
+        ],
+        "elevation": 143,
+        "latitude": 28.863333,
+        "longitude": 115.9,
+        "declination": -4.86,
+        "runways": {
+            "03": {
+                "hdg": 26.0
+            },
+            "21": {
+                "hdg": 206.0
+            }
+        }
+    }
+]

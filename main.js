@@ -5,7 +5,7 @@ let autoGoOffline = JSON.parse(localStorage.getItem('autoGoOffline')) || true;
 let doHighlight = JSON.parse(localStorage.getItem('doHighlight')) || false;
 
 // Maintenance support for B737 is provided in the following airports (29 NOV 24)
-const airportCodes = [
+const airportMaintenanceCodes = [
     "UAAA", "UBBB", "UDYZ", "UEEE",
     "UHWW", "UIII", "ULAA", "ULLI", "ULMM", "UMKK", "UMMS", "UNBG", "UNKL", "UNNT", "UNOO",
     "URMG", "URML", "URMM", "URSS", "URWW", "USII", "USPP", "USRR", "USSS", "USTR", "UTTT",
@@ -14,6 +14,7 @@ const airportCodes = [
 ];
 
 let nowIcao = null;
+let showSecondMenu = false;
 
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
@@ -430,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            if (airportCodes.includes(icao)) {
+            if (airportMaintenanceCodes.includes(icao)) {
                 const maintenanceBadge = document.createElement('div');
                 maintenanceBadge.className = 'time-badge';
                 maintenanceBadge.id = 'showMaintenanceInfoModal';
@@ -628,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             let colorClass = highlight ? "color-purple" : "";
-            return `<span class="color-description wind-info ${colorClass}" data-wind="${match}" data-unit="${unit}" data-dir="${dir}" data-speed="${speed}" data-gust="${gust||''}"><span>${match}</span> <i class="fa-solid fa-calculator"></i></span>`;
+            return `<span class="color-description wind-info ${colorClass}" data-wind="${match}" data-unit="${unit}" data-dir="${dir}" data-speed="${speed}" data-gust="${gust||''}"><span>${match}</span> <i class="fa-solid fa-wind"></i></span>`;
         });
 
         // Оборачиваем строки, начинающиеся с TEMPO, в контейнер для альтернативного оформления
@@ -1386,6 +1387,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.style.display = 'flex';
     }
+
+    function updateMenuShow() {
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const searchBtn = document.getElementById('searchBtn');
+        const calcBtn = document.getElementById('calcBtn');
+        const aiBtn = document.getElementById('aiBtn');
+        const refreshAllBtn = document.getElementById('refreshAllBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const offlineToggleBtn = document.getElementById('offlineToggleBtn');
+
+        if (showSecondMenu) {
+            zoomInBtn.hidden = true;
+            zoomOutBtn.hidden = true;
+            searchBtn.hidden = false;
+            calcBtn.hidden = false;
+            aiBtn.hidden = false;
+            refreshAllBtn.hidden = false;
+            settingsBtn.hidden = true;
+            offlineToggleBtn.hidden = true;
+        } else {
+            zoomInBtn.hidden = false;
+            zoomOutBtn.hidden = false;
+            searchBtn.hidden = true;
+            calcBtn.hidden = true;
+            aiBtn.hidden = true;
+            refreshAllBtn.hidden = true;
+            settingsBtn.hidden = false;
+            offlineToggleBtn.hidden = false;
+        }
+
+    }
+
+    const switchBtn = document.getElementById('switchMenuBtn');
+    switchBtn.addEventListener('click', () => {
+        showSecondMenu = !showSecondMenu;
+        updateMenuShow();
+    });
 
     setInterval(updateBadgesTimeAndColors, 15000);
 });

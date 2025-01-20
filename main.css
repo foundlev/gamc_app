@@ -1095,14 +1095,22 @@ footer {
 }
 
 .route-dropdown select {
-    width: 100%;
-    padding: 8px;
-    font-size: 0.9rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--card-bg);
-    color: var(--text-color);
+    -webkit-appearance: none; /* Убирает стиль Safari */
+    -moz-appearance: none; /* Убирает стиль Firefox */
+    appearance: none; /* Универсальный сброс */
+    background-color: var(--card-bg); /* Цвет фона */
+    border: 1px solid var(--border-color); /* Рамка */
+    padding: 8px; /* Внутренний отступ */
+    border-radius: 4px; /* Скругленные углы */
+    font-size: 0.9rem; /* Размер шрифта */
+    color: var(--text-color); /* Цвет текста */
+    cursor: pointer; /* Указатель курсора */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* Иконка стрелки справа */
+    background-size: 10px 10px;
 }
+
 
 .subtitle-row {
     display: flex;
@@ -1248,19 +1256,18 @@ footer {
 .airport-country {
     font-size: 0.8rem;
     color: var(--accent-color);
-    opacity: 0.9;
     white-space: nowrap;
 }
 
 /* Правый блок (иконка горы + высота) */
 .airport-right {
     display: flex;
-    align-items: center;
-    gap: 4px;
+    justify-content: flex-end; /* Выровнять вправо */
+    align-items: center; /* Центрировать по вертикали */
+    gap: 4px; /* Отступ между иконкой и текстом */
     font-size: 0.9rem;
     color: var(--text-color);
     white-space: nowrap;
-    opacity: 0.85;
 }
 
 .airport-right i {
@@ -1269,4 +1276,14 @@ footer {
 
 .airport-right, .airport-left {
     margin: 10px;
+    width: 100px;
+    opacity: 0.85;
+}
+
+#switchMenuBtn {
+    flex: 0;
+}
+
+button[hidden] {
+    display: none;
 }

@@ -39,9 +39,13 @@
         <div class="buttons">
             <button id="zoomInBtn"><i class="fas fa-search-plus"></i></button>
             <button id="zoomOutBtn"><i class="fas fa-search-minus"></i></button>
-            <button id="resetZoomBtn"><i class="fas fa-compress-arrows-alt"></i></button>
+            <button id="searchBtn" hidden><i class="fa-solid fa-magnifying-glass"></i></button>
+            <button id="calcBtn" hidden><i class="fa-solid fa-calculator"></i></button>
+            <button id="aiBtn" hidden><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+            <button id="refreshAllBtn" hidden><i class="fa-solid fa-retweet"></i></button>
             <button id="settingsBtn"><i class="fa-solid fa-gear"></i></button>
             <button id="offlineToggleBtn"><i class="fa-solid fa-signal"></i></button>
+            <button id="switchMenuBtn"><i class="fa-solid fa-right-left"></i></button>
         </div>
 
         <div class="subtitle-row">
@@ -61,7 +65,7 @@
         <div class="airport-info-bar" id="airportInfoContainer" style="display: none;">
             <!-- Слева (самолёт + ICAO/IATA) -->
             <div class="airport-left">
-                <i class="fa-solid fa-tower-observation"></i>
+                <i class="fa-solid fa-plane-up"></i>
                 <span id="airportCodes"></span>
             </div>
 
@@ -156,6 +160,7 @@
             <div class="modal-button-container">
                 <button id="removeSavedIcaos" class="modal-button"><i class="fa-solid fa-trash"></i>Удалить сохранения</button>
                 <button id="resetPasswordBtn" class="modal-button"><i class="fas fa-unlock-alt"></i>Сбросить пароль</button>
+                <button id="resetZoomBtn" class="modal-button"><i class="fas fa-compress-arrows-alt"></i>Сбросить масштаб</button>
                 <div class="modal-checkbox-group">
                     <label class="custom-checkbox">
                         <input type="checkbox" id="doHighlightCheckbox">

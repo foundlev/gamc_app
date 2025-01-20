@@ -25,11 +25,12 @@ let airportInfoDb = {};
 fetch('data/airports_db.json')
     .then(response => response.json())
     .then(data => {
-        // Превратим в объект вида { "UIII": { name: "IRKUTSK", country: "RUSSIAN FEDERATION" }, ... }
         data.forEach(item => {
             airportInfoDb[item.icao] = {
                 name: item.geo?.[0] || '',
-                country: item.geo?.[1] || ''
+                country: item.geo?.[1] || '',
+                iata: item.iata || '',
+                elevation: item.elevation || 0
             };
         });
     })
@@ -1363,17 +1364,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('airportInfoContainer');
         const nameElem = document.getElementById('airportName');
         const countryElem = document.getElementById('airportCountry');
+        const elevationElem = document.getElementById('airportElevation');
+        const codesElem = document.getElementById('airportCodes');
 
-        // Если в airportInfoDb нет такого ICAO, то скрываем контейнер
         if (!airportInfoDb[icao]) {
             container.style.display = 'none';
             return;
         }
 
-        // Если нашли в базе
-        const { name, country } = airportInfoDb[icao];
+        const { name, country, iata, elevation } = airportInfoDb[icao];
+
         nameElem.textContent = name ? name : `Аэродром ${icao}`;
         countryElem.textContent = country ? country : 'Страна не указана';
+        elevationElem.textContent = `Превышение: ${elevation} ft`;
+
+        if (iata) {
+            codesElem.textContent = `${icao}/${iata}`;
+        } else {
+            codesElem.textContent = icao;
+        }
 
         container.style.display = 'flex';
     }

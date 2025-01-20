@@ -1139,6 +1139,7 @@ footer {
     /* подсветка */
 }
 
+/* Можно переиспользовать уже имеющиеся классы, но вот пример */
 .airport-info-container {
     display: flex;
     flex-direction: column;
@@ -1151,6 +1152,7 @@ footer {
     animation: fadeSlideIn 0.4s ease forwards;
 }
 
+/* У вас такое уже было, но если что — оставьте как есть: */
 .airport-info-row {
     display: flex;
     flex-direction: column;
@@ -1159,13 +1161,32 @@ footer {
     gap: 4px;
 }
 
-.airport-info-container h2#airportName {
-    margin: 0;
-    font-size: 1.1rem;
-    color: var(--text-color);
+/* Первая строка (имя, страна) делаем по центру */
+.center-row {
+    /* ничего особенного, всё по центру */
 }
 
-.airport-info-container .airport-country {
+/* Вторая строка (слева elevation, справа коды) в одну строку,
+   чтобы elevation было слева, а ICAO/IATA — справа */
+.details-row {
+    flex-direction: row;
+    justify-content: space-between; /* растягиваем */
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px; /* немного отступа между первой и второй строкой */
+}
+
+/* Стилизация для высоты */
+.airport-elevation {
     font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.85;
+}
+
+/* Стилизация для кодов ICAO/IATA (справа) */
+.airport-codes {
+    font-weight: bold;
+    font-size: 0.95rem;
     color: var(--accent-color);
 }
+

@@ -59,9 +59,16 @@
         <div class="history" id="historyContainer"></div>
 
         <div class="airport-info-container" id="airportInfoContainer" style="display: none;">
-            <div class="airport-info-row">
+            <!-- Первая строка: Название аэропорта и страна -->
+            <div class="airport-info-row center-row">
                 <h2 id="airportName"></h2>
                 <div class="airport-country" id="airportCountry"></div>
+            </div>
+
+            <!-- Вторая строка: слева elevation, справа коды ICAO/IATA -->
+            <div class="airport-info-row details-row">
+                <div class="airport-elevation" id="airportElevation"></div>
+                <div class="airport-codes" id="airportCodes"></div>
             </div>
         </div>
 

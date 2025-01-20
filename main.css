@@ -330,6 +330,10 @@ footer {
     min-width: 110px;
 }
 
+#refreshBtn {
+    padding: 10px 8px;
+}
+
 .buttons button {
     flex: 1;
     display: flex;
@@ -1133,4 +1137,35 @@ footer {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.3);
     /* подсветка */
+}
+
+.airport-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 5px; /* Чуть отступаем от нижнего элемента */
+    animation: fadeSlideIn 0.4s ease forwards;
+}
+
+.airport-info-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+}
+
+.airport-info-container h2#airportName {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.airport-info-container .airport-country {
+    font-size: 0.9rem;
+    color: var(--accent-color);
 }

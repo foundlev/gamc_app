@@ -29,7 +29,8 @@
                         <input type="text" id="icao" placeholder="ICAO" maxlength="4" />
                         <button type="button" class="clear-icao-btn" id="clearIcaoBtn">Стереть</button>
                     </div>
-                    <button id="fetchBtn" disabled><i class="fas fa-cloud-download-alt"></i> Запросить</button>
+                    <button id="fetchBtn" disabled><i class="fas fa-cloud-download-alt"></i>Запросить</button>
+                    <button id="refreshBtn" disabled><i class="fa-solid fa-angle-down"></i></button>
                 </div>
             </div>
 
@@ -56,6 +57,13 @@
 
         <!-- Здесь будет либо 10 аэродромов (как раньше), либо список из маршрута -->
         <div class="history" id="historyContainer"></div>
+
+        <div class="airport-info-container" id="airportInfoContainer" style="display: none;">
+            <div class="airport-info-row">
+                <h2 id="airportName"></h2>
+                <div class="airport-country" id="airportCountry"></div>
+            </div>
+        </div>
 
         <!-- Плашки с временем -->
         <div class="time-badge-container remove-bottom-gap" id="timeBadgeContainer"></div>

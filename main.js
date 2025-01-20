@@ -19,6 +19,24 @@ let nowIcao = null;
 const PASSWORD_KEY = 'gamcPassword';
 const ICAO_HISTORY_KEY = 'icaoHistory';
 
+let airportInfoDb = {};
+
+// Загружаем базу аэродромов (icao, iata, geo[0]=название, geo[1]=страна)
+fetch('data/airports_db.json')
+    .then(response => response.json())
+    .then(data => {
+        // Превратим в объект вида { "UIII": { name: "IRKUTSK", country: "RUSSIAN FEDERATION" }, ... }
+        data.forEach(item => {
+            airportInfoDb[item.icao] = {
+                name: item.geo?.[0] || '',
+                country: item.geo?.[1] || ''
+            };
+        });
+    })
+    .catch(err => {
+        console.error('Не удалось загрузить airports_db.json:', err);
+    });
+
 document.addEventListener('DOMContentLoaded', () => {
     // Селекторы
     const icaoInput = document.getElementById('icao');
@@ -215,6 +233,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        hideAirportInfo();
+
         const existingWarning = document.querySelector('.offline-warning');
         if (existingWarning) {
             existingWarning.remove();
@@ -237,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Проверка сохраненных данных
         const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
         if ((!navigator.onLine) || offlineMode) {
+            showAirportInfo(icao);
             if (savedData[icao]) {
                 responseContainer.innerHTML = savedData[icao];
                 toShowOfflineWarning = true;
@@ -444,6 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Выводим как HTML (чтобы теги <b>, <u> работали)
             responseContainer.innerHTML = finalText;
+            showAirportInfo(icao);
 
         } catch (err) {
             responseContainer.textContent = 'Ошибка при запросе: ' + err;
@@ -1330,6 +1352,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 badge.classList.add('badge-default');
             }
         });
+    }
+
+    function hideAirportInfo() {
+        const container = document.getElementById('airportInfoContainer');
+        container.style.display = 'none';
+    }
+
+    function showAirportInfo(icao) {
+        const container = document.getElementById('airportInfoContainer');
+        const nameElem = document.getElementById('airportName');
+        const countryElem = document.getElementById('airportCountry');
+
+        // Если в airportInfoDb нет такого ICAO, то скрываем контейнер
+        if (!airportInfoDb[icao]) {
+            container.style.display = 'none';
+            return;
+        }
+
+        // Если нашли в базе
+        const { name, country } = airportInfoDb[icao];
+        nameElem.textContent = name ? name : `Аэродром ${icao}`;
+        countryElem.textContent = country ? country : 'Страна не указана';
+
+        container.style.display = 'flex';
     }
 
     setInterval(updateBadgesTimeAndColors, 15000);

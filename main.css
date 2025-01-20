@@ -563,7 +563,7 @@ footer {
 .runway-info-modal-backdrop .modal {
     background: linear-gradient(135deg, #ffffff, #f0f0f0);
     /* Градиентный фон */
-    padding: 20px;
+    padding: 30px;
     border-radius: 12px;
     max-width: 500px;
     /* Увеличить ширину окна */

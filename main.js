@@ -308,7 +308,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const gamcUid = getGamcUID();
         const url = `https://myapihelper.na4u.ru/gamc_app/api.php?password=${encodeURIComponent(password)}&icao=${encodeURIComponent(icao)}&gamcUid=${encodeURIComponent(gamcUid)}`;
 
-        responseContainer.textContent = 'Загрузка...';
+        if (silent) {
+            responseContainer.textContent = 'Здесь будет отображаться погода...';
+        } else {
+            responseContainer.textContent = 'Загрузка...';
+        }
         timeBadgeContainer.innerHTML = '';
         removeTimeBadgeContainerBottomGap();
 
@@ -336,6 +340,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch(url);
                 rawData = await res.text();
                 rawData = rawData.replace(/<br>/g, ' ');
+            }
+
+            if (silent) {
+                const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
+                savedData[icao] = rawData;
+                localStorage.setItem('icaoData', JSON.stringify(savedData));
+                return;
             }
 
             // Парсим <pre>
@@ -775,9 +786,32 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmModalBackdrop.classList.add('show');
     }
 
+    function showOfflineAlert() {
+        confirmModalTitle.textContent = 'Оффлайн режим включен';
+        confirmModalMessage.textContent = 'Отключите оффлайн режим для обновления';
+
+        // Спрячем кнопку "Да" полностью
+        confirmYesBtn.style.display = 'none';
+
+        // Заменим текст второй кнопки на "Закрыть"
+        confirmNoBtn.textContent = 'Закрыть';
+
+        // Показываем модалку
+        confirmModalBackdrop.classList.add('show');
+    }
+
     /** Скрыть модалку подтверждения */
     function hideConfirmModal() {
         confirmModalBackdrop.classList.remove('show');
+
+        // Восстанавливаем кнопки
+        confirmYesBtn.style.display = '';
+        confirmYesBtn.onclick = null; // сбросим обработчик, чтобы не мешалось
+
+        confirmNoBtn.textContent = 'Нет';
+        // Можно сбрасывать и стили backgroundColor, если вы их меняли вручную
+        confirmNoBtn.style.backgroundColor = '';
+        confirmYesBtn.style.backgroundColor = '';
     }
 
     // По клику на кнопку закрытия (крестик) — тоже просто скрываем
@@ -866,7 +900,7 @@ document.addEventListener('DOMContentLoaded', () => {
             7: "лёд",
             8: "уплотнённый, укатанный снег",
             9: "замёрзшая или неровная поверхность"
-        } [condition] || "Нет данных";
+        } [condition] || "нет данных";
 
         const coverageDesc = {
             1: "менее 10% ВПП",
@@ -875,18 +909,19 @@ document.addEventListener('DOMContentLoaded', () => {
             9: "от 51% до 100% ВПП"
         } [coverage] || "нет данных";
 
-        const depthDesc = depth >= 91 ?
+        const depthDesc = depth ? (depth >= 91 ?
             `${(depth - 90) * 5} см` :
             depth === 0 ?
             "менее 1 мм" :
-            `${depth} мм`;
+            `${depth} мм`) : "нет данных";
 
         let frictionDesc = {
             91: "плохой",
             92: "плохой/средний",
             93: "средний",
             94: "средний/хороший",
-            95: "хороший"
+            95: "хороший",
+            99: "ненадежное измерение"
         } [friction] || "нет данных";
 
         // Если frictionDesc === "Нет данных" и является числом от 10 до 90
@@ -897,10 +932,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <strong class='strong-header'>Код:</strong> ${runway} / ${info}<br><br>
             <strong>ВПП:</strong> ${runwayDesc}<br>
-            <strong>Условия:</strong> ${conditionDesc} (${condition})<br>
-            <strong>Степень:</strong> ${coverageDesc} (${coverage})<br>
-            <strong>Толщина:</strong> ${depthDesc} (${depth})<br>
-            <strong>Коэф. сцепления:</strong> ${frictionDesc} (${friction})
+            <strong>Условия:</strong> ${conditionDesc} (${condition || "-"})<br>
+            <strong>Степень:</strong> ${coverageDesc} (${coverage || "-"})<br>
+            <strong>Толщина:</strong> ${depthDesc} (${depth || "-"})<br>
+            <strong>Коэф. сцепления:</strong> ${frictionDesc} (${friction || "-"})
         `;
     }
 
@@ -1685,6 +1720,12 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshAllBtn.addEventListener('click', onRefreshAllBtnClick);
 
     function onRefreshAllBtnClick() {
+        // Если оффлайн режим включён, показываем наше сообщение и уходим
+        if (offlineMode) {
+            showOfflineAlert();
+            return;
+        }
+
         // 1) Определяем, какие аэродромы хотим обновить
         let aerodromesToRefresh = [];
 

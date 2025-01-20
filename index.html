@@ -220,6 +220,25 @@
         </div>
     </div>
 
+    <!-- Модальное окно для пакетного обновления -->
+    <div class="modal-backdrop" id="batchRefreshModalBackdrop">
+        <div class="modal batch-refresh-modal">
+            <button class="modal-close-btn" id="closeBatchRefreshModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Пакетное обновление</h2>
+            <p id="batchRefreshInfo">Подготовка...</p>
+
+            <!-- Контейнер для прогресс-бара -->
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="batchRefreshProgress"></div>
+            </div>
+
+            <p id="batchRefreshCurrentIcao" style="margin-top: 10px; font-weight: bold;">
+                &nbsp;
+            </p>
+        </div>
+    </div>
 
     <script src="main.js"></script>
 </body>

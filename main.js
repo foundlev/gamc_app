@@ -55,6 +55,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyContainer = document.getElementById('historyContainer');
     const timeBadgeContainer = document.getElementById('timeBadgeContainer');
 
+    const refreshAllBtn = document.getElementById('refreshAllBtn');
+    const batchRefreshModalBackdrop = document.getElementById('batchRefreshModalBackdrop');
+    const closeBatchRefreshModalBtn = document.getElementById('closeBatchRefreshModalBtn');
+    const batchRefreshInfo = document.getElementById('batchRefreshInfo');
+    const batchRefreshProgress = document.getElementById('batchRefreshProgress');
+    const batchRefreshCurrentIcao = document.getElementById('batchRefreshCurrentIcao');
+
     // Модальное окно
     const modalBackdrop = document.getElementById('modalBackdrop');
     const modalPassword = document.getElementById('modalPassword');
@@ -264,7 +271,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================
        ЗАПРОС ПОГОДЫ
     ========================= */
-    async function getWeather(icao, isRefresh = false) {
+    async function getWeather(icao, isRefresh = false, silent = false) {
+        // Если silent === true, значит обновлять только localStorage,
+        // ничего не показывать в responseContainer,
+        // не показывать timeBadgeContainer, airportInfo итд.
+
         const password = localStorage.getItem(PASSWORD_KEY) || '';
         if (!password) {
             showModal();
@@ -277,6 +288,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         hideAirportInfo();
+
+        if (!silent) {
+            responseContainer.textContent = 'Здесь будет отображаться погода...';
+            timeBadgeContainer.innerHTML = '';
+            removeTimeBadgeContainerBottomGap();
+        }
 
         const existingWarning = document.querySelector('.offline-warning');
         if (existingWarning) {
@@ -507,8 +524,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Выводим как HTML (чтобы теги <b>, <u> работали)
-            responseContainer.innerHTML = finalText;
-            showAirportInfo(icao);
+            if (!silent) {
+                responseContainer.innerHTML = finalText;
+                showAirportInfo(icao);
+            }
 
         } catch (err) {
             responseContainer.textContent = 'Ошибка при запросе: ' + err;
@@ -1662,6 +1681,112 @@ document.addEventListener('DOMContentLoaded', () => {
             saveRouteBtn.disabled = true;
         }
     }
+
+    refreshAllBtn.addEventListener('click', onRefreshAllBtnClick);
+
+    function onRefreshAllBtnClick() {
+        // 1) Определяем, какие аэродромы хотим обновить
+        let aerodromesToRefresh = [];
+
+        if (routeSelect.value === 'recent') {
+            // Берём все аэродромы, которые ЕСТЬ в localStorage icaoData
+            // (или те, что есть в истории). Ниже — вариант с icaoData:
+            const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
+            aerodromesToRefresh = Object.keys(savedData);
+            // Если хотите брать из истории, то вместо этого
+            // можно aerodromesToRefresh = JSON.parse(localStorage.getItem(ICAO_HISTORY_KEY) || '[]');
+        } else {
+            // Иначе выбрана "маршрут"
+            const idx = parseInt(routeSelect.value, 10);
+            const route = savedRoutes[idx];
+            if (route) {
+                aerodromesToRefresh = [
+                    route.departure,
+                    route.arrival,
+                    ...route.alternates
+                ];
+            }
+        }
+
+        // Убираем дубли, фильтруем 4-буквенные
+        aerodromesToRefresh = aerodromesToRefresh
+            .filter(x => x && x.length === 4)
+            .filter((value, index, arr) => arr.indexOf(value) === index);
+
+        // Если совсем нет аэродромов, просто alert
+        if (aerodromesToRefresh.length === 0) {
+            alert('Нет сохранённых аэродромов для обновления!');
+            return;
+        }
+
+        // 2) Показываем confirmModal: "Вы уверены, X аэродромов?"
+        const count = aerodromesToRefresh.length;
+        const title = 'Подтверждение';
+        const msg = `Обновить метео для ${count} аэродромов?`;
+
+        showConfirmModal(
+            title,
+            msg,
+            () => {
+                // Если нажали "Да" — запускаем пакетное обновление
+                startBatchRefresh(aerodromesToRefresh);
+            }
+        );
+    }
+
+    async function startBatchRefresh(aerodromes) {
+        // Показываем модалку прогресса
+        showBatchRefreshModal();
+
+        batchRefreshInfo.textContent = `Аэродромов: ${aerodromes.length}`;
+        batchRefreshProgress.style.width = '0%';
+        batchRefreshCurrentIcao.textContent = '...';
+
+        for (let i = 0; i < aerodromes.length; i++) {
+            const icao = aerodromes[i];
+            // Обновляем прогресс (в %)
+            const percent = Math.round(((i) / aerodromes.length) * 100);
+            batchRefreshProgress.style.width = percent + '%';
+
+            // Показываем текущий ICAO
+            batchRefreshCurrentIcao.textContent = `Обновляется: ${icao || '...'}`;
+
+            // Асинхронно вызываем getWeather(icao, true), но не отключаем offlineMode
+            // потому что в offline смысла нет? Считаем, что getWeather всё же сходит в сеть
+            await getWeather(icao, /* isRefresh = */ true, /* silent = */ true);
+
+            // Небольшая задержка, чтобы анимация прогресса успевала отображаться
+            // (необязательно)
+            await new Promise(r => setTimeout(r, 400));
+        }
+
+        // Финальная установка 100%
+        batchRefreshProgress.style.width = '100%';
+        batchRefreshCurrentIcao.textContent = `Готово!`;
+
+        // Например, через 1 секунду — закрываем модалку
+        setTimeout(() => {
+            hideBatchRefreshModal();
+        }, 1000);
+    }
+
+    function showBatchRefreshModal() {
+        batchRefreshModalBackdrop.classList.add('show');
+    }
+
+    function hideBatchRefreshModal() {
+        batchRefreshModalBackdrop.classList.remove('show');
+    }
+
+    closeBatchRefreshModalBtn.addEventListener('click', () => {
+        hideBatchRefreshModal();
+    });
+
+    batchRefreshModalBackdrop.addEventListener('click', (e) => {
+        if (e.target === batchRefreshModalBackdrop) {
+            hideBatchRefreshModal();
+        }
+    });
 
     const switchBtn = document.getElementById('switchMenuBtn');
     switchBtn.addEventListener('click', () => {

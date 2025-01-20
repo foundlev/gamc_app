@@ -1139,54 +1139,134 @@ footer {
     /* подсветка */
 }
 
-/* Можно переиспользовать уже имеющиеся классы, но вот пример */
 .airport-info-container {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    /* Чтобы содержимое было высотой по контенту, а не в две строки */
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 5px; /* Чуть отступаем от нижнего элемента */
+    padding: 6px 10px; /* Чуть меньше отступов */
+    margin-bottom: 5px;
     animation: fadeSlideIn 0.4s ease forwards;
 }
 
-/* У вас такое уже было, но если что — оставьте как есть: */
-.airport-info-row {
+.single-line-row {
+    /* Всё в одну строку */
+    display: flex;
+    flex-direction: row;
+    align-items: center;  /* выравниваем по вертикали */
+    justify-content: space-between; /* растягиваем, но позже уточним отдельные блоки */
+    width: 100%;
+    gap: 10px; /* небольшой отступ между элементами */
+}
+
+.airport-codes {
+    /* Левый блок */
+    font-weight: bold;
+    color: var(--accent-color);
+    font-size: 0.9rem;
+    /* Не слишком большой шрифт */
+    white-space: nowrap;
+    /* чтобы не переносился на 2 строки */
+}
+
+.airport-center-info {
+    /* Центр */
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* или flex-start, если нужно левее */
     text-align: center;
-    gap: 4px;
+    flex: 1;
+    /* Чтобы центр занял доступное пространство и прижал левый/правый блок */
 }
 
-/* Первая строка (имя, страна) делаем по центру */
-.center-row {
-    /* ничего особенного, всё по центру */
+.airport-center-info h2 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.2;
+    color: var(--text-color);
 }
 
-/* Вторая строка (слева elevation, справа коды) в одну строку,
-   чтобы elevation было слева, а ICAO/IATA — справа */
-.details-row {
-    flex-direction: row;
-    justify-content: space-between; /* растягиваем */
-    align-items: center;
-    gap: 10px;
-    margin-top: 5px; /* немного отступа между первой и второй строкой */
-}
-
-/* Стилизация для высоты */
 .airport-elevation {
+    /* Правый блок */
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.85;
+    white-space: nowrap;
+}
+
+/* Контейнер одной строки */
+.airport-info-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 4px 8px;
+    margin-bottom: 5px;
+    animation: fadeSlideIn 0.4s ease forwards;
+    gap: 10px; /* небольшое пространство между 3 блоками */
+}
+
+/* Левый блок (иконка + ICAO/IATA) */
+.airport-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     font-size: 0.9rem;
     color: var(--text-color);
+    white-space: nowrap;
+}
+
+.airport-left i {
+    font-size: 1rem;  /* размер иконки */
+}
+
+/* Центральный блок (название, страна) */
+.airport-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1; /* растягиваем, чтобы занять среднюю зону */
+    text-align: center;
+    gap: 2px;
+    margin: 5px;
+}
+
+.airport-name {
+    font-size: 1rem;
+    line-height: 1.2;
+    color: var(--text-color);
+    font-weight: bold;
+    white-space: nowrap;
+    margin-bottom: 3px;
+}
+
+.airport-country {
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    opacity: 0.9;
+    white-space: nowrap;
+}
+
+/* Правый блок (иконка горы + высота) */
+.airport-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    white-space: nowrap;
     opacity: 0.85;
 }
 
-/* Стилизация для кодов ICAO/IATA (справа) */
-.airport-codes {
-    font-weight: bold;
-    font-size: 0.95rem;
-    color: var(--accent-color);
+.airport-right i {
+    font-size: 1rem;
 }
 
+.airport-right, .airport-left {
+    margin: 10px;
+}

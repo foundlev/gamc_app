@@ -1376,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         nameElem.textContent = name ? name : `Аэродром ${icao}`;
         countryElem.textContent = country ? country : 'Страна не указана';
-        elevationElem.textContent = `Превышение: ${elevation} ft`;
+        elevationElem.textContent = `${elevation} ft`;
 
         if (iata) {
             codesElem.textContent = `${icao}/${iata}`;

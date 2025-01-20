@@ -58,17 +58,23 @@
         <!-- Здесь будет либо 10 аэродромов (как раньше), либо список из маршрута -->
         <div class="history" id="historyContainer"></div>
 
-        <div class="airport-info-container" id="airportInfoContainer" style="display: none;">
-            <!-- Первая строка: Название аэропорта и страна -->
-            <div class="airport-info-row center-row">
-                <h2 id="airportName"></h2>
+        <div class="airport-info-bar" id="airportInfoContainer">
+            <!-- Слева (самолёт + ICAO/IATA) -->
+            <div class="airport-left">
+                <i class="fa-solid fa-tower-observation"></i>
+                <span id="airportCodes"></span>
+            </div>
+
+            <!-- По центру: Название и страна (мелким шрифтом) -->
+            <div class="airport-center">
+                <div class="airport-name" id="airportName"></div>
                 <div class="airport-country" id="airportCountry"></div>
             </div>
 
-            <!-- Вторая строка: слева elevation, справа коды ICAO/IATA -->
-            <div class="airport-info-row details-row">
-                <div class="airport-elevation" id="airportElevation"></div>
-                <div class="airport-codes" id="airportCodes"></div>
+            <!-- Справа (горка + высота) -->
+            <div class="airport-right">
+                <i class="fa-solid fa-mountain"></i>
+                <span id="airportElevation"></span>
             </div>
         </div>
 

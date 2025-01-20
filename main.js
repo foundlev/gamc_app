@@ -201,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alternatesIcaoInput.addEventListener('input', () => {
         // Удаляем все символы, кроме английских букв, и преобразуем оставшееся в верхний регистр
         alternatesIcaoInput.value = alternatesIcaoInput.value.replace(/[^A-Za-z| ]/g, '').toUpperCase();
+        updateAlternatesSuggestions();
     });
 
     icaoInput.addEventListener('keydown', (e) => {
@@ -1490,6 +1491,176 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!inputWrapper.contains(e.target)) {
             suggestionsContainer.classList.remove('show');
             suggestionsContainer.innerHTML = '';
+        }
+    });
+
+    function updateSuggestionsForInput({
+        inputElement,
+        suggestionsElement,
+        icaoKeys,
+        limit = 10
+    }) {
+        const query = inputElement.value.trim().toUpperCase();
+        // Если пустой ввод, скрываем список
+        if (!query || !icaoKeys || icaoKeys.length === 0) {
+            suggestionsElement.innerHTML = '';
+            suggestionsElement.classList.remove('show');
+            return;
+        }
+        // Фильтруем
+        const matched = icaoKeys.filter(icao => icao.startsWith(query)).slice(0, limit);
+        if (matched.length === 0) {
+            suggestionsElement.innerHTML = '';
+            suggestionsElement.classList.remove('show');
+            return;
+        }
+        // Генерим HTML
+        let html = '';
+        matched.forEach(item => {
+            html += `<li data-icao="${item}">${item}</li>`;
+        });
+        suggestionsElement.innerHTML = html;
+        suggestionsElement.classList.add('show');
+    }
+
+    departureIcaoInput.addEventListener('input', () => {
+        // Очищаем не-латинские символы
+        departureIcaoInput.value = departureIcaoInput.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+        updateSuggestionsForInput({
+            inputElement: departureIcaoInput,
+            suggestionsElement: document.getElementById('depIcaoSuggestions'),
+            icaoKeys
+        });
+    });
+
+    arrivalIcaoInput.addEventListener('input', () => {
+        arrivalIcaoInput.value = arrivalIcaoInput.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+        updateSuggestionsForInput({
+            inputElement: arrivalIcaoInput,
+            suggestionsElement: document.getElementById('arrIcaoSuggestions'),
+            icaoKeys
+        });
+    });
+
+    document.getElementById('depIcaoSuggestions').addEventListener('click', (e) => {
+        const li = e.target.closest('li');
+        if (!li) return;
+        const selectedIcao = li.dataset.icao;
+        if (!selectedIcao) return;
+
+        departureIcaoInput.value = selectedIcao;
+
+        // Скрываем
+        const ul = document.getElementById('depIcaoSuggestions');
+        ul.classList.remove('show');
+        ul.innerHTML = '';
+    });
+
+    document.getElementById('arrIcaoSuggestions').addEventListener('click', (e) => {
+        const li = e.target.closest('li');
+        if (!li) return;
+        const selectedIcao = li.dataset.icao;
+        if (!selectedIcao) return;
+
+        arrivalIcaoInput.value = selectedIcao;
+
+        const ul = document.getElementById('arrIcaoSuggestions');
+        ul.classList.remove('show');
+        ul.innerHTML = '';
+    });
+
+    // И при клике в документе вне ul — скрывать:
+    document.addEventListener('click', (e) => {
+        let depUl = document.getElementById('depIcaoSuggestions');
+        let arrUl = document.getElementById('arrIcaoSuggestions');
+
+        // Если подсказки открыты, но клик вне зоны инпута + ul — скрываем
+        if (depUl.classList.contains('show')) {
+            const depWrapper = departureIcaoInput.parentNode; // или подходящий контейнер
+            if (!depWrapper.contains(e.target)) {
+                depUl.classList.remove('show');
+                depUl.innerHTML = '';
+            }
+        }
+
+        if (arrUl.classList.contains('show')) {
+            const arrWrapper = arrivalIcaoInput.parentNode;
+            if (!arrWrapper.contains(e.target)) {
+                arrUl.classList.remove('show');
+                arrUl.innerHTML = '';
+            }
+        }
+    });
+
+    function updateAlternatesSuggestions() {
+        const inputEl = alternatesIcaoInput;
+        const listEl = document.getElementById('altsIcaoSuggestions');
+
+        const full = inputEl.value.trim().toUpperCase();
+        // Если вообще пусто
+        if (!full) {
+            listEl.innerHTML = '';
+            listEl.classList.remove('show');
+            return;
+        }
+        // Разбиваем по пробелам
+        const parts = full.split(/\s+/);
+        // Последний кусок
+        const lastPart = parts[parts.length - 1];
+
+        if (!lastPart || !icaoKeys) {
+            listEl.innerHTML = '';
+            listEl.classList.remove('show');
+            return;
+        }
+
+        // Фильтруем
+        const matched = icaoKeys.filter(icao => icao.startsWith(lastPart)).slice(0, 10);
+
+        if (matched.length === 0) {
+            listEl.innerHTML = '';
+            listEl.classList.remove('show');
+            return;
+        }
+
+        let html = '';
+        matched.forEach(item => {
+            html += `<li data-icao="${item}">${item}</li>`;
+        });
+        listEl.innerHTML = html;
+        listEl.classList.add('show');
+    }
+
+    document.getElementById('altsIcaoSuggestions').addEventListener('click', (e) => {
+        const li = e.target.closest('li');
+        if (!li) return;
+        const selected = li.dataset.icao; // например "UUEE"
+        if (!selected) return;
+
+        let full = alternatesIcaoInput.value.trim();
+        // Разбиваем
+        let parts = full.split(/\s+/);
+        // Меняем последний кусочек
+        parts[parts.length - 1] = selected;
+
+        // Склеиваем обратно
+        alternatesIcaoInput.value = parts.join(' ') + ' ';
+
+        // Скрываем подсказки
+        const ul = document.getElementById('altsIcaoSuggestions');
+        ul.classList.remove('show');
+        ul.innerHTML = '';
+    });
+
+    document.addEventListener('click', (e) => {
+        const ul = document.getElementById('altsIcaoSuggestions');
+        if (!ul.classList.contains('show')) return;
+
+        // Проверяем, кликаем ли вне input + список
+        const wrapper = alternatesIcaoInput.parentNode;
+        if (!wrapper.contains(e.target)) {
+            ul.classList.remove('show');
+            ul.innerHTML = '';
         }
     });
 

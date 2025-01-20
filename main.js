@@ -22,6 +22,9 @@ let icaoKeys = null;
 const PASSWORD_KEY = 'gamcPassword';
 const ICAO_HISTORY_KEY = 'icaoHistory';
 
+const LAST_COUNT = 15;
+const SUGGESTIONS_COUNT = 7;
+
 let airportInfoDb = {};
 
 // Загружаем базу аэродромов (icao, iata, geo[0]=название, geo[1]=страна)
@@ -161,8 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Фильтруем и берем только первые 10 совпадений
-        const matched = icaoKeys.filter(icao => icao.startsWith(query)).slice(0, 10);
+        // Фильтруем и берем только первые SUGGESTIONS_COUNT совпадений
+        const matched = icaoKeys.filter(icao => icao.startsWith(query)).slice(0, SUGGESTIONS_COUNT);
 
         // Если совпадений нет — тоже скрываем
         if (matched.length === 0) {
@@ -191,17 +194,20 @@ document.addEventListener('DOMContentLoaded', () => {
     departureIcaoInput.addEventListener('input', () => {
         // Удаляем все символы, кроме английских букв, и преобразуем оставшееся в верхний регистр
         departureIcaoInput.value = departureIcaoInput.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+        validateRoute();
     });
 
     arrivalIcaoInput.addEventListener('input', () => {
         // Удаляем все символы, кроме английских букв, и преобразуем оставшееся в верхний регистр
         arrivalIcaoInput.value = arrivalIcaoInput.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+        validateRoute();
     });
 
     alternatesIcaoInput.addEventListener('input', () => {
         // Удаляем все символы, кроме английских букв, и преобразуем оставшееся в верхний регистр
         alternatesIcaoInput.value = alternatesIcaoInput.value.replace(/[^A-Za-z| ]/g, '').toUpperCase();
         updateAlternatesSuggestions();
+        validateRoute();
     });
 
     icaoInput.addEventListener('keydown', (e) => {
@@ -573,43 +579,6 @@ document.addEventListener('DOMContentLoaded', () => {
         text = text.replace(/\b(CLR|CAVOK|NCD|NSW|NSC|GOOD|VMC|VFR)\b/g, '<span class="color-green">$1</span>');
         text = text.replace(/\b(WS)\b/g, '<span class="color-purple">$1</span>');
 
-        // Ищем группы ветра по формату dddff(f)(Ggg)?(MPS|KT)
-        //    text = text.replace(/\b(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)\b/g, (match, dir, speed, gust, unit) => {
-        //        let speedNum = parseInt(speed, 10);
-        //        let highlight = false;
-        //
-        //        if(unit === 'MPS') {
-        //            // Проверяем скорость ветра в м/с
-        //            if(speedNum >= 15) {
-        //                highlight = true;
-        //            }
-        //            // Проверяем порывы в м/с
-        //            else if(gust) {
-        //                let gustNum = parseInt(gust.slice(1), 10); // удаляем букву "G"
-        //                if(gustNum >= 15) {
-        //                    highlight = true;
-        //                }
-        //            }
-        //        } else if(unit === 'KT') {
-        //            // Проверяем скорость ветра в узлах
-        //            if(speedNum >= 30) {
-        //                highlight = true;
-        //            }
-        //            // Проверяем порывы в узлах
-        //            else if(gust) {
-        //                let gustNum = parseInt(gust.slice(1), 10);
-        //                if(gustNum >= 30) {
-        //                    highlight = true;
-        //                }
-        //            }
-        //        }
-        //
-        //        if(highlight) {
-        //            return `<span class="color-purple">${match}</span>`;
-        //        }
-        //        return match;
-        //    });
-
         // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
         text = text.replace(/\b(OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
             let height = parseInt(heightStr, 10);
@@ -691,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* =========================
-       ИСТОРИЯ 10 ICAO
+       ИСТОРИЯ LAST_COUNT ICAO
     ========================= */
     function saveIcaoToHistory(icao) {
         icao = icao.toUpperCase();
@@ -700,7 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Обновляем массив
         history = history.filter(item => item !== icao);
         history.unshift(icao);
-        history = history.slice(0, 10);
+        history = history.slice(0, LAST_COUNT);
         localStorage.setItem(ICAO_HISTORY_KEY, JSON.stringify(history));
 
         // Если сейчас "Недавние", то сразу перерисуем
@@ -1231,8 +1200,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Парсим запасные
         let alternatesList = alts ? alts.split(/\s+/) : [];
-        // Ограничим максимум 10
-        alternatesList = alternatesList.slice(0, 10).filter(a => a.length === 4);
+        // Ограничим максимум LAST_COUNT
+        alternatesList = alternatesList.slice(0, LAST_COUNT).filter(a => a.length === 4);
 
         // Формируем объект нового маршрута
         const newRoute = {
@@ -1498,7 +1467,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inputElement,
         suggestionsElement,
         icaoKeys,
-        limit = 10
+        limit = SUGGESTIONS_COUNT
     }) {
         const query = inputElement.value.trim().toUpperCase();
         // Если пустой ввод, скрываем список
@@ -1615,7 +1584,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Фильтруем
-        const matched = icaoKeys.filter(icao => icao.startsWith(lastPart)).slice(0, 10);
+        const matched = icaoKeys.filter(icao => icao.startsWith(lastPart)).slice(0, SUGGESTIONS_COUNT);
 
         if (matched.length === 0) {
             listEl.innerHTML = '';
@@ -1663,6 +1632,36 @@ document.addEventListener('DOMContentLoaded', () => {
             ul.innerHTML = '';
         }
     });
+
+    function validateRoute() {
+        // Считываем и приводим к верхнему регистру
+        const dep = departureIcaoInput.value.trim().toUpperCase();
+        const arr = arrivalIcaoInput.value.trim().toUpperCase();
+        const alts = alternatesIcaoInput.value.trim().toUpperCase();
+
+        // Парсим запасные, убирая лишние пробелы
+        const altList = alts ? alts.split(/\s+/) : [];
+
+        // Проверяем вылет: 4 символа и есть в базе
+        const depValid = (dep.length === 4 && icaoKeys.includes(dep));
+
+        // Проверяем назначение: 4 символа и есть в базе
+        const arrValid = (arr.length === 4 && icaoKeys.includes(arr));
+
+        // Проверяем, что хотя бы 1 запасной
+        // и каждый запасной 4 символа и есть в базе
+        const altValid = (
+            altList.length >= 1 &&
+            altList.every(a => a.length === 4 && icaoKeys.includes(a))
+        );
+
+        // Если все условия выполнены => enable, иначе => disable
+        if (depValid && arrValid && altValid) {
+            saveRouteBtn.disabled = false;
+        } else {
+            saveRouteBtn.disabled = true;
+        }
+    }
 
     const switchBtn = document.getElementById('switchMenuBtn');
     switchBtn.addEventListener('click', () => {

@@ -343,7 +343,7 @@ footer {
     /* Вертикальное центрирование */
 }
 
-#fetchBtn:disabled {
+#fetchBtn:disabled, #saveRouteBtn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }

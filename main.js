@@ -1,8 +1,9 @@
-// Инициализация переменной offlineMode из localStorage или по умолчанию
 let offlineMode = JSON.parse(localStorage.getItem('offlineMode')) || false;
-// Автоматическое изменение режима в offline, если отсутствует соединение
-let autoGoOffline = JSON.parse(localStorage.getItem('autoGoOffline')) || true;
+let autoGoOffline = localStorage.getItem('autoGoOffline') !== null
+    ? JSON.parse(localStorage.getItem('autoGoOffline'))
+    : true;
 let doHighlight = JSON.parse(localStorage.getItem('doHighlight')) || false;
+let canShowAirportInfo = JSON.parse(localStorage.getItem('canShowAirportInfo')) || false;
 
 // Maintenance support for B737 is provided in the following airports (29 NOV 24)
 const airportMaintenanceCodes = [
@@ -15,6 +16,7 @@ const airportMaintenanceCodes = [
 
 let nowIcao = null;
 let showSecondMenu = false;
+let icaoKeys = null;
 
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
@@ -34,6 +36,7 @@ fetch('data/airports_db.json')
                 elevation: item.elevation || 0
             };
         });
+        icaoKeys = Object.keys(airportInfoDb).sort();
     })
     .catch(err => {
         console.error('Не удалось загрузить airports_db.json:', err);
@@ -43,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Селекторы
     const icaoInput = document.getElementById('icao');
     const fetchBtn = document.getElementById('fetchBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
     const removeSavedIcaosBtn = document.getElementById('removeSavedIcaos');
     const responseContainer = document.getElementById('responseContainer');
@@ -148,10 +150,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateIcaoSuggestions() {
+        const query = icaoInput.value.trim().toUpperCase();
+        const suggestionsContainer = document.getElementById('icaoSuggestions');
+
+        // Если пользователь ничего не ввёл или база аэропортов не загружена, скрываем список
+        if (!query || !icaoKeys || icaoKeys.length === 0) {
+            suggestionsContainer.innerHTML = '';
+            suggestionsContainer.classList.remove('show');
+            return;
+        }
+
+        // Фильтруем и берем только первые 10 совпадений
+        const matched = icaoKeys.filter(icao => icao.startsWith(query)).slice(0, 10);
+
+        // Если совпадений нет — тоже скрываем
+        if (matched.length === 0) {
+            suggestionsContainer.innerHTML = '';
+            suggestionsContainer.classList.remove('show');
+            return;
+        }
+
+        // Формируем <li> для каждого совпадения
+        let html = '';
+        matched.forEach(item => {
+            html += `<li data-icao="${item}">${item}</li>`;
+        });
+
+        suggestionsContainer.innerHTML = html;
+        suggestionsContainer.classList.add('show');
+    }
+
+    // Вызываем при каждом вводе
     icaoInput.addEventListener('input', () => {
-        // Удаляем все символы, кроме английских букв, и преобразуем оставшееся в верхний регистр
         icaoInput.value = icaoInput.value.replace(/[^A-Za-z]/g, '').toUpperCase();
         updateFetchBtn();
+        updateIcaoSuggestions(); // <-- эта строка
     });
 
     departureIcaoInput.addEventListener('input', () => {
@@ -514,8 +548,8 @@ document.addEventListener('DOMContentLoaded', () => {
         text = text.replace(/\b(TAF COR\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
         text = text.replace(/\b(TAF RTD\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
         // LTBB SIGMET 4
-        text = text.replace(/\b([A-Z]{4}\s+SIGMET\s+\d{1})\b/g, '<b>$1</b>');
-        text = text.replace(/\b([A-Z]{4}\s+AIRMET\s+\d{1})\b/g, '<b>$1</b>');
+        text = text.replace(/\b([A-Z]{4}\s+SIGMET\s+\d{1,3})\b/g, '<b>$1</b>');
+        text = text.replace(/\b([A-Z]{4}\s+AIRMET\s+\d{1,3})\b/g, '<b>$1</b>');
 
         // 3) Выделение именно четырехзначных чисел как отдельных слов
 
@@ -1151,10 +1185,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Найти чекбокс
     const autoOfflineCheckbox = document.getElementById('autoOfflineCheckbox');
     const doHighlightCheckbox = document.getElementById('doHighlightCheckbox');
+    const showAirportInfoCheckbox = document.getElementById('showAirportInfoCheckbox');
 
     // Установить состояние чекбокса при загрузке
     autoOfflineCheckbox.checked = autoGoOffline; // Установить состояние
     doHighlightCheckbox.checked = doHighlight; // Установить состояние
+    showAirportInfoCheckbox.checked = canShowAirportInfo;
 
     // Обработчик изменения чекбокса
     autoOfflineCheckbox.addEventListener('change', () => {
@@ -1166,6 +1202,11 @@ document.addEventListener('DOMContentLoaded', () => {
     doHighlightCheckbox.addEventListener('change', () => {
         doHighlight = doHighlightCheckbox.checked; // Обновить переменную
         localStorage.setItem('doHighlight', JSON.stringify(doHighlight)); // Сохранить в localStorage
+    });
+
+    showAirportInfoCheckbox.addEventListener('change', () => {
+        canShowAirportInfo = showAirportInfoCheckbox.checked; // Обновить переменную
+        localStorage.setItem('canShowAirportInfo', JSON.stringify(canShowAirportInfo)); // Сохранить в localStorage
     });
 
     function showAddRouteModal() {
@@ -1264,6 +1305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedValue === 'add') {
             // Показываем модалку
             showAddRouteModal();
+            routeSelect.value = 'recent';
             return;
         }
 
@@ -1362,6 +1404,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showAirportInfo(icao) {
+        if (!canShowAirportInfo) return;
+
         const container = document.getElementById('airportInfoContainer');
         const nameElem = document.getElementById('airportName');
         const countryElem = document.getElementById('airportCountry');
@@ -1419,6 +1463,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
     }
+
+    document.getElementById('icaoSuggestions').addEventListener('click', (e) => {
+        const li = e.target.closest('li');
+        if (!li) return;
+        const selectedIcao = li.dataset.icao;
+        if (!selectedIcao) return;
+
+        // Проставляем в input
+        icaoInput.value = selectedIcao;
+        nowIcao = selectedIcao;
+        updateFetchBtn();
+
+        // Скрываем список
+        const suggestionsContainer = document.getElementById('icaoSuggestions');
+        suggestionsContainer.classList.remove('show');
+        suggestionsContainer.innerHTML = '';
+    });
+
+    // Скрыть подсказки при клике вне инпута и самого списка
+    document.addEventListener('click', (e) => {
+        const suggestionsContainer = document.getElementById('icaoSuggestions');
+        if (!suggestionsContainer.classList.contains('show')) return;
+
+        const inputWrapper = document.querySelector('.icao-input-wrapper');
+        if (!inputWrapper.contains(e.target)) {
+            suggestionsContainer.classList.remove('show');
+            suggestionsContainer.innerHTML = '';
+        }
+    });
 
     const switchBtn = document.getElementById('switchMenuBtn');
     switchBtn.addEventListener('click', () => {

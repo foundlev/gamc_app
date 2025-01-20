@@ -1213,7 +1213,6 @@ footer {
     border: 1px solid var(--border-color);
     border-radius: 5px;
     padding: 4px 8px;
-    margin-bottom: 5px;
     animation: fadeSlideIn 0.4s ease forwards;
     gap: 10px; /* небольшое пространство между 3 блоками */
 }
@@ -1286,4 +1285,39 @@ footer {
 
 button[hidden] {
     display: none;
+}
+
+/* Стили для списка подсказок */
+.icao-suggestions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    /* Прижимаем к низу инпута */
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none; /* По умолчанию скрыт */
+}
+
+.icao-suggestions.show {
+    display: block; /* Показать */
+}
+
+.icao-suggestions li {
+    padding: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.icao-suggestions li:hover {
+    background-color: var(--accent-color);
+    color: #ffffff;
 }

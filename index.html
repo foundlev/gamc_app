@@ -28,9 +28,9 @@
                     <div class="input-with-clear">
                         <input type="text" id="icao" placeholder="ICAO" maxlength="4" />
                         <button type="button" class="clear-icao-btn" id="clearIcaoBtn">Стереть</button>
+                        <ul id="icaoSuggestions" class="icao-suggestions"></ul>
                     </div>
                     <button id="fetchBtn" disabled><i class="fas fa-cloud-download-alt"></i>Запросить</button>
-                    <button id="refreshBtn" disabled><i class="fa-solid fa-angle-down"></i></button>
                 </div>
             </div>
 
@@ -52,9 +52,7 @@
             <div class="subtitle">Быстрый доступ:</div>
             <div class="route-dropdown">
                 <select id="routeSelect">
-                    <option value="recent" selected>
-                        <i class="fa-solid fa-clock-rotate-left"></i> Недавние
-                    </option>
+                    <option value="recent" selected>Недавние</option>
                 </select>
             </div>
         </div>
@@ -162,6 +160,10 @@
                 <button id="resetPasswordBtn" class="modal-button"><i class="fas fa-unlock-alt"></i>Сбросить пароль</button>
                 <button id="resetZoomBtn" class="modal-button"><i class="fas fa-compress-arrows-alt"></i>Сбросить масштаб</button>
                 <div class="modal-checkbox-group">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="showAirportInfoCheckbox">
+                        <span>Отображать информацию об аэродроме</span>
+                    </label>
                     <label class="custom-checkbox">
                         <input type="checkbox" id="doHighlightCheckbox">
                         <span>Выделение и расшифровка кода</span>

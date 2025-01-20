@@ -1347,3 +1347,9 @@ button[hidden] {
     width: 0%; /* по умолчанию 0 */
     transition: width 0.3s ease;
 }
+
+@media (max-width: 650px) { /* Если ширина экрана меньше или равна 768px */
+    .airport-left, .airport-right {
+        display: none;
+    }
+}

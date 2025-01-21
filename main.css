@@ -343,7 +343,10 @@ footer {
     /* Вертикальное центрирование */
 }
 
-#fetchBtn:disabled, #saveRouteBtn:disabled {
+#fetchBtn:disabled,
+#saveRouteBtn:disabled,
+#calcBtn:disabled,
+#aiBtn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -382,7 +385,8 @@ footer {
 
 .modal {
     position: relative;
-    overflow: visible; /* важно, чтобы не обрезалось */
+    overflow: visible;
+    /* важно, чтобы не обрезалось */
     z-index: 10000;
     background: linear-gradient(135deg, #ffffff, #f7f9fc);
     /* Градиентный фон */
@@ -1004,7 +1008,7 @@ footer {
 }
 
 #settingsModalBackdrop .modal .modal-button i,
-#addRouteModalBackdrop i{
+#addRouteModalBackdrop i {
     margin-right: 5px;
 }
 
@@ -1097,19 +1101,30 @@ footer {
 }
 
 .route-dropdown select {
-    -webkit-appearance: none; /* Убирает стиль Safari */
-    -moz-appearance: none; /* Убирает стиль Firefox */
-    appearance: none; /* Универсальный сброс */
-    background-color: var(--card-bg); /* Цвет фона */
-    border: 1px solid var(--border-color); /* Рамка */
-    padding: 8px; /* Внутренний отступ */
-    border-radius: 4px; /* Скругленные углы */
-    font-size: 0.9rem; /* Размер шрифта */
-    color: var(--text-color); /* Цвет текста */
-    cursor: pointer; /* Указатель курсора */
+    -webkit-appearance: none;
+    /* Убирает стиль Safari */
+    -moz-appearance: none;
+    /* Убирает стиль Firefox */
+    appearance: none;
+    /* Универсальный сброс */
+    background-color: var(--card-bg);
+    /* Цвет фона */
+    border: 1px solid var(--border-color);
+    /* Рамка */
+    padding: 8px;
+    /* Внутренний отступ */
+    border-radius: 4px;
+    /* Скругленные углы */
+    font-size: 0.9rem;
+    /* Размер шрифта */
+    color: var(--text-color);
+    /* Цвет текста */
+    cursor: pointer;
+    /* Указатель курсора */
     background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
     background-repeat: no-repeat;
-    background-position: right 10px center; /* Иконка стрелки справа */
+    background-position: right 10px center;
+    /* Иконка стрелки справа */
     background-size: 10px 10px;
 }
 
@@ -1155,7 +1170,8 @@ footer {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    padding: 6px 10px; /* Чуть меньше отступов */
+    padding: 6px 10px;
+    /* Чуть меньше отступов */
     margin-bottom: 5px;
     animation: fadeSlideIn 0.4s ease forwards;
 }
@@ -1164,10 +1180,13 @@ footer {
     /* Всё в одну строку */
     display: flex;
     flex-direction: row;
-    align-items: center;  /* выравниваем по вертикали */
-    justify-content: space-between; /* растягиваем, но позже уточним отдельные блоки */
+    align-items: center;
+    /* выравниваем по вертикали */
+    justify-content: space-between;
+    /* растягиваем, но позже уточним отдельные блоки */
     width: 100%;
-    gap: 10px; /* небольшой отступ между элементами */
+    gap: 10px;
+    /* небольшой отступ между элементами */
 }
 
 .airport-codes {
@@ -1216,7 +1235,8 @@ footer {
     border-radius: 5px;
     padding: 4px 8px;
     animation: fadeSlideIn 0.4s ease forwards;
-    gap: 10px; /* небольшое пространство между 3 блоками */
+    gap: 10px;
+    /* небольшое пространство между 3 блоками */
 }
 
 /* Левый блок (иконка + ICAO/IATA) */
@@ -1230,7 +1250,8 @@ footer {
 }
 
 .airport-left i {
-    font-size: 1rem;  /* размер иконки */
+    font-size: 1rem;
+    /* размер иконки */
 }
 
 /* Центральный блок (название, страна) */
@@ -1239,7 +1260,8 @@ footer {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 1; /* растягиваем, чтобы занять среднюю зону */
+    flex: 1;
+    /* растягиваем, чтобы занять среднюю зону */
     text-align: center;
     gap: 2px;
     margin: 5px;
@@ -1263,9 +1285,12 @@ footer {
 /* Правый блок (иконка горы + высота) */
 .airport-right {
     display: flex;
-    justify-content: flex-end; /* Выровнять вправо */
-    align-items: center; /* Центрировать по вертикали */
-    gap: 4px; /* Отступ между иконкой и текстом */
+    justify-content: flex-end;
+    /* Выровнять вправо */
+    align-items: center;
+    /* Центрировать по вертикали */
+    gap: 4px;
+    /* Отступ между иконкой и текстом */
     font-size: 0.9rem;
     color: var(--text-color);
     white-space: nowrap;
@@ -1275,7 +1300,8 @@ footer {
     font-size: 1rem;
 }
 
-.airport-right, .airport-left {
+.airport-right,
+.airport-left {
     margin: 10px;
     width: 100px;
     opacity: 0.85;
@@ -1305,11 +1331,13 @@ button[hidden] {
     list-style: none;
     max-height: 200px;
     overflow-y: auto;
-    display: none; /* По умолчанию скрыт */
+    display: none;
+    /* По умолчанию скрыт */
 }
 
 .icao-suggestions.show {
-    display: block; /* Показать */
+    display: block;
+    /* Показать */
 }
 
 .icao-suggestions li {
@@ -1326,7 +1354,8 @@ button[hidden] {
 
 /* Модалка для пакетного обновления */
 .batch-refresh-modal {
-    max-width: 450px; /* чуть шире, чем стандартные */
+    max-width: 450px;
+    /* чуть шире, чем стандартные */
 }
 
 /* Контейнер для "прогресс-бара" */
@@ -1344,12 +1373,154 @@ button[hidden] {
 .progress-bar-fill {
     height: 100%;
     background-color: var(--accent-color);
-    width: 0%; /* по умолчанию 0 */
+    width: 0%;
+    /* по умолчанию 0 */
     transition: width 0.3s ease;
 }
 
-@media (max-width: 650px) { /* Если ширина экрана меньше или равна 768px */
-    .airport-left, .airport-right {
+@media (max-width: 650px) {
+
+    /* Если ширина экрана меньше или равна 768px */
+    .airport-left,
+    .airport-right {
         display: none;
     }
+}
+
+.modal.calc-modal {
+    max-width: 600px;
+    width: 90%;
+    text-align: left;
+    background-color: var(--card-bg);
+    /* вместо #f2f2f2 используем var(--card-bg) */
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    padding: 20px 25px;
+    position: relative;
+}
+
+.modal.calc-modal h2 {
+    margin: 0;
+    margin-bottom: 15px;
+    font-size: 1.6rem;
+    text-align: center;
+    color: var(--text-color);
+    /* вместо #333 */
+}
+
+/* Чтобы убрать дефолтную стрелку Safari */
+.no-default-arrow {
+    -webkit-appearance: none;
+    /* Safari, Chrome */
+    -moz-appearance: none;
+    /* Firefox */
+    appearance: none;
+    /* Стандартное свойство */
+    background-color: var(--bg-color);
+}
+
+/* Общие отступы внутри окна */
+.modal.calc-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Стиль для строки с селектами "ВПП" и "РД" */
+.calc-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding-top: 5px;
+}
+
+/* Стилизуем <label> и <select> внутри calc-row */
+.calc-row label {
+    font-weight: bold;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.calc-row select {
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 1rem;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    cursor: pointer;
+}
+
+/* Блок с выводом данных по LDA (только для выбранной РД) */
+#runwayIntersectionsInfo {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    padding-left: 30px;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+/* Схема полосы */
+#runwaySchematicContainer {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 30px;
+    position: relative;
+}
+
+.runway-scheme-wrapper {
+    position: relative;
+    margin: 0 auto;
+    max-width: 500px;
+    height: 40px;
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    background: linear-gradient(to right, #777, #555);
+    overflow: visible;
+}
+
+.runway-zero-label,
+.runway-end-label {
+    position: absolute;
+    top: -20px;
+    font-size: 0.8rem;
+    color: var(--text-color);
+    white-space: nowrap;
+    transform: translateX(-50%);
+}
+
+.taxiway-marker-label {
+    position: absolute;
+    top: 48px;
+    font-size: 0.8rem;
+    color: var(--text-color);
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+/* Маркер для одной РД (кружок или стрелка) */
+.taxiway-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: white;
+}
+
+.taxiway-marker::before {
+    content: "\f219";
+    /* Unicode кода для иконки ромба Font Awesome */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+.landing-arrow {
+    position: absolute;
+    top: 50%;
+    font-size: 24px;
+    color: white;
 }

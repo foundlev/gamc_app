@@ -40,8 +40,8 @@
             <button id="zoomInBtn"><i class="fas fa-search-plus"></i></button>
             <button id="zoomOutBtn"><i class="fas fa-search-minus"></i></button>
             <button id="searchBtn" hidden><i class="fa-solid fa-magnifying-glass"></i></button>
-            <button id="calcBtn" hidden><i class="fa-solid fa-calculator"></i></button>
-            <button id="aiBtn" hidden><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+            <button id="calcBtn" disabled hidden><i class="fa-solid fa-calculator"></i></button>
+            <button id="aiBtn" disabled hidden><i class="fa-solid fa-wand-magic-sparkles"></i></button>
             <button id="refreshAllBtn" hidden><i class="fa-solid fa-retweet"></i></button>
             <button id="settingsBtn"><i class="fa-solid fa-gear"></i></button>
             <button id="offlineToggleBtn"><i class="fa-solid fa-signal"></i></button>
@@ -246,27 +246,31 @@
             <button class="modal-close-btn" id="closeCalcModalBtn">
                 <i class="fas fa-times"></i>
             </button>
-            <h2>Расчет ВПП и пересечений</h2>
+            <h2>Расчёт ВПП / РД</h2>
 
-            <!-- Селект для выбора направления -->
-            <label for="runwaySelect"><strong>Выберите направление:</strong></label>
-            <select id="runwaySelect" style="margin-bottom: 15px;">
-                <!-- Опции будут добавляться динамически -->
-            </select>
+            <div class="modal-content">
+                <!-- Блок ВПП + РД в одной строке -->
+                <div class="calc-row">
+                    <label for="runwaySelect">ВПП:</label>
+                    <select id="runwaySelect" class="no-default-arrow">
+                        <!-- Опции направлений ВПП (12, 30, etc.) -->
+                    </select>
 
-            <!-- Вывод пересечений -->
-            <div id="runwayIntersectionsInfo" style="text-align:left;">
-                <!-- Здесь будет список пересечений в порядке возрастания LDA -->
-            </div>
+                    <label for="taxiwaySelect">РД:</label>
+                    <select id="taxiwaySelect" class="no-default-arrow">
+                        <!-- Опции рулёжек (B, C, D...), подставляются динамически -->
+                    </select>
+                </div>
 
-            <hr style="margin: 15px 0;">
+                <!-- Тут будет вывод дистанции для выбранной РД -->
+                <div id="runwayIntersectionsInfo"></div>
 
-            <!-- Схематичная полоса -->
-            <div id="runwaySchematicContainer" style="text-align:center;">
-                <!-- Сюда будем вставлять "схему" -->
+                <!-- Схема полосы -->
+                <div id="runwaySchematicContainer"></div>
             </div>
         </div>
     </div>
+
 
     <script src="main.js"></script>
 </body>

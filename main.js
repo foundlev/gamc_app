@@ -1441,13 +1441,14 @@ document.addEventListener('DOMContentLoaded', () => {
             container.style.display = 'none';
             return;
         }
-
         const {
-            name,
-            country,
+            geo,
             iata,
             elevation
         } = airportInfoDb[icao];
+
+        const name = geo ? geo[0] : null;
+        const country = geo ? geo[1] : null;
 
         nameElem.textContent = name ? name : `Аэродром ${icao}`;
         countryElem.textContent = country ? country : 'Страна не указана';

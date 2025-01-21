@@ -3,7 +3,8 @@ const CACHE_URLS = [
   "/logo.png",
   "/index.html",
   "/main.css",
-  "/main.js"
+  "/main.js",
+  "/data/airports_db.json"
 ];
 
 // Устанавливаем время жизни кэша в миллисекундах (20 часов)

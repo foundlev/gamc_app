@@ -2025,11 +2025,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     `;
         }
-
         runwaySchematicContainer.innerHTML = schemeHtml;
-
-
-
     }
 
     const switchBtn = document.getElementById('switchMenuBtn');

@@ -240,6 +240,34 @@
         </div>
     </div>
 
+    <!-- Модальное окно для калькулятора ВПП -->
+    <div class="modal-backdrop" id="calcModalBackdrop">
+        <div class="modal calc-modal">
+            <button class="modal-close-btn" id="closeCalcModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Расчет ВПП и пересечений</h2>
+
+            <!-- Селект для выбора направления -->
+            <label for="runwaySelect"><strong>Выберите направление:</strong></label>
+            <select id="runwaySelect" style="margin-bottom: 15px;">
+                <!-- Опции будут добавляться динамически -->
+            </select>
+
+            <!-- Вывод пересечений -->
+            <div id="runwayIntersectionsInfo" style="text-align:left;">
+                <!-- Здесь будет список пересечений в порядке возрастания LDA -->
+            </div>
+
+            <hr style="margin: 15px 0;">
+
+            <!-- Схематичная полоса -->
+            <div id="runwaySchematicContainer" style="text-align:center;">
+                <!-- Сюда будем вставлять "схему" -->
+            </div>
+        </div>
+    </div>
+
     <script src="main.js"></script>
 </body>
 

@@ -32,12 +32,7 @@ fetch('data/airports_db.json')
     .then(response => response.json())
     .then(data => {
         data.forEach(item => {
-            airportInfoDb[item.icao] = {
-                name: item.geo?.[0] || '',
-                country: item.geo?.[1] || '',
-                iata: item.iata || '',
-                elevation: item.elevation || 0
-            };
+            airportInfoDb[item.icao] = item;
         });
         icaoKeys = Object.keys(airportInfoDb).sort();
     })
@@ -1828,6 +1823,242 @@ document.addEventListener('DOMContentLoaded', () => {
             hideBatchRefreshModal();
         }
     });
+
+    // где-то рядом со switchBtn, refreshAllBtn и т.д.
+    const calcBtn = document.getElementById('calcBtn');
+    const calcModalBackdrop = document.getElementById('calcModalBackdrop');
+    const closeCalcModalBtn = document.getElementById('closeCalcModalBtn');
+
+    calcBtn.addEventListener('click', () => {
+        if (!nowIcao) {
+            alert('Сначала введите ICAO аэродрома!');
+            return;
+        }
+        showCalcModal(nowIcao);
+    });
+
+    closeCalcModalBtn.addEventListener('click', hideCalcModal);
+
+    function showCalcModal(icao) {
+        // Очищаем перед каждым открытием
+        const runwaySelect = document.getElementById('runwaySelect');
+        runwaySelect.innerHTML = '';
+
+        const runwayIntersectionsInfo = document.getElementById('runwayIntersectionsInfo');
+        runwayIntersectionsInfo.innerHTML = '';
+
+        const runwaySchematicContainer = document.getElementById('runwaySchematicContainer');
+        runwaySchematicContainer.innerHTML = '';
+
+        // Проверяем, есть ли аэропорт в базе
+        const airport = airportInfoDb[icao];
+        if (!airport || !airport.runways) {
+            runwayIntersectionsInfo.innerHTML = '<p>Нет данных о ВПП для ' + icao + '</p>';
+            calcModalBackdrop.classList.add('show');
+            return;
+        }
+
+        // runwayList - это объект { "12": {...}, "30": {...} }
+        const runwayList = airport.runways;
+        const directions = Object.keys(runwayList); // ["12", "30"], например
+        if (!directions.length) {
+            runwayIntersectionsInfo.innerHTML = '<p>Нет данных о ВПП для ' + icao + '</p>';
+            calcModalBackdrop.classList.add('show');
+            return;
+        }
+
+        // Заполняем <select> с направлениями
+        directions.forEach(dir => {
+            const option = document.createElement('option');
+            option.value = dir;
+            option.textContent = dir;  // например "12" или "30"
+            runwaySelect.appendChild(option);
+        });
+
+        // Вешаем обработчик изменения <select>, чтобы перерисовывать intersections
+        runwaySelect.addEventListener('change', () => {
+            renderRunwayIntersections(icao, runwaySelect.value);
+        });
+
+        // Сразу при открытии выберем первую
+        runwaySelect.value = directions[0];
+        // И сразу нарисуем
+        renderRunwayIntersections(icao, directions[0]);
+
+        calcModalBackdrop.classList.add('show');
+    }
+
+    function hideCalcModal() {
+        calcModalBackdrop.classList.remove('show');
+    }
+
+    // Реализация рендера
+    function renderRunwayIntersections(icao, dir) {
+        const airport = airportInfoDb[icao];
+        if (!airport || !airport.runways || !airport.runways[dir]) return;
+
+        const runwayData = airport.runways[dir];
+        const runwayIntersectionsInfo = document.getElementById('runwayIntersectionsInfo');
+        const runwaySchematicContainer = document.getElementById('runwaySchematicContainer');
+
+        // xlda - общая длина полосы
+        const fullLda = runwayData.xlda || 0;
+
+        // Список пересечений (объект вида { "B": { LDA: 1288 }, "C": { LDA: 406 } })
+        const intersections = runwayData.intersections || {};
+
+        // Преобразуем intersections в массив вида
+        // [ { name: "B", lda: 1288 }, { name: "C", lda: 406 } ]
+        let intersectionsArray = Object.keys(intersections).map(key => {
+            return {
+                name: key,
+                lda: intersections[key].LDA
+            };
+        });
+
+        // Сортируем по возрастанию lda
+        intersectionsArray.sort((a, b) => a.lda - b.lda);
+
+        // Формируем HTML-таблицу (или список) в runwayIntersectionsInfo
+        let html = `<p><strong>Полная длина (LDA):</strong> ${fullLda} м</p>`;
+        if (intersectionsArray.length === 0) {
+            html += `<p>Нет пересечений</p>`;
+        } else {
+            html += `<ul>`;
+            intersectionsArray.forEach(item => {
+                html += `<li>Точка ${item.name}: LDA = ${item.lda} м</li>`;
+            });
+            html += `</ul>`;
+        }
+        runwayIntersectionsInfo.innerHTML = html;
+
+        // Теперь рисуем схему в runwaySchematicContainer.
+        // Упрощённо сделаем горизонтальную линию + пометки
+        // Допустим, что 1 px = 1 м для наглядности, но если длины большие,
+        // придётся масштабировать.
+        // Для простоты возьмём maxWidth = 300 px и найдём коэф. масштабирования.
+        const maxWidth = 300;
+        const scale = fullLda > 0 ? (maxWidth / fullLda) : 0.1;
+
+        // Ширина полосы в пикселях (по масштабу)
+        const runwayPixelWidth = Math.round(fullLda * scale);
+        const runwayHeight = 20; // высота «прямоугольника» ВПП
+        // Чтобы всё располагалось по центру, используем контейнер position: relative,
+        // и в нём будет сама «полоса» + метки.
+
+        let scheme = `
+            <div
+                style="
+                    position: relative;
+                    width: ${runwayPixelWidth}px;
+                    margin: 0 auto 20px auto;
+                    border: 1px solid #444;
+                    padding: 5px;
+                "
+            >
+                <!-- Верхняя подпись о длине ВПП -->
+                <div style="
+                    text-align: center;
+                    margin-bottom: 4px;
+                    font-size: 0.9rem;
+                ">
+                    ВПП <strong>${dir}</strong> (LDA = <strong>${fullLda}</strong> м)
+                </div>
+
+                <!-- Сам прямоугольник ВПП -->
+                <div
+                    style="
+                        position: relative;
+                        background: #666;
+                        height: ${runwayHeight}px;
+                        width: ${runwayPixelWidth}px;
+                    "
+                >
+        `;
+
+        // Добавим «начальную» и «конечную» подпись, чтобы понятнее, где «старт» ВПП, а где конец
+        // Слева (начало, 0 м)
+        scheme += `
+            <div style="
+                position: absolute;
+                left: -10px;
+                top: -15px;
+                color: #333;
+                font-size: 0.8rem;
+                transform: translateX(-100%);
+            ">
+                0 м
+            </div>
+        `;
+
+        // Справа (конец, fullLda м)
+        scheme += `
+            <div style="
+                position: absolute;
+                right: -10px;
+                top: -15px;
+                color: #333;
+                font-size: 0.8rem;
+                transform: translateX(100%);
+            ">
+                ${fullLda} м
+            </div>
+        `;
+
+        // Перебираем intersectionsArray и для каждой точки рисуем маркер (вертикальную полоску/кружок) + подпись
+        intersectionsArray.forEach(item => {
+            const offsetPx = Math.round(item.lda * scale);
+            scheme += `
+                <!-- Маркер для ${item.name} -->
+                <div style="
+                    position: absolute;
+                    left: ${offsetPx}px;
+                    top: 0;
+                    height: ${runwayHeight}px;
+                    width: 2px;
+                    background: #ff5555;
+                "></div>
+
+                <!-- Подпись (сверху) -->
+                <div style="
+                    position: absolute;
+                    left: ${offsetPx}px;
+                    top: -16px;
+                    color: #000;
+                    font-size: 0.8rem;
+                    text-align: center;
+                    transform: translateX(-50%);
+                ">
+                    ${item.name}
+                </div>
+
+                <!-- LDA метка (снизу) -->
+                <div style="
+                    position: absolute;
+                    left: ${offsetPx}px;
+                    bottom: -16px;
+                    color: #000;
+                    font-size: 0.8rem;
+                    text-align: center;
+                    transform: translateX(-50%);
+                ">
+                    ${item.lda} м
+                </div>
+            `;
+        });
+
+        // Закрываем div ВПП и контейнера
+        scheme += `
+                </div>
+                <!-- // конец div самой полосы -->
+            </div>
+            <!-- // конец общего контейнера (чтобы можно было добавить рамку и прочее) -->
+        `;
+
+        // Вставляем в контейнер
+        runwaySchematicContainer.innerHTML = scheme;
+
+    }
 
     const switchBtn = document.getElementById('switchMenuBtn');
     switchBtn.addEventListener('click', () => {

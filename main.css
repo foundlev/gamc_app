@@ -346,7 +346,7 @@ footer {
 #fetchBtn:disabled,
 #saveRouteBtn:disabled,
 #calcBtn:disabled,
-#aiBtn:disabled {
+#airportSettingsBtn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -1308,7 +1308,7 @@ footer {
 }
 
 #switchMenuBtn {
-    flex: 0;
+    flex: 0.5;
 }
 
 button[hidden] {

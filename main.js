@@ -153,11 +153,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (icao.length === 4) {
             fetchBtn.disabled = false;
             calcBtn.disabled = false;
-            aiBtn.disabled = false;
+            airportSettingsBtn.disabled = false;
         } else {
             fetchBtn.disabled = true;
             calcBtn.disabled = true;
-            aiBtn.disabled = true;
+            airportSettingsBtn.disabled = true;
         }
     }
 
@@ -1004,149 +1004,141 @@ document.addEventListener('DOMContentLoaded', () => {
         return diffHeading <= diffHeadingOpp ? heading : headingOpp;
     }
 
+    // Вспомогательная функция, которая ищет «противоположную» ВПП в airportInfoDb
+    function findOppositeRunway(icao, currentRwyName) {
+        const airport = airportInfoDb[icao];
+        if (!airport || !airport.runways || !airport.runways[currentRwyName]) {
+            return currentRwyName; // fallback
+        }
+
+        // Курс текущей полосы
+        const currentHdg = airport.runways[currentRwyName].hdg;
+        // "Целевой" курс = текуший + 180 (по модулю 360)
+        const targetHdg = (currentHdg + 180) % 360;
+
+        let bestName = currentRwyName;
+        let minDiff = 999;
+
+        for (const [rwyName, rwyData] of Object.entries(airport.runways)) {
+            if (rwyName === currentRwyName) continue;
+            const diffRaw = Math.abs(rwyData.hdg - targetHdg) % 360;
+            const diff = diffRaw > 180 ? 360 - diffRaw : diffRaw;
+            if (diff < minDiff) {
+                minDiff = diff;
+                bestName = rwyName;
+            }
+        }
+        return bestName;
+    }
+
+    // Функция для определения, какая ВПП (heading или headingOpp) ближе к направлению ветра
+    function closestRunway(windDirInt, heading, headingOpp) {
+        function angularDifference(a, b) {
+            const diff = Math.abs(a - b) % 360;
+            return diff > 180 ? 360 - diff : diff;
+        }
+        const diffHeading = angularDifference(windDirInt, heading);
+        const diffHeadingOpp = angularDifference(windDirInt, headingOpp);
+        return diffHeading <= diffHeadingOpp ? heading : headingOpp;
+    }
+
+    // Обработчик клика по .wind-info
     document.addEventListener('click', (e) => {
         const windTarget = e.target.closest('.wind-info');
-        if (windTarget) {
-            const dir = windTarget.dataset.dir;
-            const speed = windTarget.dataset.speed;
-            const gust = windTarget.dataset.gust;
-            const unit = windTarget.dataset.unit;
+        if (!windTarget) return;
 
-            const runwayElems = document.querySelectorAll('.runway-info');
-            let content = "";
+        const dir = windTarget.dataset.dir;       // напр. "120"
+        const speed = windTarget.dataset.speed;   // напр. "06"
+        const gust = windTarget.dataset.gust;     // напр. "G12" или пусто
+        const unit = windTarget.dataset.unit;     // "MPS" или "KT"
 
-            if (gust) {
-                content += `Ветер: ${dir}° ${parseInt(speed)} <i class="fa-solid fa-wind"></i> ${parseInt(gust.replace('G', ''))} ${unit}<br><br>`;
-            } else {
-                content += `Ветер: ${dir}° ${parseInt(speed)} ${unit}<br><br>`;
+        // Формируем шапку контента (ветер, порывы)
+        let content = "";
+        if (gust) {
+            content += `Ветер: ${dir}° ${parseInt(speed)} <i class="fa-solid fa-wind"></i> ${parseInt(gust.replace('G',''))} ${unit}<br><br>`;
+        } else {
+            content += `Ветер: ${dir}° ${parseInt(speed)} ${unit}<br><br>`;
+        }
+
+        // Если current ICAO не задан или база не загружена, покажем предупреждение
+        if (!nowIcao || !airportInfoDb[nowIcao] || !airportInfoDb[nowIcao].runways) {
+            content += "Нет данных о ВПП в airportInfoDb для " + nowIcao;
+            showWindInfoModal(content);
+            return;
+        }
+
+        // Приводим ветер к числу (windDir может быть null, если VRB)
+        let windDirNum = (dir === 'VRB') ? null : parseInt(dir, 10);
+        let windSpeed = parseFloat(speed);
+        let windGust = gust ? parseFloat(gust.slice(1)) : null;
+
+        // Вспомогательные функции
+        function calcCrosswind(angle, spd) {
+            let rad = (windDirNum - angle) * Math.PI / 180;
+            return spd * Math.sin(rad);
+        }
+        function calcHeadwind(angle, spd) {
+            let rad = (windDirNum - angle) * Math.PI / 180;
+            return spd * Math.cos(rad);
+        }
+
+        // Перебираем все ВПП из базы
+        let uniqueRunways = new Set();
+        for (const [rwyName, rwyData] of Object.entries(airportInfoDb[nowIcao].runways)) {
+            // Достаём курс
+            const heading = rwyData.hdg;
+
+            // Ищем «обратную» полосу
+            const oppName = findOppositeRunway(nowIcao, rwyName);
+            let headingOpp = airportInfoDb[nowIcao].runways[oppName]?.hdg || heading;
+
+            // Если ветер переменный (VRB), добавим соответствующий текст 1 раз
+            if (windDirNum === null) {
+                // Чтобы не дублировать «Ветер переменный» на каждую ВПП — если нужно, можно
+                // вывести один раз и прерваться, либо вывести для всех.
+                if (!uniqueRunways.has('VRB-shown')) {
+                    content += `Ветер переменный<br><br>`;
+                    uniqueRunways.add('VRB-shown');
+                }
+                continue;
             }
 
-            let uniqueRunways = new Set();
-            runwayElems.forEach(elem => {
-                const rwy = elem.dataset.runway;
-                let rwyNumber = rwy;
-                let heading = null;
-                let headingOpp = null;
-                let reciprocalRunway = rwy; // название обратной ВПП
+            // Определяем, какой курс ближе к ветру
+            let chosenHeading = closestRunway(windDirNum, heading, headingOpp);
+            // Если chosenHeading === heading, значит «прямая» ВПП, иначе — «обратка» (oppName)
+            // Для удобства запомним, с каким названием ВПП мы работаем
+            let chosenRwyName = (chosenHeading === heading) ? rwyName : oppName;
 
-                if (/[LCR]$/.test(rwyNumber)) {
-                    let num = rwyNumber.slice(0, 2);
-                    let suffix = rwyNumber.slice(2);
-                    let numVal = parseInt(num, 10);
+            // Чтобы не показывать одну и ту же ВПП несколько раз, ставим проверку
+            // (к примеру, если выяснилось, что oppName = rwyName (редко, но бывает))
+            if (uniqueRunways.has(chosenRwyName)) {
+                continue;
+            }
+            uniqueRunways.add(chosenRwyName);
 
-                    // Определяем обратный суффикс
-                    let oppSuffix = suffix;
-                    if (suffix === 'L') oppSuffix = 'R';
-                    else if (suffix === 'R') oppSuffix = 'L';
-                    // Для "C" оставляем без изменений
+            // Считаем попутную/боковую составляющие
+            let crosswindMain = calcCrosswind(chosenHeading, windSpeed);
+            let crosswindGust = (windGust) ? calcCrosswind(chosenHeading, windGust) : null;
+            let headwindMain = calcHeadwind(chosenHeading, windSpeed);
+            let headwindGust = (windGust) ? calcHeadwind(chosenHeading, windGust) : null;
 
-                    let oppNumVal = (numVal + 18) % 36;
-                    if (oppNumVal === 0) oppNumVal = 36;
-                    heading = numVal * 10;
-                    headingOpp = oppNumVal * 10;
+            // Формируем вывод
+            content += `<strong>ВПП ${chosenRwyName}</strong>: `;
 
-                    reciprocalRunway = String(oppNumVal).padStart(2, '0') + oppSuffix;
-                } else {
-                    let numVal = parseInt(rwyNumber, 10);
-                    heading = numVal * 10;
-                    let oppNumVal = (numVal + 18) % 36;
-                    if (oppNumVal === 0) oppNumVal = 36;
-                    headingOpp = oppNumVal * 10;
-
-                    reciprocalRunway = String(oppNumVal).padStart(2, '0');
-                }
-
-                let windDir = (dir === 'VRB') ? null : parseInt(dir, 10);
-                let windSpeed = parseFloat(speed);
-                let windGust = gust ? parseFloat(gust.slice(1)) : null;
-
-                function calcCrosswind(angle, spd) {
-                    let rad = (windDir - angle) * Math.PI / 180;
-                    return spd * Math.sin(rad);
-                }
-
-                function calcLatwind(angle, spd) {
-                    let rad = (windDir - angle) * Math.PI / 180;
-                    return spd * Math.cos(rad);
-                }
-
-                let crossConst = (windDir !== null) ? calcCrosswind(heading, windSpeed) : null;
-                let crossGust = (windDir !== null && windGust) ? calcCrosswind(heading, windGust) : null;
-                let crossConstOpp = (windDir !== null) ? calcCrosswind(headingOpp, windSpeed) : null;
-                let crossGustOpp = (windDir !== null && windGust) ? calcCrosswind(headingOpp, windGust) : null;
-
-                let latConst = (windDir !== null) ? calcLatwind(heading, windSpeed) : null;
-                let latGust = (windDir !== null && windGust) ? calcLatwind(heading, windGust) : null;
-                let latConstOpp = (windDir !== null) ? calcLatwind(headingOpp, windSpeed) : null;
-                let latGustOpp = (windDir !== null && windGust) ? calcLatwind(headingOpp, windGust) : null;
-
-                if (windDir === null) {
-                    content += `Ветер переменный`;
-                } else {
-                    if (closestRunway(windDir, heading, headingOpp) === heading) {
-
-                        if (!uniqueRunways.has(rwy)) {
-
-                            // Добавляем в список уникальных ВПП
-                            uniqueRunways.add(rwy);
-
-                            // Формируем вывод для основного направления ВПП
-                            content += `<strong>ВПП ${rwy}</strong>: `;
-                            if (windDir === null) {
-                                content += `Ветер переменный<br><br>`;
-                            } else {
-                                if (windGust) {
-                                    const result = crossConst ?
-                                        (crossConst < 0 ?
-                                            '' + Math.abs(crossConst).toFixed(0) :
-                                            '' + Math.abs(crossConst).toFixed(0)) :
-                                        'N/A';
-                                    content += `HW: ${latConst.toFixed(1)} <i class="fa-solid fa-wind"></i> ${latGust.toFixed(1)} ${unit}, XW: ${result} <i class="fa-solid fa-wind"></i> ${crossGust ? Math.abs(crossGust).toFixed(1) : 'N/A'} ${unit}<br><br>`;
-                                } else {
-                                    const result = crossConst ?
-                                        (crossConst < 0 ?
-                                            '' + Math.abs(crossConst).toFixed(1) :
-                                            '' + Math.abs(crossConst).toFixed(1)) :
-                                        'N/A';
-                                    content += `HW: ${latConst.toFixed(1)} ${unit}, XW: ${result} ${unit}<br><br>`;
-                                }
-                            }
-                        }
-
-                    } else {
-                        if (!uniqueRunways.has(reciprocalRunway)) {
-
-                            // Добавляем в список уникальных ВПП
-                            uniqueRunways.add(reciprocalRunway);
-
-                            // Формируем вывод для обратного направления с новым названием ВПП
-                            content += `<strong>ВПП ${reciprocalRunway}</strong>: `;
-                            if (windDir === null) {
-                                content += `Ветер переменный<br><br>`;
-                            } else {
-                                if (windGust) {
-                                    const result = crossConst ?
-                                        (crossConst < 0 ?
-                                            '' + Math.abs(crossConst).toFixed(1) :
-                                            '' + Math.abs(crossConst).toFixed(1)) :
-                                        'N/A';
-                                    content += `HW: ${latConstOpp.toFixed(1)} <i class="fa-solid fa-wind"></i> ${latGustOpp.toFixed(1)} ${unit}, XW: ${result} <i class="fa-solid fa-wind"></i> ${crossGustOpp ? Math.abs(crossGustOpp).toFixed(1) : 'N/A'} ${unit}<br><br>`;
-                                } else {
-                                    const result = crossConst ?
-                                        (crossConst < 0 ?
-                                            '' + Math.abs(crossConst).toFixed(1) :
-                                            '' + Math.abs(crossConst).toFixed(1)) :
-                                        'N/A';
-                                    content += `HW: ${latConstOpp.toFixed(1)} ${unit}, XW: ${result} ${unit}<br><br>`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            showWindInfoModal(content);
+            // Сначала headwind
+            if (windGust) {
+                const xwConst = crosswindMain ? Math.abs(crosswindMain).toFixed(1) : 'N/A';
+                const xwGust = crosswindGust ? Math.abs(crosswindGust).toFixed(1) : 'N/A';
+                content += `HW: ${headwindMain.toFixed(1)} <i class="fa-solid fa-wind"></i> ${headwindGust.toFixed(1)} ${unit}, `;
+                content += `XW: ${xwConst} <i class="fa-solid fa-wind"></i> ${xwGust} ${unit}<br><br>`;
+            } else {
+                const xwConst = crosswindMain ? Math.abs(crosswindMain).toFixed(1) : 'N/A';
+                content += `HW: ${headwindMain.toFixed(1)} ${unit}, XW: ${xwConst} ${unit}<br><br>`;
+            }
         }
+
+        // Показываем готовое
+        showWindInfoModal(content);
     });
 
     const settingsBtn = document.getElementById('settingsBtn');
@@ -1466,7 +1458,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateMenuShow() {
         const zoomInBtn = document.getElementById('zoomInBtn');
         const zoomOutBtn = document.getElementById('zoomOutBtn');
-        const searchBtn = document.getElementById('searchBtn');
+        const airportSettingsBtn = document.getElementById('airportSettingsBtn');
         const refreshAllBtn = document.getElementById('refreshAllBtn');
         const settingsBtn = document.getElementById('settingsBtn');
         const offlineToggleBtn = document.getElementById('offlineToggleBtn');
@@ -1474,7 +1466,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (showSecondMenu) {
             zoomInBtn.hidden = true;
             zoomOutBtn.hidden = true;
-            searchBtn.hidden = false;
+            airportSettingsBtn.hidden = false;
             calcBtn.hidden = false;
             aiBtn.hidden = false;
             refreshAllBtn.hidden = false;
@@ -1483,7 +1475,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             zoomInBtn.hidden = false;
             zoomOutBtn.hidden = false;
-            searchBtn.hidden = true;
+            airportSettingsBtn.hidden = true;
             calcBtn.hidden = true;
             aiBtn.hidden = true;
             refreshAllBtn.hidden = true;

@@ -566,6 +566,10 @@ footer {
     opacity: 0.8;
 }
 
+.wind-info {
+    cursor: pointer;
+}
+
 .runway-info-modal-backdrop {
     position: fixed;
     top: 0;

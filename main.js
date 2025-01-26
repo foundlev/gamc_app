@@ -17,7 +17,7 @@ const airportMaintenanceCodes = [
 let nowIcao = null;
 let showSecondMenu = false;
 let icaoKeys = null;
-let worstRunwayFrictionCode = null;  // например, 95, 92, 10..90, 99 или null
+let worstRunwayFrictionCode = null; // например, 95, 92, 10..90, 99 или null
 
 const reportedBrakingActions = {
     takeoff: {
@@ -214,7 +214,7 @@ fetch('data/airports_db.json')
 // Приоритет цветов от худшего к лучшему
 // (darkred и purple можно тоже расставить, если нужно)
 const colorPriority = [
-    "color-purple",  // считаем экстремально худшим
+    "color-purple", // считаем экстремально худшим
     "color-darkred",
     "color-red",
     "color-yellow",
@@ -225,12 +225,22 @@ function formatNumber(num) {
     return String(num).padStart(3, '0');
 }
 
+function isRussianAirport(icaoCode) {
+    // Проверяем является ли icaoCode строкой, если нет, то true
+    if (typeof icaoCode !== 'string') {
+        return true;
+    }
+
+    // Если icao начинается на U, то true, иначе false
+    return /^U[A-Z]{3}$/.test(icaoCode);
+}
+
 function getWorstRunwayCondition(icao) {
     // Если ничего не нашли при разборе, возвращаем "good" из reportedBrakingActions
     if (worstRunwayFrictionCode === null) {
         return {
-            kind: 'reported',   // reportedBrakingActions
-            category: 'good',   // ключ good, medium etc.
+            kind: 'reported', // reportedBrakingActions
+            category: 'good', // ключ good, medium etc.
             frictionValue: null // нет точного числа
         };
     }
@@ -240,12 +250,12 @@ function getWorstRunwayCondition(icao) {
     if (code >= 91 && code <= 95 || code === 99) {
         // Сопоставляем:
         const mapCode = {
-            91: 'poor',            // "плохой"
-            92: 'poor_to_medium',  // "плохой/средний"
-            93: 'medium',          // "средний"
-            94: 'medium_to_good',  // "средний/хороший"
-            95: 'good',            // "хороший"
-            99: 'poor'            // "ненадёжное измерение" → считаем как 'poor' чтобы было построже
+            91: 'poor', // "плохой"
+            92: 'poor_to_medium', // "плохой/средний"
+            93: 'medium', // "средний"
+            94: 'medium_to_good', // "средний/хороший"
+            95: 'good', // "хороший"
+            99: 'poor' // "ненадёжное измерение" → считаем как 'poor' чтобы было построже
         };
         const cat = mapCode[code] || 'good';
         return {
@@ -257,13 +267,13 @@ function getWorstRunwayCondition(icao) {
         // code между 10..90, значит это 0.xx
         let friction = (code / 100).toFixed(2); // например "0.43"
         // ICAO начинается на "U"?
-        let isRussian = (icao && icao[0] === 'U');
+        let isRussian = isRussianAirport(nowIcao);
 
         // Выбираем таблицу normative или by_sft
         let relevantObj = isRussian ? coefficientBrakingActions.normative : coefficientBrakingActions.by_sft;
 
         return {
-            kind: 'measured',   // т. е. берём из coefficientBrakingActions
+            kind: 'measured', // т. е. берём из coefficientBrakingActions
             frictionValue: parseFloat(friction),
             relevantData: relevantObj
         };
@@ -282,8 +292,8 @@ function getCrosswindLimit(phase, frictionObj, fallback) {
     // (Ключи будут в виде float, нужно перебирать.)
 
     let frictionArr = Object.keys(frictionObj)
-                            .map(v => parseFloat(v))
-                            .sort((a,b)=>b-a);
+        .map(v => parseFloat(v))
+        .sort((a, b) => b - a);
     // Сортируем по убыванию: 0.5, 0.42, 0.4, 0.37, ...
 
     for (let f of frictionArr) {
@@ -292,7 +302,7 @@ function getCrosswindLimit(phase, frictionObj, fallback) {
         }
     }
     // Если ничего не подошло (фрикция вообще очень маленькая), берём самый последний:
-    return frictionObj[ frictionArr[frictionArr.length - 1] ] || fallback;
+    return frictionObj[frictionArr[frictionArr.length - 1]] || fallback;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -387,7 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
         icaoInput.value = ''; // очищаем поле
         icaoInput.focus(); // ставим фокус назад на инпут
         updateFetchBtn();
-        nowIcao = null;
     });
 
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -543,6 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        nowIcao = icao;
         hideAirportInfo();
 
         if (!silent) {
@@ -832,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 icaoColors[icao] = {};
             }
             icaoColors[icao].metarColor = metarWorstColor;
-            icaoColors[icao].tafColor   = tafWorstColor;
+            icaoColors[icao].tafColor = tafWorstColor;
 
             localStorage.setItem('icaoColors', JSON.stringify(icaoColors));
 
@@ -855,43 +865,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-function setButtonColorSplit(btn, metarColor, tafColor) {
-    btn.style.background =
-        `linear-gradient(to right, var(--col-${metarColor}) 50%, var(--col-${tafColor}) 50%)`;
-    btn.style.color = 'white';
-}
-
-
-function updateAllIcaoButtons() {
-    const buttons = document.querySelectorAll('.history button');
-
-    for (const btn of buttons) {
-        applyIcaoButtonColors(btn.textContent.trim().toUpperCase(), btn);
-    }
-}
-
-
-function applyIcaoButtonColors(icao, btn) {
-    const colObj = icaoColors[icao];
-
-    // Если нет цветовых данных - ставим дефолт
-    if (!colObj) {
-        btn.style.background = 'var(--col-default)';
-        return;
+    function setButtonColorSplit(btn, metarColor, tafColor) {
+        btn.style.background =
+            `linear-gradient(to right, var(--col-${metarColor}) 50%, var(--col-${tafColor}) 50%)`;
+        btn.style.color = 'white';
     }
 
-    // Обрабатываем metarColor / tafColor
-    const metarColor = colObj.metarColor
-        ? colObj.metarColor.replace('color-','')
-        : 'green';
-    const tafColor = colObj.tafColor
-        ? colObj.tafColor.replace('color-','')
-        : 'green';
 
-    // Функция, которая делает градиент «пополам»
-    setButtonColorSplit(btn, metarColor, tafColor);
-}
+    function updateAllIcaoButtons() {
+        const buttons = document.querySelectorAll('.history button');
 
+        for (const btn of buttons) {
+            applyIcaoButtonColors(btn.textContent.trim().toUpperCase(), btn);
+        }
+    }
+
+
+    function applyIcaoButtonColors(icao, btn) {
+        const colObj = icaoColors[icao];
+
+        // Если нет цветовых данных - ставим дефолт
+        if (!colObj) {
+            btn.style.background = 'var(--col-default)';
+            return;
+        }
+
+        // Обрабатываем metarColor / tafColor
+        const metarColor = colObj.metarColor ?
+            colObj.metarColor.replace('color-', '') :
+            'green';
+        const tafColor = colObj.tafColor ?
+            colObj.tafColor.replace('color-', '') :
+            'green';
+
+        // Функция, которая делает градиент «пополам»
+        setButtonColorSplit(btn, metarColor, tafColor);
+    }
 
 
 
@@ -1041,14 +1050,14 @@ function applyIcaoButtonColors(icao, btn) {
 
                 // 2) Находим предельный боковой для landing (по заданию)
                 //    a) reportedBrakingActions   b) coefficientBrakingActions
-                let landingLimitKts = 40;  // fallback
+                let landingLimitKts = 40; // fallback
                 let landingLimitMps = 20.6;
 
                 if (worst.kind === 'reported') {
                     // например { category:'poor', ... }
                     let cat = worst.category;
-                    let limObj = reportedBrakingActions.landing[cat]
-                                 || reportedBrakingActions.landing.good;
+                    let limObj = reportedBrakingActions.landing[cat] ||
+                        reportedBrakingActions.landing.good;
                     landingLimitKts = limObj.kts;
                     landingLimitMps = limObj.mps;
                 } else {
@@ -1058,12 +1067,12 @@ function applyIcaoButtonColors(icao, btn) {
 
                     // нужно найти подходящий лимит
                     function findLimit(obj, friction) {
-                        let keys = Object.keys(obj).map(x=>parseFloat(x)).filter(x=>!isNaN(x)).sort((a,b)=>b-a);
+                        let keys = Object.keys(obj).map(x => parseFloat(x)).filter(x => !isNaN(x)).sort((a, b) => b - a);
                         for (let k of keys) {
                             if (k <= friction) return obj[k];
                         }
                         // если ничего не нашли - берём последний
-                        return obj[keys[keys.length-1]];
+                        return obj[keys[keys.length - 1]];
                     }
 
                     let limitObj = findLimit(landMap, fVal);
@@ -1087,20 +1096,27 @@ function applyIcaoButtonColors(icao, btn) {
                 //    70..90 = red
                 //    >=90 = purple
                 //   (в 35..40 остаётся без цвета)
-                let colorClass = '';
-                if (ratio < 40) {
-                    colorClass = 'color-green';
-                } else if (ratio >= 40 && ratio < 70) {
-                    colorClass = 'color-yellow';
-                } else if (ratio >= 70 && ratio < 90) {
-                    colorClass = 'color-red';
-                } else if (ratio >= 90) {
-                    colorClass = 'color-purple';
-                }
+                let colorClass = getWorstCrosswindColor(
+                    nowIcao,   // если в highlightKeywords нет nowIcao, см. примечание ниже
+                    dir,
+                    speedStr,
+                    gustStr || '',
+                    unit
+                );
+//                let colorClass = '';
+//                if (ratio < 40) {
+//                    colorClass = 'color-green';
+//                } else if (ratio >= 40 && ratio < 70) {
+//                    colorClass = 'color-yellow';
+//                } else if (ratio >= 70 && ratio < 90) {
+//                    colorClass = 'color-red';
+//                } else if (ratio >= 90) {
+//                    colorClass = 'color-purple';
+//                }
                 // Если попали в 35..40 => colorClass = "" (без цвета)
 
                 // Возвращаем HTML
-                return `<span class="color-description wind-info ${colorClass}" data-wind="${fullMatch}" data-unit="${unit}" data-dir="${dir}" data-speed="${speedStr}" data-gust="${gustStr||''}">${fullMatch} <i class="fa-solid fa-wind"></i></span>`;
+                return `<span class="wind-info ${colorClass}" data-wind="${fullMatch}" data-unit="${unit}" data-dir="${dir}" data-speed="${speedStr}" data-gust="${gustStr||''}">${fullMatch} <i class="fa-solid fa-wind"></i></span>`;
             }
         );
 
@@ -1119,7 +1135,6 @@ function applyIcaoButtonColors(icao, btn) {
         const icao = icaoInput.value.trim().toUpperCase();
         icaoInput.value = icao;
         getWeather(icao, false);
-        nowIcao = icao;
         updateFetchBtn();
     }
 
@@ -1159,14 +1174,14 @@ function applyIcaoButtonColors(icao, btn) {
                 // colObj.metarColor может быть "color-green", "color-yellow"...
                 // colObj.tafColor   может быть другое
                 const mc = colObj.metarColor || "color-green";
-                const tc = colObj.tafColor   || "color-green";
+                const tc = colObj.tafColor || "color-green";
 
                 // Превратим эти классы в реальные цвета.
                 // Но можно чуть хитрее. Например, прописать в CSS класс .split-button[color-red][color-green] { background: ... }
                 // Но проще inline-стилями:
                 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 let metarBg = convertColorClassToBg(mc, isDark);
-                let tafBg   = convertColorClassToBg(tc, isDark);
+                let tafBg = convertColorClassToBg(tc, isDark);
 
                 btn.classList.remove('color-green', 'color-yellow', 'color-red', 'color-purple', 'color-darkred');
                 applyIcaoButtonColors(icao, btn);
@@ -1174,7 +1189,6 @@ function applyIcaoButtonColors(icao, btn) {
 
             btn.addEventListener('click', () => {
                 icaoInput.value = icao;
-                nowIcao = icao;
                 getWeather(icao, false);
                 updateFetchBtn();
             });
@@ -1504,10 +1518,10 @@ function applyIcaoButtonColors(icao, btn) {
         if (!windTarget) return;
 
         // Данные из data-атрибутов
-        const dirStr = windTarget.dataset.dir;      // например "120" или "VRB"
-        const speedStr = windTarget.dataset.speed;  // например "06"
-        const gustStr = windTarget.dataset.gust;    // например "G12" или ""
-        const unit = windTarget.dataset.unit;       // "MPS" или "KT"
+        const dirStr = windTarget.dataset.dir; // например "120" или "VRB"
+        const speedStr = windTarget.dataset.speed; // например "06"
+        const gustStr = windTarget.dataset.gust; // например "G12" или ""
+        const unit = windTarget.dataset.unit; // "MPS" или "KT"
 
         // Верхняя часть (просто текст)
         let content = "";
@@ -1551,6 +1565,7 @@ function applyIcaoButtonColors(icao, btn) {
             let rad = (windDirMag - magHdgRW) * Math.PI / 180;
             return spd * Math.sin(rad);
         }
+
         function calcHeadwind(magHdgRW, spd) {
             let rad = (windDirMag - magHdgRW) * Math.PI / 180;
             return spd * Math.cos(rad);
@@ -1598,8 +1613,14 @@ function applyIcaoButtonColors(icao, btn) {
                 const friction = worstCond.frictionValue;
                 const relevant = worstCond.relevantData;
 
-                let toObj = { ...relevant.takeoff, currentFriction: friction };
-                let ldObj = { ...relevant.landing, currentFriction: friction };
+                let toObj = {
+                    ...relevant.takeoff,
+                    currentFriction: friction
+                };
+                let ldObj = {
+                    ...relevant.landing,
+                    currentFriction: friction
+                };
 
                 takeoffMax = getCrosswindLimit('takeoff', toObj, reportedBrakingActions.takeoff.good);
                 landingMax = getCrosswindLimit('landing', ldObj, reportedBrakingActions.landing.good);
@@ -1620,11 +1641,11 @@ function applyIcaoButtonColors(icao, btn) {
 
             // Считаем % для steady и порыва (от landingLimit, если придерживаемся «брать для посадки»)
             const ratioSteady = (xwMainAbs / ldLimit) * 100;
-            const ratioGust   = windGust ? (xwGustAbs / ldLimit) * 100 : 0;
+            const ratioGust = windGust ? (xwGustAbs / ldLimit) * 100 : 0;
 
             // Определяем цвет steady, цвет gust
             let steadyClass = getColorClass(ratioSteady);
-            let gustClass   = windGust ? getColorClass(ratioGust) : '';
+            let gustClass = windGust ? getColorClass(ratioGust) : '';
 
             // Формируем контент
             content += `<strong>ВПП ${chosenName}</strong> (${formatNumber(chosen)}°):<br>`;
@@ -1661,8 +1682,7 @@ function applyIcaoButtonColors(icao, btn) {
         if (worstCond.kind === 'reported') {
             content += `<hr><p><b>Состояние ВПП:</b> ${worstCond.category.toUpperCase()}</p>`;
         } else {
-            content += `<hr><p><b>Коэффициент сцепления:</b> ${worstCond.frictionValue.toFixed(2)}
-            <br>(тип: ${icao && icao[0]==='U' ? 'нормативный' : 'измеренный'})</p>`;
+            content += `<hr><p><b>Коэф сцеп:</b> ${worstCond.frictionValue.toFixed(2)} (тип: ${isRussianAirport(nowIcao) ? 'нормативный' : 'измеренный'})</p>`;
         }
 
         showWindInfoModal(content);
@@ -1875,7 +1895,6 @@ function applyIcaoButtonColors(icao, btn) {
             // Если хотим, чтобы при нажатии запрашивалась погода:
             btn.addEventListener('click', () => {
                 document.getElementById('icao').value = icao;
-                nowIcao = icao;
                 getWeather(icao, false);
                 updateFetchBtn();
             });
@@ -2021,7 +2040,6 @@ function applyIcaoButtonColors(icao, btn) {
 
         // Проставляем в input
         icaoInput.value = selectedIcao;
-        nowIcao = selectedIcao;
         updateFetchBtn();
 
         // Скрываем список
@@ -2556,114 +2574,213 @@ function applyIcaoButtonColors(icao, btn) {
     });
 
 
-/**
- * Возвращает "наихудший" класс из массива,
- * глядя на порядок colorPriority.
- * Если ни одного цвета нет — возвращаем null.
- */
-function findWorstColor(classes) {
-    // classes — это массив вроде ["color-green", "color-red"] и т. п.
-    // Сортируем по убыванию плохости, берём первый
-    for (let badColor of colorPriority) {
-        if (classes.includes(badColor)) {
-            return badColor;
+    // 1. Вставь сразу после остальных функций, где рассчитывается crosswind
+    function getWorstCrosswindColor(icao, dir, speed, gust, unit) {
+        // Если VRB, отдаём «зелёный» или что-то дефолтное:
+        if (dir === 'VRB') {
+            return '';  // или "color-green", если считаешь нужным
+        }
+
+        // Если нет nowIcao или в базе нет данных о ВПП — вернём прежнюю «упрощённую» окраску:
+        if (!icao || !airportInfoDb[icao] || !airportInfoDb[icao].runways) {
+            // Можешь вернуть пусто, чтоб вообще без цвета, или сделать fallback
+            return '';
+        }
+
+        // Преобразуем в число:
+        const windDir = parseInt(dir, 10);
+        const windSpd = parseFloat(speed);
+        const windGust = gust ? parseFloat(gust.replace('G', '')) : null;
+
+        // Берём «худший» коэффициент сцепления из твоей глобальной логики
+        const worstCond = getWorstRunwayCondition(icao);
+
+        // Функция, которая отдаёт лимит бокового ветра для посадки (takeoff/landing) — у тебя уже есть что-то подобное
+        function getLandingLimit(unit) {
+            if (worstCond.kind === 'reported') {
+                // reportedBrakingActions.landing[ 'poor' / 'medium' / 'good'... ]
+                let cat = worstCond.category; // например 'poor','medium','good'
+                let limObj = reportedBrakingActions.landing[cat] || reportedBrakingActions.landing.good;
+                return (unit === 'MPS') ? limObj.mps : limObj.kts;
+            } else {
+                // measured => см. coefficientBrakingActions
+                let friction = worstCond.frictionValue;
+                let relevant = worstCond.relevantData.landing; // { 0.5:{kts:40,mps:20.6}, ...}
+                let limitObj = getCrosswindLimit('landing', { ...relevant, currentFriction: friction }, reportedBrakingActions.landing.good);
+                return (unit === 'MPS') ? limitObj.mps : limitObj.kts;
+            }
+        }
+
+        // Вычислим лимит (в тех же единицах, что и METAR/TAF (MPS или KT))
+        const landingLimit = getLandingLimit(unit);
+
+        // Функция для вычитания магнитного склонения
+        function normalize(angle) {
+            let a = angle % 360;
+            return (a < 0) ? a + 360 : a;
+        }
+
+        // Получим магнитное направление ветра (dir - declination)
+        const declination = airportInfoDb[icao].declination || 0;
+        const windDirMag = normalize(windDir - declination);
+
+        // Подготовим функцию для рассчёта боковой и встречной
+        function calcXwind(magHdg, spd) {
+            let rad = (windDirMag - magHdg) * Math.PI / 180;
+            return spd * Math.sin(rad);
+        }
+
+        // Перебираем все ВПП аэродрома
+        let runwaysObj = airportInfoDb[icao].runways;
+        if (!runwaysObj) return '';
+
+        // Будем искать *максимальную* (по модулю) боковую для всех ВПП
+        let worstRatio = 0;  // в процентах
+        for (let [rwyName, rwyData] of Object.entries(runwaysObj)) {
+            let magHdg = rwyData.hdg;
+            // steady
+            let xwMain = Math.abs(calcXwind(magHdg, windSpd));
+            // если есть порыв
+            let xwGust = windGust ? Math.abs(calcXwind(magHdg, windGust)) : xwMain;
+
+            // берём максимальную из steady/gust
+            let usedXw = Math.max(xwMain, xwGust);
+            // получаем %
+            let ratio = (usedXw / landingLimit) * 100;
+            if (ratio > worstRatio) {
+                worstRatio = ratio;
+            }
+        }
+
+        // Выбираем класс по процентам
+        if (worstRatio >= 90) {
+            return 'color-purple';
+        } else if (worstRatio >= 70) {
+            return 'color-red';
+        } else if (worstRatio >= 40) {
+            return 'color-yellow';
+        } else if (worstRatio > 0) {
+            return 'color-green';
+        } else {
+            return ''; // либо 'color-green' — на случай нулевой скорости?
         }
     }
-    return null;
-}
 
-function compareWorstColor(currentWorst, newOne) {
-    // Если currentWorst ещё null, берём newOne
-    if (!currentWorst) return newOne;
-    // Иначе смотрим, кто "хуже" (purple или darkred, red, yellow, green)
-    // Можно переиспользовать findWorstColor:
-    const arr = [];
-    if (currentWorst) arr.push(currentWorst);
-    if (newOne)       arr.push(newOne);
-    return findWorstColor(arr);
-}
-
-function detectWorstMetarOrSpeciColor(rawText) {
-    // 1. Пропускаем через highlightKeywords
-    //    (но учтите, что insertLineBreaks() вы уже делали, если нужно)
-    let tmp = highlightKeywords(insertLineBreaks(rawText));
-
-    // 2. Парсим как HTML
-    let parser = new DOMParser();
-    let doc = parser.parseFromString(tmp, 'text/html');
-
-    // 3. Ищем все спаны с классами color-green / color-red / color-yellow...
-    let allSpans = doc.querySelectorAll('span[class*="color-"]');
-
-    // Собираем все классы
-    let foundColors = [];
-    allSpans.forEach(sp => {
-        let cls = sp.classList;
-        // например [ 'color-green', 'wind-info' ]
-        let color = Array.from(cls).find(c => c.startsWith('color-'));
-        if (color) {
-            foundColors.push(color);
+    function findWorstColor(classes) {
+        // classes — это массив вроде ["color-green", "color-red"] и т. п.
+        // Сортируем по убыванию плохости, берём первый
+        for (let badColor of colorPriority) {
+            if (classes.includes(badColor)) {
+                return badColor;
+            }
         }
-    });
-    // В foundColors, например, ['color-green','color-red','color-yellow']
+        return null;
+    }
 
-    return findWorstColor(foundColors); // вернёт наихудший
-}
+    function compareWorstColor(currentWorst, newOne) {
+        // Если currentWorst ещё null, берём newOne
+        if (!currentWorst) return newOne;
+        // Иначе смотрим, кто "хуже" (purple или darkred, red, yellow, green)
+        // Можно переиспользовать findWorstColor:
+        const arr = [];
+        if (currentWorst) arr.push(currentWorst);
+        if (newOne) arr.push(newOne);
+        return findWorstColor(arr);
+    }
 
-function detectWorstTafColor(rawText) {
-    let tmp = highlightKeywords(insertLineBreaks(rawText));
+    function detectWorstMetarOrSpeciColor(rawText) {
+        // 1. Пропускаем через highlightKeywords
+        //    (но учтите, что insertLineBreaks() вы уже делали, если нужно)
+        let tmp = highlightKeywords(insertLineBreaks(rawText));
 
-    let parser = new DOMParser();
-    let doc = parser.parseFromString(tmp, 'text/html');
+        // 2. Парсим как HTML
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(tmp, 'text/html');
 
-    // Удаляем .tempo-line
-    doc.querySelectorAll('.tempo-line').forEach(el => el.remove());
+        // 3. Ищем все спаны с классами color-green / color-red / color-yellow...
+        let allSpans = doc.querySelectorAll('span[class*="color-"]');
 
-    // Дополнительно можно удалять строки с PROB30/PROB40.
-    // Если у вас всё PROB внутри .tempo-line — можно и не делать.
-    // Но, на всякий случай:
-    doc.querySelectorAll('span,u,div,p').forEach(el => {
-        if (el.textContent.includes("PROB30") || el.textContent.includes("PROB40")) {
-            el.remove();
-        }
-    });
+        // Собираем все классы
+        let foundColors = [];
+        allSpans.forEach(sp => {
+            let cls = sp.classList;
+            // например [ 'color-green', 'wind-info' ]
+            let color = Array.from(cls).find(c => c.startsWith('color-'));
+            if (color) {
+                foundColors.push(color);
+            }
+        });
+        // В foundColors, например, ['color-green','color-red','color-yellow']
 
-    // Теперь ищем
-    let allSpans = doc.querySelectorAll('span[class*="color-"]');
-    let foundColors = [];
-    allSpans.forEach(sp => {
-        let cls = sp.classList;
-        let color = Array.from(cls).find(c => c.startsWith('color-'));
-        if (color) {
-            foundColors.push(color);
-        }
-    });
-    return findWorstColor(foundColors);
-}
+        return findWorstColor(foundColors); // вернёт наихудший
+    }
 
-function convertColorClassToBg(cls, isDark) {
-    if (isDark) {
-        // Темная тема, чуть приглушаем яркость
-        switch (cls) {
-            case "color-purple":  return "#7b3d7b";   // тёмно-фиолетовый
-            case "color-darkred": return "#4a0000";   // ещё темнее красный
-            case "color-red":     return "#803333";   // тёмно-красный
-            case "color-yellow":  return "#c57c1a";   // темноватый оранжево-жёлтый
-            case "color-green":   return "#3b7a3b";   // приглушённый зелёный
-            default: return "#555";                   // fallback
-        }
-    } else {
-        // Светлая тема
-        switch (cls) {
-            case "color-purple":  return "#c44ac4";
-            case "color-darkred": return "#5C0000";
-            case "color-red":     return "#b22222";
-            case "color-yellow":  return "#d88b16";
-            case "color-green":   return "#5eaf5e";
-            default: return "#a0a0a0";
+    function detectWorstTafColor(rawText) {
+        let tmp = highlightKeywords(insertLineBreaks(rawText));
+
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(tmp, 'text/html');
+
+        // Удаляем .tempo-line
+        doc.querySelectorAll('.tempo-line').forEach(el => el.remove());
+
+        // Дополнительно можно удалять строки с PROB30/PROB40.
+        // Если у вас всё PROB внутри .tempo-line — можно и не делать.
+        // Но, на всякий случай:
+        doc.querySelectorAll('span,u,div,p').forEach(el => {
+            if (el.textContent.includes("PROB30") || el.textContent.includes("PROB40")) {
+                el.remove();
+            }
+        });
+
+        // Теперь ищем
+        let allSpans = doc.querySelectorAll('span[class*="color-"]');
+        let foundColors = [];
+        allSpans.forEach(sp => {
+            let cls = sp.classList;
+            let color = Array.from(cls).find(c => c.startsWith('color-'));
+            if (color) {
+                foundColors.push(color);
+            }
+        });
+        return findWorstColor(foundColors);
+    }
+
+    function convertColorClassToBg(cls, isDark) {
+        if (isDark) {
+            // Темная тема, чуть приглушаем яркость
+            switch (cls) {
+                case "color-purple":
+                    return "#7b3d7b"; // тёмно-фиолетовый
+                case "color-darkred":
+                    return "#4a0000"; // ещё темнее красный
+                case "color-red":
+                    return "#803333"; // тёмно-красный
+                case "color-yellow":
+                    return "#c57c1a"; // темноватый оранжево-жёлтый
+                case "color-green":
+                    return "#3b7a3b"; // приглушённый зелёный
+                default:
+                    return "#555"; // fallback
+            }
+        } else {
+            // Светлая тема
+            switch (cls) {
+                case "color-purple":
+                    return "#c44ac4";
+                case "color-darkred":
+                    return "#5C0000";
+                case "color-red":
+                    return "#b22222";
+                case "color-yellow":
+                    return "#d88b16";
+                case "color-green":
+                    return "#5eaf5e";
+                default:
+                    return "#a0a0a0";
+            }
         }
     }
-}
 
     setInterval(updateBadgesTimeAndColors, 15000);
 });

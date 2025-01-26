@@ -15,7 +15,7 @@ const airportMaintenanceCodes = [
 ];
 
 let nowIcao = null;
-let showSecondMenu = false;
+let showSecondMenu = JSON.parse(localStorage.getItem('showSecondMenu')) || false;;
 let icaoKeys = null;
 let worstRunwayFrictionCode = null; // например, 95, 92, 10..90, 99 или null
 // Храним поназванно коэффициенты фрикции (число от 10..95) или null, если нет данных
@@ -336,6 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // При загрузке получаем из localStorage или пустой массив
     let savedRoutes = JSON.parse(localStorage.getItem(ROUTES_KEY) || '[]');
+    let editRouteIndex = null;
+    let isEditingRoute = false;
 
     // Селект для выбора маршрута
     const routeSelect = document.getElementById('routeSelect');
@@ -405,6 +407,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeModalBtn.addEventListener('click', () => {
         hideModal();
+    });
+
+    const editRouteBtn = document.getElementById('editRouteBtn');
+    editRouteBtn.addEventListener('click', () => {
+        // 1) определить, какой индекс выбран
+        const idx = parseInt(routeSelect.value, 10);
+        if (isNaN(idx) || !savedRoutes[idx]) {
+            return;
+        }
+        editRouteIndex = idx;
+        isEditingRoute = true;
+
+        // 2) Заполняем поля
+        const route = savedRoutes[idx];
+        departureIcaoInput.value = route.departure;
+        arrivalIcaoInput.value = route.arrival;
+        // Склеить запасные через пробел
+        alternatesIcaoInput.value = route.alternates.join(' ');
+
+        // 3) Вылет и Назначение disabled
+        departureIcaoInput.disabled = true;
+        arrivalIcaoInput.disabled = true;
+
+        // 4) Переименовать заголовок в модалке (можно)
+        const modalTitle = addRouteModalBackdrop.querySelector('h2');
+        modalTitle.textContent = 'Редактировать маршрут';
+
+        // 5) Показать кнопку "Удалить"
+        deleteRouteBtn.style.display = 'inline-block';
+
+        // 6) Открываем модалку
+        addRouteModalBackdrop.classList.add('show');
     });
 
     function updateFetchBtn() {
@@ -1154,6 +1188,11 @@ document.addEventListener('DOMContentLoaded', () => {
         icaoInput.value = icao;
         getWeather(icao, false);
         updateFetchBtn();
+
+        // --- добавляешь это ---
+        const suggestionsContainer = document.getElementById('icaoSuggestions');
+        suggestionsContainer.classList.remove('show');
+        suggestionsContainer.innerHTML = '';
     }
 
     fetchBtn.addEventListener('click', () => {
@@ -1820,10 +1859,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideAddRouteModal() {
         addRouteModalBackdrop.classList.remove('show');
+        // Включить поля назад:
+        departureIcaoInput.disabled = false;
+        arrivalIcaoInput.disabled = false;
+        deleteRouteBtn.style.display = 'none';
+
+        // Сбросить флаги:
+        isEditingRoute = false;
+        editRouteIndex = null;
+
+        document.getElementById('departureIcao').value = '';
+        document.getElementById('arrivalIcao').value = '';
+        document.getElementById('alternatesIcao').value = '';
     }
     closeAddRouteModalBtn.addEventListener('click', hideAddRouteModal);
 
     saveRouteBtn.addEventListener('click', () => {
+        if (isEditingRoute) {
+            // Редактируем существующий
+            const alts = alternatesIcaoInput.value.trim().toUpperCase();
+            let alternatesList = alts ? alts.split(/\s+/) : [];
+            alternatesList = alternatesList.slice(0, LAST_COUNT).filter(a => a.length === 4);
+
+            // Перезаписываем только запасные:
+            savedRoutes[editRouteIndex].alternates = alternatesList;
+
+            // Сохраняем
+            localStorage.setItem(ROUTES_KEY, JSON.stringify(savedRoutes));
+
+            // Возвращаем поля в обычное состояние:
+            departureIcaoInput.disabled = false;
+            arrivalIcaoInput.disabled = false;
+
+            // Сбрасываем флаги
+            isEditingRoute = false;
+            editRouteIndex = null;
+
+            // Закрываем модалку
+            hideAddRouteModal();
+
+            // Перерисовываем select
+            renderRoutesInSelect();
+
+            return;
+        }
+
         const dep = departureIcaoInput.value.trim().toUpperCase();
         const arr = arrivalIcaoInput.value.trim().toUpperCase();
         const alts = alternatesIcaoInput.value.trim().toUpperCase();
@@ -1863,6 +1943,37 @@ document.addEventListener('DOMContentLoaded', () => {
         alternatesIcaoInput.value = '';
     });
 
+    const deleteRouteBtn = document.getElementById('deleteRouteBtn');
+    deleteRouteBtn.addEventListener('click', () => {
+        if (!isEditingRoute) {
+            return;
+        }
+
+        // спросить подтверждение?
+        if (!confirm('Удалить маршрут?')) {
+            return;
+        }
+
+        // Удаляем маршрут из массива
+        savedRoutes.splice(editRouteIndex, 1);
+        localStorage.setItem(ROUTES_KEY, JSON.stringify(savedRoutes));
+
+        // Сброс
+        isEditingRoute = false;
+        editRouteIndex = null;
+
+        // Закрыть модалку
+        hideAddRouteModal();
+
+        // Включаем поля
+        departureIcaoInput.disabled = false;
+        arrivalIcaoInput.disabled = false;
+        deleteRouteBtn.style.display = 'none';
+
+        // Обновить выпадающий список
+        renderRoutesInSelect();
+    });
+
     function renderRoutesInSelect() {
         // Очистим все <option> сначала
         routeSelect.innerHTML = '';
@@ -1870,6 +1981,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1) «Недавние»
         // Иконка font-awesome "clock-rotate-left" = "\f017"
         let recentOption = document.createElement('option');
+        document.getElementById('editRouteBtn').disabled = true;
         recentOption.value = 'recent';
         recentOption.innerHTML = 'Недавние';
         routeSelect.appendChild(recentOption);
@@ -1894,6 +2006,7 @@ document.addEventListener('DOMContentLoaded', () => {
         routeSelect.appendChild(addOption);
 
         // Всегда оставляем «Недавние» выбранным по умолчанию (если нужно)
+        document.getElementById('editRouteBtn').disabled = true;
         routeSelect.value = 'recent';
     }
     renderRoutesInSelect();
@@ -1910,6 +2023,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedValue === 'add') {
             // Показываем модалку
             showAddRouteModal();
+            document.getElementById('editRouteBtn').disabled = true;
             routeSelect.value = 'recent';
             return;
         }
@@ -1924,6 +2038,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Рендерим их в #historyContainer
         renderRouteAerodromes(routeAerodromes);
+
+        const editBtn = document.getElementById('editRouteBtn');
+        if (routeSelect.value === 'recent' || routeSelect.value === 'add') {
+            editBtn.disabled = true;
+        } else {
+            // значит выбрали индекс маршрута
+            editBtn.disabled = false;
+        }
     });
 
     function renderRouteAerodromes(aerodromes) {
@@ -2606,6 +2728,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const switchBtn = document.getElementById('switchMenuBtn');
     switchBtn.addEventListener('click', () => {
         showSecondMenu = !showSecondMenu;
+        localStorage.setItem('showSecondMenu', JSON.stringify(showSecondMenu));
         updateMenuShow();
     });
 
@@ -2820,5 +2943,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    updateMenuShow();
     setInterval(updateBadgesTimeAndColors, 15000);
 });

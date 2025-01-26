@@ -369,7 +369,8 @@ footer {
 #saveRouteBtn:disabled,
 #calcBtn:disabled,
 #airportSettingsBtn:disabled,
-#refreshAllBtn:disabled {
+#refreshAllBtn:disabled,
+#editRouteBtn:disabled{
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -443,6 +444,24 @@ footer {
 }
 
 .modal input:focus {
+    border-color: #0077ff;
+    outline: none;
+}
+
+.modal textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 10px;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    color: #333333;
+    transition: border-color 0.2s;
+}
+
+.modal textarea:focus {
     border-color: #0077ff;
     outline: none;
 }
@@ -842,6 +861,19 @@ footer {
         /* Акцент для фокуса */
     }
 
+    .modal textarea {
+        background-color: #2c2c2c;
+        /* Темный фон для ввода */
+        color: #ffffff;
+        border: 1px solid #555555;
+        /* Темная рамка */
+    }
+
+    .modal textarea:focus {
+        border-color: #3399ff;
+        /* Акцент для фокуса */
+    }
+
     .modal .modal-close-btn {
         color: #cccccc;
         /* Светло-серая кнопка закрытия */
@@ -1123,6 +1155,11 @@ footer {
 
 .route-dropdown {
     margin-bottom: 5px;
+    display: flex;
+}
+
+#editRouteBtn {
+    margin-right: 5px;
 }
 
 .route-dropdown select {

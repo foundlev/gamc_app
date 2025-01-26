@@ -50,6 +50,9 @@
         <div class="subtitle-row">
             <div class="subtitle">Быстрый доступ:</div>
             <div class="route-dropdown">
+                <button id="editRouteBtn" disabled>
+                    <i class="fa-solid fa-pen"></i>
+                </button>
                 <select id="routeSelect">
                     <option value="recent" selected>Недавние</option>
                 </select>
@@ -207,13 +210,21 @@
                 <label for="alternatesIcao">
                     <i class="fa-solid fa-location-dot"></i>Запасные (через пробел, максимум 15):
                 </label>
-                <input type="text" id="alternatesIcao" placeholder="XXXX XXXX ..." />
+                <textarea
+                    id="alternatesIcao"
+                    rows="3"
+                    placeholder="XXXX XXXX ..."
+                    style="width: 100%; resize: vertical; overflow-y: auto; resize: none;"
+                ></textarea>
                 <ul id="altsIcaoSuggestions" class="icao-suggestions"></ul>
             </div>
 
             <div class="modal-button-group">
                 <button id="saveRouteBtn" disabled>
                     <i class="fa-solid fa-floppy-disk"></i>Сохранить маршрут
+                </button>
+                <button id="deleteRouteBtn" style="display: none; background-color: var(--col-red);">
+                    <i class="fa-solid fa-trash"></i>Удалить
                 </button>
             </div>
         </div>

@@ -917,6 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             icaoColors[icao].metarColor = metarWorstColor;
             icaoColors[icao].tafColor = tafWorstColor;
+            icaoColors[icao].updatedAt = new Date().toISOString();
 
             localStorage.setItem('icaoColors', JSON.stringify(icaoColors));
 
@@ -962,6 +963,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!colObj) {
             btn.style.background = 'var(--col-default)';
             return;
+        }
+
+
+        // Проверяем, когда это обновлялось
+        if (!colObj.updatedAt) {
+            return;
+        } else {
+            const updatedTime = new Date(colObj.updatedAt).getTime();
+            const nowTime = Date.now();
+            const diffHours = (nowTime - updatedTime) / (1000 * 60 * 60);
+
+            // Если старше 10 часов
+            if (diffHours > 10) {
+                return;
+            }
         }
 
         // Обрабатываем metarColor / tafColor
@@ -1085,12 +1101,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Распознавание и выделение информации о ветре
-        text = text.replace(/\b((\d{3})\d{2,3}(?:G\d{2,3})?(?:MPS|KT))\b/g,
+        text = text.replace(/\b((?:\d{3}|VRB)\d{2,3}(?:G\d{2,3})?(?:MPS|KT))\b/g,
             (fullMatch, entireGroup) => {
                 // Разбираем группой: ddd - направление, потом скорость, потом G.., потом единицы
-                let re = /^(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)$/;
+                // Теперь учтём VRB в группе направления
+                let re = /^((?:\d{3}|VRB))(\d{2,3})(G\d{2,3})?(MPS|KT)$/;
                 let m = fullMatch.match(re);
-                if (!m) return fullMatch; // не совпадает
+                if (!m) return fullMatch;
 
                 let [, dir, speedStr, gustStr, unit] = m;
                 let windDir = parseInt(dir, 10);
@@ -1949,29 +1966,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // спросить подтверждение?
-        if (!confirm('Удалить маршрут?')) {
-            return;
-        }
-
-        // Удаляем маршрут из массива
-        savedRoutes.splice(editRouteIndex, 1);
-        localStorage.setItem(ROUTES_KEY, JSON.stringify(savedRoutes));
-
-        // Сброс
-        isEditingRoute = false;
-        editRouteIndex = null;
-
-        // Закрыть модалку
         hideAddRouteModal();
 
-        // Включаем поля
-        departureIcaoInput.disabled = false;
-        arrivalIcaoInput.disabled = false;
-        deleteRouteBtn.style.display = 'none';
+        showConfirmModal(
+            'Удаление маршрута',
+            'Точно удалить этот маршрут?',
+            () => {
+                // <-- это будет наш onYes коллбэк
+                savedRoutes.splice(editRouteIndex, 1);
+                localStorage.setItem(ROUTES_KEY, JSON.stringify(savedRoutes));
 
-        // Обновить выпадающий список
-        renderRoutesInSelect();
+                isEditingRoute = false;
+                editRouteIndex = null;
+                hideAddRouteModal();
+                renderRoutesInSelect();
+                renderHistory();
+            },
+            'var(--badge-red-bg)', // onYesBgColor
+            '' // onNoBgColor (можно оставить пустым)
+        );
     });
 
     function renderRoutesInSelect() {
@@ -2013,17 +2026,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     routeSelect.addEventListener('change', () => {
         const selectedValue = routeSelect.value;
+        const editBtn = document.getElementById('editRouteBtn');
 
         if (selectedValue === 'recent') {
             // Показываем "Недавние"
             renderHistory();
+            editBtn.disabled = true;
             return;
         }
 
         if (selectedValue === 'add') {
             // Показываем модалку
             showAddRouteModal();
-            document.getElementById('editRouteBtn').disabled = true;
+            editBtn.disabled = true;
             routeSelect.value = 'recent';
             return;
         }
@@ -2039,7 +2054,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Рендерим их в #historyContainer
         renderRouteAerodromes(routeAerodromes);
 
-        const editBtn = document.getElementById('editRouteBtn');
         if (routeSelect.value === 'recent' || routeSelect.value === 'add') {
             editBtn.disabled = true;
         } else {
@@ -2735,9 +2749,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Вставь сразу после остальных функций, где рассчитывается crosswind
     function getWorstCrosswindColor(icao, dir, speed, gust, unit) {
-        // Если VRB, отдаём «зелёный» или что-то дефолтное:
+        // Если это 00000 (направление=000, скорость=0)
+        if (dir === '000' && parseInt(speed) === 0) {
+            // сразу возвращаем "color-green"
+            return 'color-green';
+        }
+
+        // 2) Если VRB — будем считать угол ветра 90° для «полного бокового»
+        let isVRB = false;
         if (dir === 'VRB') {
-            return '';  // или "color-green", если считаешь нужным
+            isVRB = true;
+            dir = '090'; // или '180', неважно
         }
 
         // Если нет nowIcao или в базе нет данных о ВПП — вернём прежнюю «упрощённую» окраску:

@@ -410,6 +410,8 @@ footer {
 .modal {
     position: relative;
     overflow: visible;
+    overflow-y: auto;
+    max-height: 80%;
     /* важно, чтобы не обрезалось */
     z-index: 10000;
     background: linear-gradient(135deg, #ffffff, #f7f9fc);

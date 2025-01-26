@@ -15,23 +15,31 @@
 
 :root {
     /* Светлая тема */
-    --col-green:    #27ae60;  /* то, что было в .color-green */
-    --col-yellow:   #eb862d;  /* .color-yellow */
-    --col-red:      #b22222;  /* .color-red */
-    --col-purple:   rgb(180, 0, 180);  /* .color-purple */
-    --col-darkred:  #5C0000;  /* .color-darkred */
-    --col-default:  var(--accent-color);
+    --col-green: #27ae60;
+    /* то, что было в .color-green */
+    --col-yellow: #eb862d;
+    /* .color-yellow */
+    --col-red: #b22222;
+    /* .color-red */
+    --col-purple: rgb(180, 0, 180);
+    /* .color-purple */
+    --col-darkred: #5C0000;
+    /* .color-darkred */
+    --col-default: var(--accent-color);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
         /* Тёмная тема */
-        --col-green:    #249152;  /* то, что было в .color-green при тёмной теме */
-        --col-yellow:   #c88200;
-        --col-red:      #881818;
-        --col-purple:   rgb(98, 0, 98);
-        --col-darkred:  #000000;  /* или другой */
-        --col-default:  #34495e;  /* например */
+        --col-green: #249152;
+        /* то, что было в .color-green при тёмной теме */
+        --col-yellow: #c88200;
+        --col-red: #881818;
+        --col-purple: rgb(98, 0, 98);
+        --col-darkred: #000000;
+        /* или другой */
+        --col-default: #34495e;
+        /* например */
     }
 }
 
@@ -370,7 +378,7 @@ footer {
 #calcBtn:disabled,
 #airportSettingsBtn:disabled,
 #refreshAllBtn:disabled,
-#editRouteBtn:disabled{
+#editRouteBtn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }

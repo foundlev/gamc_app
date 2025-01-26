@@ -1164,22 +1164,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 //    >=90 = purple
                 //   (в 35..40 остаётся без цвета)
                 let colorClass = getWorstCrosswindColor(
-                    nowIcao,   // если в highlightKeywords нет nowIcao, см. примечание ниже
+                    nowIcao, // если в highlightKeywords нет nowIcao, см. примечание ниже
                     dir,
                     speedStr,
                     gustStr || '',
                     unit
                 );
-//                let colorClass = '';
-//                if (ratio < 40) {
-//                    colorClass = 'color-green';
-//                } else if (ratio >= 40 && ratio < 70) {
-//                    colorClass = 'color-yellow';
-//                } else if (ratio >= 70 && ratio < 90) {
-//                    colorClass = 'color-red';
-//                } else if (ratio >= 90) {
-//                    colorClass = 'color-purple';
-//                }
+                //                let colorClass = '';
+                //                if (ratio < 40) {
+                //                    colorClass = 'color-green';
+                //                } else if (ratio >= 40 && ratio < 70) {
+                //                    colorClass = 'color-yellow';
+                //                } else if (ratio >= 70 && ratio < 90) {
+                //                    colorClass = 'color-red';
+                //                } else if (ratio >= 90) {
+                //                    colorClass = 'color-purple';
+                //                }
                 // Если попали в 35..40 => colorClass = "" (без цвета)
 
                 // Возвращаем HTML
@@ -1691,8 +1691,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const friction = worstCond.frictionValue;
                 const relevant = worstCond.relevantData;
                 // Подставляем "currentFriction"
-                let toObj = { ...relevant.takeoff, currentFriction: friction };
-                let ldObj = { ...relevant.landing, currentFriction: friction };
+                let toObj = {
+                    ...relevant.takeoff,
+                    currentFriction: friction
+                };
+                let ldObj = {
+                    ...relevant.landing,
+                    currentFriction: friction
+                };
                 takeoffMax = getCrosswindLimit('takeoff', toObj, reportedBrakingActions.takeoff.good);
                 landingMax = getCrosswindLimit('landing', ldObj, reportedBrakingActions.landing.good);
             }
@@ -1703,7 +1709,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Считаем проценты для steady и порыва (используем landingLimit, как раньше)
             const ratioSteady = (xwMainAbs / ldLimit) * 100;
-            const ratioGust   = windGust ? (xwGustAbs / ldLimit) * 100 : 0;
+            const ratioGust = windGust ? (xwGustAbs / ldLimit) * 100 : 0;
 
             // Функция для выбора цвета
             function pickColor(ratio) {
@@ -1715,7 +1721,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const steadyClass = pickColor(ratioSteady);
-            const gustClass   = windGust ? pickColor(ratioGust) : '';
+            const gustClass = windGust ? pickColor(ratioGust) : '';
 
             // ---- Читаем индивидуальный коэффициент сцепления для chosenName
             const frictionCode = runwayFrictionMap[chosenName] ?? null;
@@ -2785,7 +2791,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // measured => см. coefficientBrakingActions
                 let friction = worstCond.frictionValue;
                 let relevant = worstCond.relevantData.landing; // { 0.5:{kts:40,mps:20.6}, ...}
-                let limitObj = getCrosswindLimit('landing', { ...relevant, currentFriction: friction }, reportedBrakingActions.landing.good);
+                let limitObj = getCrosswindLimit('landing', {
+                    ...relevant,
+                    currentFriction: friction
+                }, reportedBrakingActions.landing.good);
                 return (unit === 'MPS') ? limitObj.mps : limitObj.kts;
             }
         }
@@ -2814,7 +2823,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!runwaysObj) return '';
 
         // Будем искать *максимальную* (по модулю) боковую для всех ВПП
-        let worstRatio = 0;  // в процентах
+        let worstRatio = 0; // в процентах
         for (let [rwyName, rwyData] of Object.entries(runwaysObj)) {
             let magHdg = rwyData.hdg;
             // steady

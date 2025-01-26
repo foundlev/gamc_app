@@ -603,7 +603,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
                 savedData[icao] = rawData;
                 localStorage.setItem('icaoData', JSON.stringify(savedData));
-                return;
             }
 
             // Парсим <pre>
@@ -700,8 +699,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (toShowOfflineWarning) {
                 showOfflineWarning();
             }
-            timeBadgeContainer.appendChild(utcBadge);
-            addTimeBadgeContainerBottomGap();
+
+            if (!silent) {
+                timeBadgeContainer.appendChild(utcBadge);
+                addTimeBadgeContainerBottomGap();
+            }
 
             blockObjects.forEach(obj => {
                 const re = /^(TAF|TAF AMD|TAF COR|TAF RTD|METAR|SPECI)\s+[A-Z]{4}\s+(\d{6})Z/i;
@@ -752,8 +754,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         badge.classList.add('badge-default');
                     }
 
-                    // Добавляем плашку в контейнер
-                    timeBadgeContainer.appendChild(badge);
+                    if (!silent) {
+                        // Добавляем плашку в контейнер
+                        timeBadgeContainer.appendChild(badge);
+                    }
                 }
             });
 
@@ -769,7 +773,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> осуществляется техническое обслуживание B737<br><br>NOTAM AFL 9EMIH/24 (29 NOV 24)`);
                 });
 
-                timeBadgeContainer.appendChild(maintenanceBadge);
+                if (!silent) {
+                    timeBadgeContainer.appendChild(maintenanceBadge);
+                }
             }
 
             finalText = insertLineBreaks(finalText);
@@ -852,6 +858,16 @@ document.addEventListener('DOMContentLoaded', () => {
 function setButtonColorSplit(btn, metarColor, tafColor) {
     btn.style.background =
         `linear-gradient(to right, var(--col-${metarColor}) 50%, var(--col-${tafColor}) 50%)`;
+    btn.style.color = 'white';
+}
+
+
+function updateAllIcaoButtons() {
+    const buttons = document.querySelectorAll('.history button');
+
+    for (const btn of buttons) {
+        applyIcaoButtonColors(btn.textContent.trim().toUpperCase(), btn);
+    }
 }
 
 

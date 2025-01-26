@@ -2723,6 +2723,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Удаляем .tempo-line
         doc.querySelectorAll('.tempo-line').forEach(el => el.remove());
+        // Вставить вот это, чтобы игнорировать ветер
+        doc.querySelectorAll('.wind-info').forEach(el => el.remove());
 
         // Дополнительно можно удалять строки с PROB30/PROB40.
         // Если у вас всё PROB внутри .tempo-line — можно и не делать.

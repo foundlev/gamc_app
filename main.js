@@ -985,7 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 //    >=90 = purple
                 //   (в 35..40 остаётся без цвета)
                 let colorClass = '';
-                if (ratio < 35) {
+                if (ratio < 40) {
                     colorClass = 'color-green';
                 } else if (ratio >= 40 && ratio < 70) {
                     colorClass = 'color-yellow';
@@ -1489,7 +1489,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Вспомогательная функция для определения цвета
             function getColorClass(ratio) {
-                if (ratio < 35) return 'color-green';
+                if (ratio < 40) return 'color-green';
                 if (ratio >= 40 && ratio < 70) return 'color-yellow';
                 if (ratio >= 70 && ratio < 90) return 'color-red';
                 if (ratio >= 90) return 'color-purple';

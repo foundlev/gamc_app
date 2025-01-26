@@ -1440,108 +1440,107 @@ document.addEventListener('DOMContentLoaded', () => {
         const worstCond = getWorstRunwayCondition(nowIcao);
 
         for (const [rwyName, rwyData] of Object.entries(runwaysObj)) {
-            // Магнитный курс из базы
+            // Магнитный курс
             const hdgMag = rwyData.hdg;
-
-            // Ищем имя "противоположной" ВПП
+            // Находим «противоположное» направление
             const oppName = findOppositeRunway(nowIcao, rwyName);
             const oppHdgMag = runwaysObj[oppName]?.hdg || hdgMag;
 
-            // Решаем, какой ближе (magnetic windDir vs hdgMag / oppHdgMag)
+            // Выбираем ту ВПП, которая ближе к ветру
             const chosen = closestRunway(windDirMag, hdgMag, oppHdgMag);
             const chosenName = (chosen === hdgMag) ? rwyName : oppName;
 
-            // Если уже показывали эту ВПП (или её "парную"), пропускаем
+            // Чтобы не повторять «парную» ВПП дважды
             if (shownSet.has(chosenName)) continue;
             shownSet.add(chosenName);
 
-            // Считаем crosswind/headwind
+            // Считаем боковую/встречную (steady)
             const xwMain = calcCrosswind(chosen, windSpeed);
             const hwMain = calcHeadwind(chosen, windSpeed);
+            // Если есть порыв – считаем для порыва
             const xwGust = windGust ? calcCrosswind(chosen, windGust) : 0;
             const hwGust = windGust ? calcHeadwind(chosen, windGust) : 0;
 
+            // Боковая steady/poryv по модулю:
             const xwMainAbs = Math.abs(xwMain);
             const xwGustAbs = Math.abs(xwGust);
 
-            // 1) Определяем предельный боковой ветер на взлёт (takeoffLimit)
-            // 2) Предельный боковой ветер на посадку (landingLimit)
-
-            // a) Если worstCond.kind === 'reported':
-            //    Берём из reportedBrakingActions[phase][worstCond.category]
+            // Определяем предельные значения (takeoff/landing) для «худшего» состояния
             let takeoffMax, landingMax;
             if (worstCond.kind === 'reported') {
+                // К примеру, worstCond.category = 'poor','medium','good'
                 takeoffMax = reportedBrakingActions.takeoff[worstCond.category] || reportedBrakingActions.takeoff.good;
                 landingMax = reportedBrakingActions.landing[worstCond.category] || reportedBrakingActions.landing.good;
             } else {
                 // kind === 'measured'
-                const friction = worstCond.frictionValue; // типа 0.43
-                let relevant = worstCond.relevantData;    // либо normative, либо by_sft
+                const friction = worstCond.frictionValue;
+                const relevant = worstCond.relevantData;
 
-                // Пробегаем relevant.takeoff и ищем подходящий ключ
-                // Сформируем объект для удобства:
-                let toObj = Object.assign({}, relevant.takeoff);
-                toObj.currentFriction = friction;
-                let ldObj = Object.assign({}, relevant.landing);
-                ldObj.currentFriction = friction;
+                let toObj = { ...relevant.takeoff, currentFriction: friction };
+                let ldObj = { ...relevant.landing, currentFriction: friction };
 
-                let fallbackTO = reportedBrakingActions.takeoff.good;  // если что
-                let fallbackLD = reportedBrakingActions.landing.good;
-
-                takeoffMax = getCrosswindLimit('takeoff', toObj, fallbackTO);
-                landingMax = getCrosswindLimit('landing', ldObj, fallbackLD);
+                takeoffMax = getCrosswindLimit('takeoff', toObj, reportedBrakingActions.takeoff.good);
+                landingMax = getCrosswindLimit('landing', ldObj, reportedBrakingActions.landing.good);
             }
 
-            // Теперь у нас есть takeoffMax = {kts:25,mps:12.9}, landingMax={...}.
-            // Выбираем, какой юнит использовать (MPS или kts) чтобы сравнивать корректно
-            // У нас скорость ветра (xwMainAbs) в unit === 'MPS' или 'KT'.
-            function getLimitInSameUnit(limitObj, unit) {
-                if (unit === 'MPS') return limitObj.mps;
-                return limitObj.kts;
+            // Приводим к нужным единицам
+            const toLimit = (unit === 'MPS') ? takeoffMax.mps : takeoffMax.kts;
+            const ldLimit = (unit === 'MPS') ? landingMax.mps : landingMax.kts;
+
+            // Вспомогательная функция для определения цвета
+            function getColorClass(ratio) {
+                if (ratio < 35) return 'color-green';
+                if (ratio >= 40 && ratio < 70) return 'color-yellow';
+                if (ratio >= 70 && ratio < 90) return 'color-red';
+                if (ratio >= 90) return 'color-purple';
+                return '';
             }
-            const toLimit = getLimitInSameUnit(takeoffMax, unit);
-            const ldLimit = getLimitInSameUnit(landingMax, unit);
 
-            // В steady wind берём xwMainAbs, в порывах - xwGustAbs (худшее).
-            // Но по заданию: "если есть порывы, то брать порывы" для landing.
-            const usedXw = windGust ? xwGustAbs : xwMainAbs;  // чаще всего для "landing"
-            const ratio = (usedXw / ldLimit) * 100;
-            let xwColorClass = '';
-            if (ratio < 35) xwColorClass = 'color-green';
-            else if (ratio < 70) xwColorClass = 'color-yellow';
-            else if (ratio < 90) xwColorClass = 'color-red';
-            else xwColorClass = 'color-purple';
+            // Считаем % для steady и порыва (от landingLimit, если придерживаемся «брать для посадки»)
+            const ratioSteady = (xwMainAbs / ldLimit) * 100;
+            const ratioGust   = windGust ? (xwGustAbs / ldLimit) * 100 : 0;
 
-            // Формируем строчку
+            // Определяем цвет steady, цвет gust
+            let steadyClass = getColorClass(ratioSteady);
+            let gustClass   = windGust ? getColorClass(ratioGust) : '';
+
+            // Формируем контент
             content += `<strong>ВПП ${chosenName}</strong> (${formatNumber(chosen)}°):<br>`;
 
-            // Сама строка: HW / XW
-            content += `HW: ${hwMain.toFixed(1)} ${unit} `;
-            if (windGust) {
-                content += `(G:${hwGust.toFixed(1)}) `;
+            // Отображаем HW steady/gust
+            content += `<i class="fa-solid fa-chevron-right"></i> HW: ${hwMain.toFixed(1)} ${unit}`;
+
+            if (windGust) content += `, (<i class="fa-solid fa-wind"></i> ${hwGust.toFixed(1)} ${unit})`;
+            content += `<br>`;
+
+            // Отображаем XW steady с цветом
+            content += `<i class="fa-solid fa-chevron-right"></i> XW: `;
+            if (steadyClass) {
+                content += `<span class="${steadyClass}">${xwMainAbs.toFixed(1)} ${unit}</span>`;
+            } else {
+                content += `${xwMainAbs.toFixed(1)} ${unit}`;
             }
-            content += `, XW: <span class="${xwColorClass}">${usedXw.toFixed(1)} ${unit}</span><br>`;
 
-            // Можно добавить " (порыв)" или "(steady)" и т.д. — на твой вкус
+            // Если есть порыв, показываем XW gust
+            if (windGust) {
+                if (gustClass) {
+                    content += ` (<span class="${gustClass}"><i class="fa-solid fa-wind"></i> ${xwGustAbs.toFixed(1)} ${unit}</span>)`;
+                } else {
+                    content += ` (${xwGustAbs.toFixed(1)} ${unit})`;
+                }
+            }
+            content += `<br>`;
+
+            // Пишем лимиты
             content += `<small>(Limit T/O=${toLimit} ${unit}, LDG=${ldLimit} ${unit})</small><br><br>`;
-
-//            // Формируем строку
-//            content += `<strong>ВПП ${chosenName}</strong> (${formatNumber(chosen)}°):<br>`;
-//            if (windGust) {
-//                content += `HW: <b>${hwMain.toFixed(1)} ${unit}</b> (<i class="fa-solid fa-wind"></i> ${hwGust.toFixed(1)} ${unit}), `;
-//                content += `XW: <b>${Math.abs(xwMain).toFixed(1)} ${unit}</b> (<i class="fa-solid fa-wind"></i> ${xwGust ? Math.abs(xwGust).toFixed(1) : "-"} ${unit})<br><br>`;
-//            } else {
-//                content += `HW: <b>${hwMain.toFixed(1)} ${unit}</b>, `;
-//                content += `XW: <b>${Math.abs(xwMain).toFixed(1)} ${unit}</b><br><br>`;
-//            }
         }
 
         // После цикла
         if (worstCond.kind === 'reported') {
-            content += `<hr><p><b>Состояние ВПП:</b> ${worstCond.category.toUpperCase()} (из reportedBrakingActions)</p>`;
+            content += `<hr><p><b>Состояние ВПП:</b> ${worstCond.category.toUpperCase()}</p>`;
         } else {
             content += `<hr><p><b>Коэффициент сцепления:</b> ${worstCond.frictionValue.toFixed(2)}
-            <br>(таблица: ${icao && icao[0]==='U' ? 'normative' : 'by_sft'})</p>`;
+            <br>(тип: ${icao && icao[0]==='U' ? 'нормативный' : 'измеренный'})</p>`;
         }
 
         showWindInfoModal(content);

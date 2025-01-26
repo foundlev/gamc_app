@@ -368,7 +368,8 @@ footer {
 #fetchBtn:disabled,
 #saveRouteBtn:disabled,
 #calcBtn:disabled,
-#airportSettingsBtn:disabled {
+#airportSettingsBtn:disabled,
+#refreshAllBtn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }

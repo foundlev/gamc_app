@@ -419,11 +419,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (icao.length === 4) {
             fetchBtn.disabled = false;
             calcBtn.disabled = false;
-            airportSettingsBtn.disabled = false;
         } else {
             fetchBtn.disabled = true;
             calcBtn.disabled = true;
-            airportSettingsBtn.disabled = true;
         }
     }
 
@@ -587,6 +585,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        runwayFrictionMap = {};
+        worstRunwayFrictionCode = null;
         nowIcao = icao;
         hideAirportInfo();
 
@@ -1594,62 +1594,65 @@ document.addEventListener('DOMContentLoaded', () => {
         const runwaysObj = airportInfoDb[nowIcao].runways;
         const worstCond = getWorstRunwayCondition(nowIcao);
 
+        // Вставьте полностью этот вариант:
         for (const [rwyName, rwyData] of Object.entries(runwaysObj)) {
-            // Магнитный курс
+            // Магнитный курс полосы
             const hdgMag = rwyData.hdg;
-            // Находим «противоположное» направление
+
+            // Ищем противоположную полосу
             const oppName = findOppositeRunway(nowIcao, rwyName);
             const oppHdgMag = runwaysObj[oppName]?.hdg || hdgMag;
 
             // Выбираем ту ВПП, которая ближе к ветру
-            const chosen = closestRunway(windDirMag, hdgMag, oppHdgMag);
-            const chosenName = (chosen === hdgMag) ? rwyName : oppName;
+            const chosenHdg = closestRunway(windDirMag, hdgMag, oppHdgMag);
+            // Если chosenHdg совпадает с hdgMag, значит это rwyName, иначе oppName
+            const chosenName = (chosenHdg === hdgMag) ? rwyName : oppName;
 
-            // Чтобы не повторять «парную» ВПП дважды
-            if (shownSet.has(chosenName)) continue;
+            // Чтобы не дублировать «парную» ВПП (например, 06L и 24R),
+            // если мы её уже выводили — пропускаем
+            if (shownSet.has(chosenName)) {
+                continue;
+            }
             shownSet.add(chosenName);
 
-            // Считаем боковую/встречную (steady)
-            const xwMain = calcCrosswind(chosen, windSpeed);
-            const hwMain = calcHeadwind(chosen, windSpeed);
-            // Если есть порыв – считаем для порыва
-            const xwGust = windGust ? calcCrosswind(chosen, windGust) : 0;
-            const hwGust = windGust ? calcHeadwind(chosen, windGust) : 0;
+            // Считаем боковую/встречную (steady ветер)
+            const xwMain = calcCrosswind(chosenHdg, windSpeed);
+            const hwMain = calcHeadwind(chosenHdg, windSpeed);
 
-            // Боковая steady/poryv по модулю:
+            // Если есть порыв – считаем и для порыва
+            const xwGust = windGust ? calcCrosswind(chosenHdg, windGust) : 0;
+            const hwGust = windGust ? calcHeadwind(chosenHdg, windGust) : 0;
+
             const xwMainAbs = Math.abs(xwMain);
             const xwGustAbs = Math.abs(xwGust);
 
-            // Определяем предельные значения (takeoff/landing) для «худшего» состояния
+            // Определяем предельные значения (takeoff/landing) для худшего состояния
             let takeoffMax, landingMax;
             if (worstCond.kind === 'reported') {
-                // К примеру, worstCond.category = 'poor','medium','good'
-                takeoffMax = reportedBrakingActions.takeoff[worstCond.category] || reportedBrakingActions.takeoff.good;
-                landingMax = reportedBrakingActions.landing[worstCond.category] || reportedBrakingActions.landing.good;
+                const cat = worstCond.category; // например 'poor','medium','good'
+                takeoffMax = reportedBrakingActions.takeoff[cat] || reportedBrakingActions.takeoff.good;
+                landingMax = reportedBrakingActions.landing[cat] || reportedBrakingActions.landing.good;
             } else {
-                // kind === 'measured'
+                // measured
                 const friction = worstCond.frictionValue;
                 const relevant = worstCond.relevantData;
-
-                let toObj = {
-                    ...relevant.takeoff,
-                    currentFriction: friction
-                };
-                let ldObj = {
-                    ...relevant.landing,
-                    currentFriction: friction
-                };
-
+                // Подставляем "currentFriction"
+                let toObj = { ...relevant.takeoff, currentFriction: friction };
+                let ldObj = { ...relevant.landing, currentFriction: friction };
                 takeoffMax = getCrosswindLimit('takeoff', toObj, reportedBrakingActions.takeoff.good);
                 landingMax = getCrosswindLimit('landing', ldObj, reportedBrakingActions.landing.good);
             }
 
-            // Приводим к нужным единицам
+            // Приводим к нужным единицам (MPS или KTS)
             const toLimit = (unit === 'MPS') ? takeoffMax.mps : takeoffMax.kts;
             const ldLimit = (unit === 'MPS') ? landingMax.mps : landingMax.kts;
 
-            // Вспомогательная функция для определения цвета
-            function getColorClass(ratio) {
+            // Считаем проценты для steady и порыва (используем landingLimit, как раньше)
+            const ratioSteady = (xwMainAbs / ldLimit) * 100;
+            const ratioGust   = windGust ? (xwGustAbs / ldLimit) * 100 : 0;
+
+            // Функция для выбора цвета
+            function pickColor(ratio) {
                 if (ratio < 40) return 'color-green';
                 if (ratio >= 40 && ratio < 70) return 'color-yellow';
                 if (ratio >= 70 && ratio < 90) return 'color-red';
@@ -1657,43 +1660,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 return '';
             }
 
-            // Считаем % для steady и порыва (от landingLimit, если придерживаемся «брать для посадки»)
-            const ratioSteady = (xwMainAbs / ldLimit) * 100;
-            const ratioGust = windGust ? (xwGustAbs / ldLimit) * 100 : 0;
+            const steadyClass = pickColor(ratioSteady);
+            const gustClass   = windGust ? pickColor(ratioGust) : '';
 
-            // Определяем цвет steady, цвет gust
-            let steadyClass = getColorClass(ratioSteady);
-            let gustClass = windGust ? getColorClass(ratioGust) : '';
+            // ---- Читаем индивидуальный коэффициент сцепления для chosenName
+            const frictionCode = runwayFrictionMap[chosenName] ?? null;
+            let frictionText = '(нет данных)';
+            if (typeof frictionCode === 'number') {
+                if (frictionCode >= 91 && frictionCode <= 95) {
+                    // 91=poor, 92=poor_to_medium, 93=medium, ...
+                    // Можно написать decodeFrictionCode, но коротко:
+                    const frictionMap = {
+                        91: 'poor',
+                        92: 'poor/medium',
+                        93: 'medium',
+                        94: 'medium/good',
+                        95: 'good'
+                    };
+                    frictionText = frictionMap[frictionCode] || '???';
+                } else {
+                    // 10..90 => 0.xx
+                    frictionText = (frictionCode / 100).toFixed(2);
+                }
+            }
 
-            // Формируем контент
-            content += `<strong>ВПП ${chosenName}</strong> (${formatNumber(chosen)}°):<br>`;
+            // Формируем вывод
+            content += `
+                <strong>ВПП ${chosenName}</strong> (${formatNumber(chosenHdg)}°):
+                <br>
+                Коэф. сцепления: <b>${frictionText}</b>
+                <br>
+                <i class="fa-solid fa-chevron-right"></i> HW: ${hwMain.toFixed(1)} ${unit}
+            `;
+            if (windGust) {
+                content += `, (<i class="fa-solid fa-wind"></i> ${hwGust.toFixed(1)} ${unit})`;
+            }
+            content += `<br><i class="fa-solid fa-chevron-right"></i> XW: `;
 
-            // Отображаем HW steady/gust
-            content += `<i class="fa-solid fa-chevron-right"></i> HW: ${hwMain.toFixed(1)} ${unit}`;
-
-            if (windGust) content += `, (<i class="fa-solid fa-wind"></i> ${hwGust.toFixed(1)} ${unit})`;
-            content += `<br>`;
-
-            // Отображаем XW steady с цветом
-            content += `<i class="fa-solid fa-chevron-right"></i> XW: `;
             if (steadyClass) {
                 content += `<span class="${steadyClass}">${xwMainAbs.toFixed(1)} ${unit}</span>`;
             } else {
                 content += `${xwMainAbs.toFixed(1)} ${unit}`;
             }
 
-            // Если есть порыв, показываем XW gust
             if (windGust) {
                 if (gustClass) {
-                    content += ` (<span class="${gustClass}"><i class="fa-solid fa-wind"></i> ${xwGustAbs.toFixed(1)} ${unit}</span>)`;
+                    content += ` (<span class="${gustClass}">
+                        <i class="fa-solid fa-wind"></i> ${xwGustAbs.toFixed(1)} ${unit}
+                    </span>)`;
                 } else {
                     content += ` (${xwGustAbs.toFixed(1)} ${unit})`;
                 }
             }
-            content += `<br>`;
 
-            // Пишем лимиты
-            content += `<small>(Limit T/O=${toLimit} ${unit}, LDG=${ldLimit} ${unit})</small><br><br>`;
+            content += `<br><small>(Limit T/O=${toLimit} ${unit}, LDG=${ldLimit} ${unit})</small>`;
+            content += `<br><br>`;
         }
 
         // После цикла
@@ -1734,10 +1755,12 @@ document.addEventListener('DOMContentLoaded', () => {
             offlineToggleBtn.classList.add('offline');
             offlineToggleBtn.classList.remove('online');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-plane"></i>';
+            document.getElementById('refreshAllBtn').disabled = true;
         } else {
             offlineToggleBtn.classList.add('online');
             offlineToggleBtn.classList.remove('offline');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-signal"></i>';
+            document.getElementById('refreshAllBtn').disabled = false;
         }
     }
 
@@ -2023,7 +2046,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateMenuShow() {
         const zoomInBtn = document.getElementById('zoomInBtn');
         const zoomOutBtn = document.getElementById('zoomOutBtn');
-        const airportSettingsBtn = document.getElementById('airportSettingsBtn');
         const refreshAllBtn = document.getElementById('refreshAllBtn');
         const settingsBtn = document.getElementById('settingsBtn');
         const offlineToggleBtn = document.getElementById('offlineToggleBtn');
@@ -2031,21 +2053,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (showSecondMenu) {
             zoomInBtn.hidden = true;
             zoomOutBtn.hidden = true;
-            airportSettingsBtn.hidden = false;
             calcBtn.hidden = false;
             aiBtn.hidden = false;
             refreshAllBtn.hidden = false;
             settingsBtn.hidden = true;
-            offlineToggleBtn.hidden = true;
         } else {
             zoomInBtn.hidden = false;
             zoomOutBtn.hidden = false;
-            airportSettingsBtn.hidden = true;
             calcBtn.hidden = true;
             aiBtn.hidden = true;
             refreshAllBtn.hidden = true;
             settingsBtn.hidden = false;
-            offlineToggleBtn.hidden = false;
         }
 
     }

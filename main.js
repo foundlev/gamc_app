@@ -17,6 +17,172 @@ const airportMaintenanceCodes = [
 let nowIcao = null;
 let showSecondMenu = false;
 let icaoKeys = null;
+let worstRunwayFrictionCode = null;  // например, 95, 92, 10..90, 99 или null
+
+const reportedBrakingActions = {
+    takeoff: {
+        dry: {
+            kts: 34,
+            mps: 17.5
+        },
+        good: {
+            kts: 25,
+            mps: 12.9
+        },
+        good_to_medium: {
+            kts: 22,
+            mps: 11.3
+        },
+        medium: {
+            kts: 20,
+            mps: 10.3
+        },
+        medium_to_poor: {
+            kts: 15,
+            mps: 7.7
+        },
+        poor: {
+            kts: 13,
+            mps: 6.7
+        }
+    },
+    landing: {
+        dry: {
+            kts: 40,
+            mps: 20.6
+        },
+        good: {
+            kts: 40,
+            mps: 20.6
+        },
+        good_to_medium: {
+            kts: 35,
+            mps: 18.0
+        },
+        medium: {
+            kts: 25,
+            mps: 12.9
+        },
+        medium_to_poor: {
+            kts: 17,
+            mps: 8.7
+        },
+        poor: {
+            kts: 15,
+            mps: 7.7
+        }
+    }
+};
+const coefficientBrakingActions = {
+    normative: {
+        takeoff: {
+            0.5: {
+                kts: 34,
+                mps: 17.5
+            },
+            0.42: {
+                kts: 25,
+                mps: 12.9
+            },
+            0.4: {
+                kts: 22,
+                mps: 11.3
+            },
+            0.37: {
+                kts: 20,
+                mps: 10.3
+            },
+            0.35: {
+                kts: 15,
+                mps: 7.7
+            },
+            0.3: {
+                kts: 13,
+                mps: 6.7
+            }
+        },
+        landing: {
+            0.5: {
+                kts: 40,
+                mps: 20.6
+            },
+            0.42: {
+                kts: 40,
+                mps: 20.6
+            },
+            0.4: {
+                kts: 35,
+                mps: 18.0
+            },
+            0.37: {
+                kts: 25,
+                mps: 12.9
+            },
+            0.35: {
+                kts: 17,
+                mps: 8.7
+            },
+            0.3: {
+                kts: 15,
+                mps: 7.7
+            }
+        }
+    },
+    by_sft: {
+        takeoff: {
+            0.51: {
+                kts: 34,
+                mps: 17.5
+            },
+            0.4: {
+                kts: 25,
+                mps: 12.9
+            },
+            0.36: {
+                kts: 22,
+                mps: 11.3
+            },
+            0.3: {
+                kts: 20,
+                mps: 10.3
+            },
+            0.26: {
+                kts: 15,
+                mps: 7.7
+            },
+            0.17: {
+                kts: 13,
+                mps: 6.7
+            }
+        },
+        landing: {
+            0.51: {
+                kts: 40,
+                mps: 20.6
+            },
+            0.4: {
+                kts: 40,
+                mps: 20.6
+            },
+            0.36: {
+                kts: 35,
+                mps: 18.0
+            },
+            0.3: {
+                kts: 25,
+                mps: 12.9
+            },
+            0.26: {
+                kts: 17,
+                mps: 8.7
+            },
+            0.17: {
+                kts: 15,
+                mps: 7.7
+            }
+        }
+    }
+};
 
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
@@ -39,6 +205,80 @@ fetch('data/airports_db.json')
     .catch(err => {
         console.error('Не удалось загрузить airports_db.json:', err);
     });
+
+function formatNumber(num) {
+    return String(num).padStart(3, '0');
+}
+
+function getWorstRunwayCondition(icao) {
+    // Если ничего не нашли при разборе, возвращаем "good" из reportedBrakingActions
+    if (worstRunwayFrictionCode === null) {
+        return {
+            kind: 'reported',   // reportedBrakingActions
+            category: 'good',   // ключ good, medium etc.
+            frictionValue: null // нет точного числа
+        };
+    }
+
+    // Если >=91 => это зашитая таблица
+    const code = worstRunwayFrictionCode; // сокращение
+    if (code >= 91 && code <= 95 || code === 99) {
+        // Сопоставляем:
+        const mapCode = {
+            91: 'poor',            // "плохой"
+            92: 'poor_to_medium',  // "плохой/средний"
+            93: 'medium',          // "средний"
+            94: 'medium_to_good',  // "средний/хороший"
+            95: 'good',            // "хороший"
+            99: 'poor'            // "ненадёжное измерение" → считаем как 'poor' чтобы было построже
+        };
+        const cat = mapCode[code] || 'good';
+        return {
+            kind: 'reported',
+            category: cat,
+            frictionValue: null
+        };
+    } else {
+        // code между 10..90, значит это 0.xx
+        let friction = (code / 100).toFixed(2); // например "0.43"
+        // ICAO начинается на "U"?
+        let isRussian = (icao && icao[0] === 'U');
+
+        // Выбираем таблицу normative или by_sft
+        let relevantObj = isRussian ? coefficientBrakingActions.normative : coefficientBrakingActions.by_sft;
+
+        return {
+            kind: 'measured',   // т. е. берём из coefficientBrakingActions
+            frictionValue: parseFloat(friction),
+            relevantData: relevantObj
+        };
+    }
+}
+
+// Функция для определения предела бокового ветра (kts) под конкретный коэф,
+// где "phase" это 'takeoff' или 'landing'.
+function getCrosswindLimit(phase, frictionObj, fallback) {
+    // frictionObj = { 0.5:{kts:34,...}, 0.42:{kts:25,...}, ...}
+    // fallback    = { kts:25, ... } если не найдём подходящего
+    // 1) Если friction=0.43, надо найти самую нижнюю границу <=0.43
+    //    например есть ключи 0.5,0.42,0.4,0.37... выберем 0.42
+    // 2) Если меньше всех, то всё равно берём «самую нижнюю»
+    // 3) Если нет фрикции -> возвращаем fallback
+    // (Ключи будут в виде float, нужно перебирать.)
+
+    let frictionArr = Object.keys(frictionObj)
+                            .map(v => parseFloat(v))
+                            .sort((a,b)=>b-a);
+    // Сортируем по убыванию: 0.5, 0.42, 0.4, 0.37, ...
+
+    for (let f of frictionArr) {
+        if (f <= frictionObj.currentFriction) {
+            return frictionObj[f];
+        }
+    }
+    // Если ничего не подошло (фрикция вообще очень маленькая), берём самый последний:
+    return frictionObj[ frictionArr[frictionArr.length - 1] ] || fallback;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // Селекторы
@@ -313,6 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
             responseContainer.textContent = 'Здесь будет отображаться погода...';
         } else {
             responseContainer.textContent = 'Загрузка...';
+            worstRunwayFrictionCode = null;
         }
         timeBadgeContainer.innerHTML = '';
         removeTimeBadgeContainerBottomGap();
@@ -634,38 +875,131 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<span class="runway-info" data-runway="${rwy}" data-info="//////">${match}</span>`;
         });
 
-        // Распознавание и выделение информации о ВПП с учётом буквенного суффикса (L, C, R)
         text = text.replace(/\bR(\d{2}[LCR]?)\/([0-9/]{6,})(?=[^0-9/]|$)/g, (match, rwy, info) => {
-            if (/^\/{6,}$/.test(info)) return match; // Пропускаем информацию, состоящую только из слэшей
+            if (/^\/{6,}$/.test(info)) {
+                return match; // ничего не сохраняем
+            }
 
-            // Добавляем всплывающее окно с информацией
+            // Парсим код, например "94" или "95" или "99" или "43" (то есть 0.43) и т.д.
+            // info[4..5] — две последних цифры. Если там не цифры, вернёмся
+            let frictionStr = info.slice(4, 6);
+            let frictionNum = parseInt(frictionStr, 10);
+            // frictionNum может быть от 10 до 99, либо NaN
+
+            if (!isNaN(frictionNum) && frictionNum >= 10 && frictionNum <= 99) {
+                // У нас есть код состояния (10..95, 99). Сохраним «минимальный», то есть «худший».
+                // 99 = ненадёжное измерение, 91..95 = определённые состояния, 10..90 → это 0.xx
+                // "Хуже" = меньше, но нужно аккуратно, т.к. 91..95 "лучше", чем 90 => 0.90 :)
+                // Проще перевести всё в "псевдо-число" чтобы сравнивать одинаково:
+                // 91→0.1(плохой), 95→0.5(хороший), 99 оставим как 0.01(ещё хуже?), но на практике 99 = "ненадёжное".
+                // Но проще сравнить напрямую через decode.
+                // Здесь для простоты — запомним чистый frictionNum, а потом будем расшифровывать.
+
+                if (worstRunwayFrictionCode === null) {
+                    worstRunwayFrictionCode = frictionNum;
+                } else {
+                    // "худшее" = наименьшее значение, но учитываем диапазон 91..95
+                    // (91=плохой, 95=хороший). Т. е. 91 реально хуже, чем 90? Нет, 90 = 0.90, а 91 = "0.91"?
+                    // Но в таблице 91→"плохой".
+                    // Упростим — кто меньше, тот хуже, кроме 99 (оно самое ненадёжное, будем считать его "самым худшим").
+                    // Значит если frictionNum === 99, считаем это "худшее" из всех.
+
+                    if (frictionNum === 99) {
+                        worstRunwayFrictionCode = 99;
+                    } else if (worstRunwayFrictionCode === 99) {
+                        // если уже 99, оставляем как есть
+                    } else {
+                        // иначе сравниваем по <
+                        if (frictionNum < worstRunwayFrictionCode) {
+                            worstRunwayFrictionCode = frictionNum;
+                        }
+                    }
+                }
+            }
+
             return `<span class="color-description runway-info" data-runway="${rwy}" data-info="${info}">${match} <i class="fa fa-info-circle" aria-hidden="true"></i></span>`;
         });
 
         // Распознавание и выделение информации о ветре
-        text = text.replace(/\b((\d{3})\d{2,3}(?:G\d{2,3})?(?:MPS|KT))\b/g, (match) => {
-            let pattern = /^(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)$/;
-            let m = match.match(pattern);
-            if (!m) return match;
-            let [, dir, speed, gust, unit] = m;
-            let highlight = false;
-            let speedNum = parseInt(speed, 10);
-            if (unit === 'MPS') {
-                if (speedNum >= 15) highlight = true;
-                else if (gust) {
-                    let gustNum = parseInt(gust.slice(1), 10);
-                    if (gustNum >= 15) highlight = true;
+        text = text.replace(/\b((\d{3})\d{2,3}(?:G\d{2,3})?(?:MPS|KT))\b/g,
+            (fullMatch, entireGroup) => {
+                // Разбираем группой: ddd - направление, потом скорость, потом G.., потом единицы
+                let re = /^(\d{3})(\d{2,3})(G\d{2,3})?(MPS|KT)$/;
+                let m = fullMatch.match(re);
+                if (!m) return fullMatch; // не совпадает
+
+                let [, dir, speedStr, gustStr, unit] = m;
+                let windDir = parseInt(dir, 10);
+                let windSpd = parseInt(speedStr, 10);
+                let windGust = gustStr ? parseInt(gustStr.slice(1), 10) : null;
+
+                // 1) Получаем «худшее» состояние полосы
+                const worst = getWorstRunwayCondition(nowIcao);
+
+                // 2) Находим предельный боковой для landing (по заданию)
+                //    a) reportedBrakingActions   b) coefficientBrakingActions
+                let landingLimitKts = 40;  // fallback
+                let landingLimitMps = 20.6;
+
+                if (worst.kind === 'reported') {
+                    // например { category:'poor', ... }
+                    let cat = worst.category;
+                    let limObj = reportedBrakingActions.landing[cat]
+                                 || reportedBrakingActions.landing.good;
+                    landingLimitKts = limObj.kts;
+                    landingLimitMps = limObj.mps;
+                } else {
+                    // measured => worst.frictionValue + relevantData
+                    let fVal = worst.frictionValue; // 0.43, например
+                    let landMap = worst.relevantData.landing; // объект {0.51:{kts:40,mps:20.6},0.4:{kts:40,...}, ...}
+
+                    // нужно найти подходящий лимит
+                    function findLimit(obj, friction) {
+                        let keys = Object.keys(obj).map(x=>parseFloat(x)).filter(x=>!isNaN(x)).sort((a,b)=>b-a);
+                        for (let k of keys) {
+                            if (k <= friction) return obj[k];
+                        }
+                        // если ничего не нашли - берём последний
+                        return obj[keys[keys.length-1]];
+                    }
+
+                    let limitObj = findLimit(landMap, fVal);
+                    landingLimitKts = limitObj.kts;
+                    landingLimitMps = limitObj.mps;
                 }
-            } else if (unit === 'KT') {
-                if (speedNum >= 30) highlight = true;
-                else if (gust) {
-                    let gustNum = parseInt(gust.slice(1), 10);
-                    if (gustNum >= 30) highlight = true;
+
+                // 3) Определяем скорость, которую берём для вычисления %
+                //    «если steady wind → windSpd, если есть порыв (gustStr) → gust»
+                let usedWind = windGust ? windGust : windSpd;
+
+                // 4) Переводим landingLimit в такие же единицы
+                let limit = (unit === 'MPS') ? landingLimitMps : landingLimitKts;
+
+                // 5) Считаем ratio
+                let ratio = (usedWind / limit) * 100;
+
+                // 6) Выбираем цвет
+                //    <35% = green
+                //    40..70 = yellow
+                //    70..90 = red
+                //    >=90 = purple
+                //   (в 35..40 остаётся без цвета)
+                let colorClass = '';
+                if (ratio < 35) {
+                    colorClass = 'color-green';
+                } else if (ratio >= 40 && ratio < 70) {
+                    colorClass = 'color-yellow';
+                } else if (ratio >= 70 && ratio < 90) {
+                    colorClass = 'color-red';
+                } else if (ratio >= 90) {
+                    colorClass = 'color-purple';
                 }
+                // Если попали в 35..40 => colorClass = "" (без цвета)
+
+                // Возвращаем HTML
+                return `<span class="color-description wind-info ${colorClass}" data-wind="${fullMatch}" data-unit="${unit}" data-dir="${dir}" data-speed="${speedStr}" data-gust="${gustStr||''}">${fullMatch} <i class="fa-solid fa-wind"></i></span>`;
             }
-            let colorClass = highlight ? "color-purple" : "";
-            return `<span class="color-description wind-info ${colorClass}" data-wind="${match}" data-unit="${unit}" data-dir="${dir}" data-speed="${speed}" data-gust="${gust||''}"><span>${match}</span> <i class="fa-solid fa-wind"></i></span>`;
-        });
+        );
 
         // Оборачиваем строки, начинающиеся с TEMPO, в контейнер для альтернативного оформления
         text = text.replace(/^(<u>TEMPO<\/u>.*)$/gm, '<span class="tempo-line">$1</span>');
@@ -1047,97 +1381,169 @@ document.addEventListener('DOMContentLoaded', () => {
         const windTarget = e.target.closest('.wind-info');
         if (!windTarget) return;
 
-        const dir = windTarget.dataset.dir;       // напр. "120"
-        const speed = windTarget.dataset.speed;   // напр. "06"
-        const gust = windTarget.dataset.gust;     // напр. "G12" или пусто
-        const unit = windTarget.dataset.unit;     // "MPS" или "KT"
+        // Данные из data-атрибутов
+        const dirStr = windTarget.dataset.dir;      // например "120" или "VRB"
+        const speedStr = windTarget.dataset.speed;  // например "06"
+        const gustStr = windTarget.dataset.gust;    // например "G12" или ""
+        const unit = windTarget.dataset.unit;       // "MPS" или "KT"
 
-        // Формируем шапку контента (ветер, порывы)
+        // Верхняя часть (просто текст)
         let content = "";
-        if (gust) {
-            content += `Ветер: ${dir}° ${parseInt(speed)} <i class="fa-solid fa-wind"></i> ${parseInt(gust.replace('G',''))} ${unit}<br><br>`;
+        if (gustStr) {
+            content += `Ветер: ${dirStr}° ${parseInt(speedStr)} ${unit} (<i class="fa-solid fa-wind"></i> ${parseInt(gustStr.replace('G',''))} ${unit})<br><br>`;
         } else {
-            content += `Ветер: ${dir}° ${parseInt(speed)} ${unit}<br><br>`;
+            content += `Ветер: ${dirStr}° ${parseInt(speedStr)} ${unit}<br><br>`;
         }
 
-        // Если current ICAO не задан или база не загружена, покажем предупреждение
+        // Если не знаем текущий ICAO или нет runways, выходим
         if (!nowIcao || !airportInfoDb[nowIcao] || !airportInfoDb[nowIcao].runways) {
-            content += "Нет данных о ВПП в airportInfoDb для " + nowIcao;
+            content += "Нет данных о ВПП для " + nowIcao;
             showWindInfoModal(content);
             return;
         }
 
-        // Приводим ветер к числу (windDir может быть null, если VRB)
-        let windDirNum = (dir === 'VRB') ? null : parseInt(dir, 10);
-        let windSpeed = parseFloat(speed);
-        let windGust = gust ? parseFloat(gust.slice(1)) : null;
+        // Склонение (если в JSON его нет, берём 0)
+        const declination = airportInfoDb[nowIcao].declination || 0;
 
-        // Вспомогательные функции
-        function calcCrosswind(angle, spd) {
-            let rad = (windDirNum - angle) * Math.PI / 180;
+        // Превращаем строки в числа
+        let windDirTrue = (dirStr === 'VRB') ? null : parseInt(dirStr, 10);
+        let windSpeed = parseFloat(speedStr);
+        let windGust = gustStr ? parseFloat(gustStr.slice(1)) : null;
+
+        // Если ветер VRB — можно вывести что-то одно
+        if (windDirTrue === null) {
+            content += `Ветер переменный (VRB), сложно вычислить боковую/встречную.`;
+            showWindInfoModal(content);
+            return;
+        }
+
+        // Переводим истинное направление ветра в магнитное
+        function normalize(angle) {
+            let a = angle % 360;
+            return (a < 0) ? a + 360 : a;
+        }
+        const windDirMag = normalize(windDirTrue - declination);
+
+        // Функции для расчёта
+        function calcCrosswind(magHdgRW, spd) {
+            let rad = (windDirMag - magHdgRW) * Math.PI / 180;
             return spd * Math.sin(rad);
         }
-        function calcHeadwind(angle, spd) {
-            let rad = (windDirNum - angle) * Math.PI / 180;
+        function calcHeadwind(magHdgRW, spd) {
+            let rad = (windDirMag - magHdgRW) * Math.PI / 180;
             return spd * Math.cos(rad);
         }
 
-        // Перебираем все ВПП из базы
-        let uniqueRunways = new Set();
-        for (const [rwyName, rwyData] of Object.entries(airportInfoDb[nowIcao].runways)) {
-            // Достаём курс
-            const heading = rwyData.hdg;
+        // Перебираем все ВПП
+        let shownSet = new Set();
+        const runwaysObj = airportInfoDb[nowIcao].runways;
+        const worstCond = getWorstRunwayCondition(nowIcao);
 
-            // Ищем «обратную» полосу
+        for (const [rwyName, rwyData] of Object.entries(runwaysObj)) {
+            // Магнитный курс из базы
+            const hdgMag = rwyData.hdg;
+
+            // Ищем имя "противоположной" ВПП
             const oppName = findOppositeRunway(nowIcao, rwyName);
-            let headingOpp = airportInfoDb[nowIcao].runways[oppName]?.hdg || heading;
+            const oppHdgMag = runwaysObj[oppName]?.hdg || hdgMag;
 
-            // Если ветер переменный (VRB), добавим соответствующий текст 1 раз
-            if (windDirNum === null) {
-                // Чтобы не дублировать «Ветер переменный» на каждую ВПП — если нужно, можно
-                // вывести один раз и прерваться, либо вывести для всех.
-                if (!uniqueRunways.has('VRB-shown')) {
-                    content += `Ветер переменный<br><br>`;
-                    uniqueRunways.add('VRB-shown');
-                }
-                continue;
-            }
+            // Решаем, какой ближе (magnetic windDir vs hdgMag / oppHdgMag)
+            const chosen = closestRunway(windDirMag, hdgMag, oppHdgMag);
+            const chosenName = (chosen === hdgMag) ? rwyName : oppName;
 
-            // Определяем, какой курс ближе к ветру
-            let chosenHeading = closestRunway(windDirNum, heading, headingOpp);
-            // Если chosenHeading === heading, значит «прямая» ВПП, иначе — «обратка» (oppName)
-            // Для удобства запомним, с каким названием ВПП мы работаем
-            let chosenRwyName = (chosenHeading === heading) ? rwyName : oppName;
+            // Если уже показывали эту ВПП (или её "парную"), пропускаем
+            if (shownSet.has(chosenName)) continue;
+            shownSet.add(chosenName);
 
-            // Чтобы не показывать одну и ту же ВПП несколько раз, ставим проверку
-            // (к примеру, если выяснилось, что oppName = rwyName (редко, но бывает))
-            if (uniqueRunways.has(chosenRwyName)) {
-                continue;
-            }
-            uniqueRunways.add(chosenRwyName);
+            // Считаем crosswind/headwind
+            const xwMain = calcCrosswind(chosen, windSpeed);
+            const hwMain = calcHeadwind(chosen, windSpeed);
+            const xwGust = windGust ? calcCrosswind(chosen, windGust) : 0;
+            const hwGust = windGust ? calcHeadwind(chosen, windGust) : 0;
 
-            // Считаем попутную/боковую составляющие
-            let crosswindMain = calcCrosswind(chosenHeading, windSpeed);
-            let crosswindGust = (windGust) ? calcCrosswind(chosenHeading, windGust) : null;
-            let headwindMain = calcHeadwind(chosenHeading, windSpeed);
-            let headwindGust = (windGust) ? calcHeadwind(chosenHeading, windGust) : null;
+            const xwMainAbs = Math.abs(xwMain);
+            const xwGustAbs = Math.abs(xwGust);
 
-            // Формируем вывод
-            content += `<strong>ВПП ${chosenRwyName}</strong>: `;
+            // 1) Определяем предельный боковой ветер на взлёт (takeoffLimit)
+            // 2) Предельный боковой ветер на посадку (landingLimit)
 
-            // Сначала headwind
-            if (windGust) {
-                const xwConst = crosswindMain ? Math.abs(crosswindMain).toFixed(1) : 'N/A';
-                const xwGust = crosswindGust ? Math.abs(crosswindGust).toFixed(1) : 'N/A';
-                content += `HW: ${headwindMain.toFixed(1)} <i class="fa-solid fa-wind"></i> ${headwindGust.toFixed(1)} ${unit}, `;
-                content += `XW: ${xwConst} <i class="fa-solid fa-wind"></i> ${xwGust} ${unit}<br><br>`;
+            // a) Если worstCond.kind === 'reported':
+            //    Берём из reportedBrakingActions[phase][worstCond.category]
+            let takeoffMax, landingMax;
+            if (worstCond.kind === 'reported') {
+                takeoffMax = reportedBrakingActions.takeoff[worstCond.category] || reportedBrakingActions.takeoff.good;
+                landingMax = reportedBrakingActions.landing[worstCond.category] || reportedBrakingActions.landing.good;
             } else {
-                const xwConst = crosswindMain ? Math.abs(crosswindMain).toFixed(1) : 'N/A';
-                content += `HW: ${headwindMain.toFixed(1)} ${unit}, XW: ${xwConst} ${unit}<br><br>`;
+                // kind === 'measured'
+                const friction = worstCond.frictionValue; // типа 0.43
+                let relevant = worstCond.relevantData;    // либо normative, либо by_sft
+
+                // Пробегаем relevant.takeoff и ищем подходящий ключ
+                // Сформируем объект для удобства:
+                let toObj = Object.assign({}, relevant.takeoff);
+                toObj.currentFriction = friction;
+                let ldObj = Object.assign({}, relevant.landing);
+                ldObj.currentFriction = friction;
+
+                let fallbackTO = reportedBrakingActions.takeoff.good;  // если что
+                let fallbackLD = reportedBrakingActions.landing.good;
+
+                takeoffMax = getCrosswindLimit('takeoff', toObj, fallbackTO);
+                landingMax = getCrosswindLimit('landing', ldObj, fallbackLD);
             }
+
+            // Теперь у нас есть takeoffMax = {kts:25,mps:12.9}, landingMax={...}.
+            // Выбираем, какой юнит использовать (MPS или kts) чтобы сравнивать корректно
+            // У нас скорость ветра (xwMainAbs) в unit === 'MPS' или 'KT'.
+            function getLimitInSameUnit(limitObj, unit) {
+                if (unit === 'MPS') return limitObj.mps;
+                return limitObj.kts;
+            }
+            const toLimit = getLimitInSameUnit(takeoffMax, unit);
+            const ldLimit = getLimitInSameUnit(landingMax, unit);
+
+            // В steady wind берём xwMainAbs, в порывах - xwGustAbs (худшее).
+            // Но по заданию: "если есть порывы, то брать порывы" для landing.
+            const usedXw = windGust ? xwGustAbs : xwMainAbs;  // чаще всего для "landing"
+            const ratio = (usedXw / ldLimit) * 100;
+            let xwColorClass = '';
+            if (ratio < 35) xwColorClass = 'color-green';
+            else if (ratio < 70) xwColorClass = 'color-yellow';
+            else if (ratio < 90) xwColorClass = 'color-red';
+            else xwColorClass = 'color-purple';
+
+            // Формируем строчку
+            content += `<strong>ВПП ${chosenName}</strong> (${formatNumber(chosen)}°):<br>`;
+
+            // Сама строка: HW / XW
+            content += `HW: ${hwMain.toFixed(1)} ${unit} `;
+            if (windGust) {
+                content += `(G:${hwGust.toFixed(1)}) `;
+            }
+            content += `, XW: <span class="${xwColorClass}">${usedXw.toFixed(1)} ${unit}</span><br>`;
+
+            // Можно добавить " (порыв)" или "(steady)" и т.д. — на твой вкус
+            content += `<small>(Limit T/O=${toLimit} ${unit}, LDG=${ldLimit} ${unit})</small><br><br>`;
+
+//            // Формируем строку
+//            content += `<strong>ВПП ${chosenName}</strong> (${formatNumber(chosen)}°):<br>`;
+//            if (windGust) {
+//                content += `HW: <b>${hwMain.toFixed(1)} ${unit}</b> (<i class="fa-solid fa-wind"></i> ${hwGust.toFixed(1)} ${unit}), `;
+//                content += `XW: <b>${Math.abs(xwMain).toFixed(1)} ${unit}</b> (<i class="fa-solid fa-wind"></i> ${xwGust ? Math.abs(xwGust).toFixed(1) : "-"} ${unit})<br><br>`;
+//            } else {
+//                content += `HW: <b>${hwMain.toFixed(1)} ${unit}</b>, `;
+//                content += `XW: <b>${Math.abs(xwMain).toFixed(1)} ${unit}</b><br><br>`;
+//            }
         }
 
-        // Показываем готовое
+        // После цикла
+        if (worstCond.kind === 'reported') {
+            content += `<hr><p><b>Состояние ВПП:</b> ${worstCond.category.toUpperCase()} (из reportedBrakingActions)</p>`;
+        } else {
+            content += `<hr><p><b>Коэффициент сцепления:</b> ${worstCond.frictionValue.toFixed(2)}
+            <br>(таблица: ${icao && icao[0]==='U' ? 'normative' : 'by_sft'})</p>`;
+        }
+
         showWindInfoModal(content);
     });
 

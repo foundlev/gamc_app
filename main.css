@@ -528,7 +528,6 @@ footer {
 
 .color-description {
     border: 2px solid rgb(231, 231, 231);
-    color: black;
     padding: 2px 4px;
     border-radius: 3px;
     cursor: pointer;
@@ -859,7 +858,6 @@ footer {
 
     .color-description {
         border: 2px solid rgb(77, 77, 77);
-        color: white;
     }
 
     .color-green {

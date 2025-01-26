@@ -192,6 +192,7 @@ const LAST_COUNT = 15;
 const SUGGESTIONS_COUNT = 7;
 
 let airportInfoDb = {};
+let icaoColors = {}; // { UUEE: {metarColor: "color-red", tafColor:"color-yellow"}, ... }
 
 // Загружаем базу аэродромов (icao, iata, geo[0]=название, geo[1]=страна)
 fetch('data/airports_db.json')
@@ -205,6 +206,16 @@ fetch('data/airports_db.json')
     .catch(err => {
         console.error('Не удалось загрузить airports_db.json:', err);
     });
+
+// Приоритет цветов от худшего к лучшему
+// (darkred и purple можно тоже расставить, если нужно)
+const colorPriority = [
+    "color-purple",  // считаем экстремально худшим
+    "color-darkred",
+    "color-red",
+    "color-yellow",
+    "color-green"
+];
 
 function formatNumber(num) {
     return String(num).padStart(3, '0');
@@ -782,6 +793,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 showAirportInfo(icao);
             }
 
+            // Создадим переменные
+            let metarWorstColor = null;
+            let tafWorstColor = null;
+
+            // Возьмём массив blockObjects (у вас он выше называется именно так),
+            // чтобы понять, какой из блоков METAR/SPECI, а какой TAF
+            blockObjects.forEach(block => {
+                if (block.type === "METAR" || block.type === "SPECI") {
+                    // Ищем худший цвет в block.text
+                    const color = detectWorstMetarOrSpeciColor(block.text);
+                    if (color) {
+                        // Сравниваем с текущим metarWorstColor
+                        metarWorstColor = compareWorstColor(metarWorstColor, color);
+                    }
+                } else if (block.type === "TAF") {
+                    // Ищем худший цвет в block.text (но без TEMPO/PROB)
+                    const color = detectWorstTafColor(block.text);
+                    if (color) {
+                        tafWorstColor = compareWorstColor(tafWorstColor, color);
+                    }
+                }
+            });
+
+            // Запишем в некий глобальный объект
+            // (объявите его где-нибудь наверху: let icaoColors = {}; )
+            if (!icaoColors[icao]) {
+                icaoColors[icao] = {};
+            }
+            icaoColors[icao].metarColor = metarWorstColor;
+            icaoColors[icao].tafColor   = tafWorstColor;
+
+            // В самом конце getWeather():
+            if (!silent) {
+                // Обновляем цвет кнопки, если она есть в "history"
+                applyIcaoButtonColors(icao);
+            }
+
         } catch (err) {
             responseContainer.textContent = 'Ошибка при запросе: ' + err;
         }
@@ -791,6 +839,33 @@ document.addEventListener('DOMContentLoaded', () => {
      * Функция, которая подменяет ключевые слова на HTML-теги
      * (bold или underline).
      */
+
+function applyIcaoButtonColors(icao) {
+    const colObj = icaoColors[icao];
+    if (!colObj) return; // нечего красить
+
+    let mc = colObj.metarColor || "color-green";
+    let tc = colObj.tafColor   || "color-green";
+
+    // Определяем, темна ли сейчас тема (пример).
+    // Если у вас есть собственный переключатель темы, можно обрабатывать его флаг.
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Получаем итоговые цвета
+    const metarBg = convertColorClassToBg(mc, isDark);
+    const tafBg   = convertColorClassToBg(tc, isDark);
+
+    // Ищем кнопку с таким же текстом
+    const buttons = document.querySelectorAll('.history button');
+    for (let btn of buttons) {
+        // Сравним textContent
+        if (btn.textContent.trim().toUpperCase() === icao) {
+            btn.style.background = `linear-gradient(to right, ${metarBg} 50%, ${tafBg} 50%)`;
+            btn.style.color      = "#fff";
+            break;
+        }
+    }
+}
 
 
     function insertLineBreaks(text) {
@@ -1050,6 +1125,26 @@ document.addEventListener('DOMContentLoaded', () => {
         history.forEach(icao => {
             const btn = document.createElement('button');
             btn.textContent = icao;
+
+            let colObj = icaoColors[icao];
+            if (colObj) {
+                // colObj.metarColor может быть "color-green", "color-yellow"...
+                // colObj.tafColor   может быть другое
+                const mc = colObj.metarColor || "color-green";
+                const tc = colObj.tafColor   || "color-green";
+
+                // Превратим эти классы в реальные цвета.
+                // Но можно чуть хитрее. Например, прописать в CSS класс .split-button[color-red][color-green] { background: ... }
+                // Но проще inline-стилями:
+                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                let metarBg = convertColorClassToBg(mc, isDark);
+                let tafBg   = convertColorClassToBg(tc, isDark);
+
+                btn.style.background = `linear-gradient(to right, ${metarBg} 50%, ${tafBg} 50%)`;
+                btn.style.color      = "#fff"; // если нужно
+                // Также можно обойтись без градиента, если хочется иконку или др. решение
+            }
+
             btn.addEventListener('click', () => {
                 icaoInput.value = icao;
                 nowIcao = icao;
@@ -2431,6 +2526,116 @@ document.addEventListener('DOMContentLoaded', () => {
         showSecondMenu = !showSecondMenu;
         updateMenuShow();
     });
+
+
+/**
+ * Возвращает "наихудший" класс из массива,
+ * глядя на порядок colorPriority.
+ * Если ни одного цвета нет — возвращаем null.
+ */
+function findWorstColor(classes) {
+    // classes — это массив вроде ["color-green", "color-red"] и т. п.
+    // Сортируем по убыванию плохости, берём первый
+    for (let badColor of colorPriority) {
+        if (classes.includes(badColor)) {
+            return badColor;
+        }
+    }
+    return null;
+}
+
+function compareWorstColor(currentWorst, newOne) {
+    // Если currentWorst ещё null, берём newOne
+    if (!currentWorst) return newOne;
+    // Иначе смотрим, кто "хуже" (purple или darkred, red, yellow, green)
+    // Можно переиспользовать findWorstColor:
+    const arr = [];
+    if (currentWorst) arr.push(currentWorst);
+    if (newOne)       arr.push(newOne);
+    return findWorstColor(arr);
+}
+
+function detectWorstMetarOrSpeciColor(rawText) {
+    // 1. Пропускаем через highlightKeywords
+    //    (но учтите, что insertLineBreaks() вы уже делали, если нужно)
+    let tmp = highlightKeywords(insertLineBreaks(rawText));
+
+    // 2. Парсим как HTML
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(tmp, 'text/html');
+
+    // 3. Ищем все спаны с классами color-green / color-red / color-yellow...
+    let allSpans = doc.querySelectorAll('span[class*="color-"]');
+
+    // Собираем все классы
+    let foundColors = [];
+    allSpans.forEach(sp => {
+        let cls = sp.classList;
+        // например [ 'color-green', 'wind-info' ]
+        let color = Array.from(cls).find(c => c.startsWith('color-'));
+        if (color) {
+            foundColors.push(color);
+        }
+    });
+    // В foundColors, например, ['color-green','color-red','color-yellow']
+
+    return findWorstColor(foundColors); // вернёт наихудший
+}
+
+function detectWorstTafColor(rawText) {
+    let tmp = highlightKeywords(insertLineBreaks(rawText));
+
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(tmp, 'text/html');
+
+    // Удаляем .tempo-line
+    doc.querySelectorAll('.tempo-line').forEach(el => el.remove());
+
+    // Дополнительно можно удалять строки с PROB30/PROB40.
+    // Если у вас всё PROB внутри .tempo-line — можно и не делать.
+    // Но, на всякий случай:
+    doc.querySelectorAll('span,u,div,p').forEach(el => {
+        if (el.textContent.includes("PROB30") || el.textContent.includes("PROB40")) {
+            el.remove();
+        }
+    });
+
+    // Теперь ищем
+    let allSpans = doc.querySelectorAll('span[class*="color-"]');
+    let foundColors = [];
+    allSpans.forEach(sp => {
+        let cls = sp.classList;
+        let color = Array.from(cls).find(c => c.startsWith('color-'));
+        if (color) {
+            foundColors.push(color);
+        }
+    });
+    return findWorstColor(foundColors);
+}
+
+function convertColorClassToBg(cls, isDark) {
+    if (isDark) {
+        // Темная тема, чуть приглушаем яркость
+        switch (cls) {
+            case "color-purple":  return "#7b3d7b";   // тёмно-фиолетовый
+            case "color-darkred": return "#4a0000";   // ещё темнее красный
+            case "color-red":     return "#803333";   // тёмно-красный
+            case "color-yellow":  return "#c57c1a";   // темноватый оранжево-жёлтый
+            case "color-green":   return "#3b7a3b";   // приглушённый зелёный
+            default: return "#555";                   // fallback
+        }
+    } else {
+        // Светлая тема
+        switch (cls) {
+            case "color-purple":  return "#c44ac4";
+            case "color-darkred": return "#5C0000";
+            case "color-red":     return "#b22222";
+            case "color-yellow":  return "#d88b16";
+            case "color-green":   return "#5eaf5e";
+            default: return "#a0a0a0";
+        }
+    }
+}
 
     setInterval(updateBadgesTimeAndColors, 15000);
 });

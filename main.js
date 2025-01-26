@@ -961,10 +961,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Если нет цветовых данных - ставим дефолт
         if (!colObj) {
-            btn.style.background = 'var(--col-default)';
             return;
         }
-
 
         // Проверяем, когда это обновлялось
         if (!colObj.updatedAt) {

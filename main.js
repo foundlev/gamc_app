@@ -192,7 +192,11 @@ const LAST_COUNT = 15;
 const SUGGESTIONS_COUNT = 7;
 
 let airportInfoDb = {};
-let icaoColors = {}; // { UUEE: {metarColor: "color-red", tafColor:"color-yellow"}, ... }
+// Вместо:
+// let icaoColors = {};
+
+let storedIcaoColors = JSON.parse(localStorage.getItem('icaoColors') || '{}');
+let icaoColors = storedIcaoColors;
 
 // Загружаем базу аэродромов (icao, iata, geo[0]=название, geo[1]=страна)
 fetch('data/airports_db.json')
@@ -824,48 +828,56 @@ document.addEventListener('DOMContentLoaded', () => {
             icaoColors[icao].metarColor = metarWorstColor;
             icaoColors[icao].tafColor   = tafWorstColor;
 
-            // В самом конце getWeather():
-            if (!silent) {
-                // Обновляем цвет кнопки, если она есть в "history"
-                applyIcaoButtonColors(icao);
+            localStorage.setItem('icaoColors', JSON.stringify(icaoColors));
+
+            const buttons = document.querySelectorAll('.history button');
+            let buttonInHistory = null;
+            for (const btn of buttons) {
+                if (btn.textContent.trim().toUpperCase() === icao.toUpperCase()) {
+                    buttonInHistory = btn;
+                    break;
+                }
             }
+
+            if (buttonInHistory) {
+                applyIcaoButtonColors(icao, buttonInHistory);
+            }
+
 
         } catch (err) {
             responseContainer.textContent = 'Ошибка при запросе: ' + err;
         }
     }
 
-    /**
-     * Функция, которая подменяет ключевые слова на HTML-теги
-     * (bold или underline).
-     */
-
-function applyIcaoButtonColors(icao) {
-    const colObj = icaoColors[icao];
-    if (!colObj) return; // нечего красить
-
-    let mc = colObj.metarColor || "color-green";
-    let tc = colObj.tafColor   || "color-green";
-
-    // Определяем, темна ли сейчас тема (пример).
-    // Если у вас есть собственный переключатель темы, можно обрабатывать его флаг.
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    // Получаем итоговые цвета
-    const metarBg = convertColorClassToBg(mc, isDark);
-    const tafBg   = convertColorClassToBg(tc, isDark);
-
-    // Ищем кнопку с таким же текстом
-    const buttons = document.querySelectorAll('.history button');
-    for (let btn of buttons) {
-        // Сравним textContent
-        if (btn.textContent.trim().toUpperCase() === icao) {
-            btn.style.background = `linear-gradient(to right, ${metarBg} 50%, ${tafBg} 50%)`;
-            btn.style.color      = "#fff";
-            break;
-        }
-    }
+function setButtonColorSplit(btn, metarColor, tafColor) {
+    btn.style.background =
+        `linear-gradient(to right, var(--col-${metarColor}) 50%, var(--col-${tafColor}) 50%)`;
 }
+
+
+function applyIcaoButtonColors(icao, btn) {
+    const colObj = icaoColors[icao];
+
+    // Если нет цветовых данных - ставим дефолт
+    if (!colObj) {
+        btn.style.background = 'var(--col-default)';
+        return;
+    }
+
+    // Обрабатываем metarColor / tafColor
+    const metarColor = colObj.metarColor
+        ? colObj.metarColor.replace('color-','')
+        : 'green';
+    const tafColor = colObj.tafColor
+        ? colObj.tafColor.replace('color-','')
+        : 'green';
+
+    // Функция, которая делает градиент «пополам»
+    setButtonColorSplit(btn, metarColor, tafColor);
+}
+
+
+
 
 
     function insertLineBreaks(text) {
@@ -1140,9 +1152,8 @@ function applyIcaoButtonColors(icao) {
                 let metarBg = convertColorClassToBg(mc, isDark);
                 let tafBg   = convertColorClassToBg(tc, isDark);
 
-                btn.style.background = `linear-gradient(to right, ${metarBg} 50%, ${tafBg} 50%)`;
-                btn.style.color      = "#fff"; // если нужно
-                // Также можно обойтись без градиента, если хочется иконку или др. решение
+                btn.classList.remove('color-green', 'color-yellow', 'color-red', 'color-purple', 'color-darkred');
+                applyIcaoButtonColors(icao, btn);
             }
 
             btn.addEventListener('click', () => {
@@ -1852,6 +1863,7 @@ function applyIcaoButtonColors(icao) {
                 getWeather(icao, false);
                 updateFetchBtn();
             });
+            applyIcaoButtonColors(icao, btn);
             historyContainer.appendChild(btn);
         });
     }

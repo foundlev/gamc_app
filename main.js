@@ -18,6 +18,8 @@ let nowIcao = null;
 let showSecondMenu = false;
 let icaoKeys = null;
 let worstRunwayFrictionCode = null; // например, 95, 92, 10..90, 99 или null
+// Храним поназванно коэффициенты фрикции (число от 10..95) или null, если нет данных
+let runwayFrictionMap = {};
 
 const reportedBrakingActions = {
     takeoff: {
@@ -239,9 +241,9 @@ function getWorstRunwayCondition(icao) {
     // Если ничего не нашли при разборе, возвращаем "good" из reportedBrakingActions
     if (worstRunwayFrictionCode === null) {
         return {
-            kind: 'reported', // reportedBrakingActions
-            category: 'good', // ключ good, medium etc.
-            frictionValue: null // нет точного числа
+            kind: 'reported',
+            category: 'good',
+            frictionValue: null
         };
     }
 
@@ -523,6 +525,39 @@ document.addEventListener('DOMContentLoaded', () => {
         addTimeBadgeContainerBottomGap();
     }
 
+    function resolveOppositeFriction(icao) {
+        // Пройдёмся по runwayFrictionMap
+        // ищем каждую полосу и её «парную» (06L <-> 24R).
+        // Если у одной есть фрикция, а у другой null, то копируем.
+        if (!airportInfoDb[icao] || !airportInfoDb[icao].runways) return;
+
+        for (let rwyName in runwayFrictionMap) {
+            let frictionValue = runwayFrictionMap[rwyName];
+            let oppName = findOppositeRunway(icao, rwyName);
+            if (!runwayFrictionMap[oppName]) {
+                // Если у противоположной нет данных, копируем
+                runwayFrictionMap[oppName] = frictionValue;
+            } else if (!frictionValue) {
+                // Если у "текущей" нет, а у oppName есть
+                runwayFrictionMap[rwyName] = runwayFrictionMap[oppName];
+            }
+        }
+    }
+
+    function findWorstRunwayFriction(icao) {
+        // Собираем все не-null значения
+        let values = Object.keys(runwayFrictionMap)
+            .filter(k => runwayFrictionMap[k] !== null)
+            .map(k => runwayFrictionMap[k]);
+        if (values.length === 0) {
+            // совсем нет данных => пусть будет null
+            return null;
+        }
+        // Находим минимальное
+        let minVal = Math.min(...values); // 10..95
+        return minVal;
+    }
+
     savePasswordBtn.addEventListener('click', () => {
         const pwd = modalPassword.value.trim();
         if (!pwd) {
@@ -791,6 +826,11 @@ document.addEventListener('DOMContentLoaded', () => {
             finalText = insertLineBreaks(finalText);
             if (doHighlight) {
                 finalText = highlightKeywords(finalText);
+                // 1) Уравняем фрикцию противоположных полос:
+                resolveOppositeFriction(icao);
+
+                // 2) Найдем худшую фрикцию (минимальную) среди всех ВПП
+                worstRunwayFrictionCode = findWorstRunwayFriction(icao);
             }
 
             if (!finalText.includes("НЕТ В КАТАЛОГЕ,ОБРАЩАЙТЕСЬ К СИНОПТИКУ=")) {
@@ -999,33 +1039,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // frictionNum может быть от 10 до 99, либо NaN
 
             if (!isNaN(frictionNum) && frictionNum >= 10 && frictionNum <= 99) {
-                // У нас есть код состояния (10..95, 99). Сохраним «минимальный», то есть «худший».
-                // 99 = ненадёжное измерение, 91..95 = определённые состояния, 10..90 → это 0.xx
-                // "Хуже" = меньше, но нужно аккуратно, т.к. 91..95 "лучше", чем 90 => 0.90 :)
-                // Проще перевести всё в "псевдо-число" чтобы сравнивать одинаково:
-                // 91→0.1(плохой), 95→0.5(хороший), 99 оставим как 0.01(ещё хуже?), но на практике 99 = "ненадёжное".
-                // Но проще сравнить напрямую через decode.
-                // Здесь для простоты — запомним чистый frictionNum, а потом будем расшифровывать.
+                // Вместо записи в worstRunwayFrictionCode
+                // запоминаем отдельное значение фрикции для runway rwy:
 
-                if (worstRunwayFrictionCode === null) {
-                    worstRunwayFrictionCode = frictionNum;
-                } else {
-                    // "худшее" = наименьшее значение, но учитываем диапазон 91..95
-                    // (91=плохой, 95=хороший). Т. е. 91 реально хуже, чем 90? Нет, 90 = 0.90, а 91 = "0.91"?
-                    // Но в таблице 91→"плохой".
-                    // Упростим — кто меньше, тот хуже, кроме 99 (оно самое ненадёжное, будем считать его "самым худшим").
-                    // Значит если frictionNum === 99, считаем это "худшее" из всех.
-
-                    if (frictionNum === 99) {
-                        worstRunwayFrictionCode = 99;
-                    } else if (worstRunwayFrictionCode === 99) {
-                        // если уже 99, оставляем как есть
-                    } else {
-                        // иначе сравниваем по <
-                        if (frictionNum < worstRunwayFrictionCode) {
-                            worstRunwayFrictionCode = frictionNum;
-                        }
-                    }
+                if (!runwayFrictionMap[rwy]) {
+                    runwayFrictionMap[rwy] = frictionNum === 99 ? null : frictionNum;
                 }
             }
 

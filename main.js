@@ -912,14 +912,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Запишем в некий глобальный объект
             // (объявите его где-нибудь наверху: let icaoColors = {}; )
-            if (!icaoColors[icao]) {
-                icaoColors[icao] = {};
-            }
-            icaoColors[icao].metarColor = metarWorstColor;
-            icaoColors[icao].tafColor = tafWorstColor;
-            icaoColors[icao].updatedAt = new Date().toISOString();
 
-            localStorage.setItem('icaoColors', JSON.stringify(icaoColors));
+            if (!toShowOfflineWarning) {
+                if (!icaoColors[icao]) {
+                    icaoColors[icao] = {};
+                }
+                icaoColors[icao].metarColor = metarWorstColor;
+                icaoColors[icao].tafColor = tafWorstColor;
+                icaoColors[icao].updatedAt = new Date().toISOString();
+
+                localStorage.setItem('icaoColors', JSON.stringify(icaoColors));
+            }
 
             const buttons = document.querySelectorAll('.history button');
             let buttonInHistory = null;

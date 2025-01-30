@@ -2882,7 +2882,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function detectWorstMetarOrSpeciColor(rawText) {
         // 1. Пропускаем через highlightKeywords
         //    (но учтите, что insertLineBreaks() вы уже делали, если нужно)
-        let tmp = highlightKeywords(insertLineBreaks(rawText));
+        const mainPart = rawText.split(/\s+(?=TEMPO|BECMG|PROB30|PROB40)/i)[0];
+        let tmp = highlightKeywords(insertLineBreaks(mainPart));
 
         // 2. Парсим как HTML
         let parser = new DOMParser();

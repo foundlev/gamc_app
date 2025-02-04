@@ -859,12 +859,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             finalText = insertLineBreaks(finalText);
             if (doHighlight) {
-                finalText = highlightKeywords(finalText);
-                // 1) Уравняем фрикцию противоположных полос:
+                // Сначала синхронизируем фрикцию по противоположным полосам
                 resolveOppositeFriction(icao);
-
-                // 2) Найдем худшую фрикцию (минимальную) среди всех ВПП
+                // Затем вычисляем худшую фрикцию (измеренную)
                 worstRunwayFrictionCode = findWorstRunwayFriction(icao);
+                // После этого выполняем подсветку, которая теперь будет учитывать измеренный коэффициент
+                finalText = highlightKeywords(finalText);
             }
 
             if (!finalText.includes("НЕТ В КАТАЛОГЕ,ОБРАЩАЙТЕСЬ К СИНОПТИКУ=")) {
@@ -1157,8 +1157,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 4) Переводим landingLimit в такие же единицы
                 let limit = (unit === 'MPS') ? landingLimitMps : landingLimitKts;
 
-                // 5) Считаем ratio
-                let ratio = (usedWind / limit) * 100;
+                // Добавляем функцию для нормализации угла, если её нет
+                function normalize(angle) {
+                    let a = angle % 360;
+                    return (a < 0) ? a + 360 : a;
+                }
+
+                const declination = (airportInfoDb[nowIcao] && airportInfoDb[nowIcao].declination) || 0;
+                const windDirInt = (dir === "VRB") ? null : parseInt(dir, 10);
+                let ratio = 0;
+                if (windDirInt !== null && airportInfoDb[nowIcao] && airportInfoDb[nowIcao].runways) {
+                    const windDirMag = normalize(windDirInt - declination);
+                    let worstCrosswindRatio = 0;
+                    // Перебираем все полосы аэродрома
+                    Object.entries(airportInfoDb[nowIcao].runways).forEach(([rwyName, rwyData]) => {
+                        const runwayHeading = rwyData.hdg;
+                        // Разница между направлением ветра (магнитное) и курсом ВПП
+                        let diffAngle = Math.abs(normalize(windDirMag - runwayHeading));
+                        if (diffAngle > 180) diffAngle = 360 - diffAngle;
+                        // Вычисляем боковой компонент
+                        const crosswind = usedWind * Math.sin(diffAngle * Math.PI / 180);
+                        const candidateRatio = (Math.abs(crosswind) / limit) * 100;
+                        if (candidateRatio > worstCrosswindRatio) {
+                            worstCrosswindRatio = candidateRatio;
+                        }
+                    });
+                    ratio = worstCrosswindRatio;
+                } else {
+                    // Если данных о ВПП нет — используем общий подход
+                    ratio = (usedWind / limit) * 100;
+                }
 
                 // 6) Выбираем цвет
                 //    <35% = green
@@ -1166,13 +1194,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 //    70..90 = red
                 //    >=90 = purple
                 //   (в 35..40 остаётся без цвета)
-                let colorClass = getWorstCrosswindColor(
-                    nowIcao, // если в highlightKeywords нет nowIcao, см. примечание ниже
-                    dir,
-                    speedStr,
-                    gustStr || '',
-                    unit
-                );
+                // 6) Выбираем цвет на основе рассчитанного ratio
+                let colorClass = '';
+                if (ratio < 40) {
+                    colorClass = 'color-green';
+                } else if (ratio >= 40 && ratio < 70) {
+                    colorClass = 'color-yellow';
+                } else if (ratio >= 70 && ratio < 90) {
+                    colorClass = 'color-red';
+                } else if (ratio >= 90) {
+                    colorClass = 'color-purple';
+                }
+
                 //                let colorClass = '';
                 //                if (ratio < 40) {
                 //                    colorClass = 'color-green';

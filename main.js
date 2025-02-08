@@ -21,6 +21,13 @@ let worstRunwayFrictionCode = null; // например, 95, 92, 10..90, 99 ил
 // Храним поназванно коэффициенты фрикции (число от 10..95) или null, если нет данных
 let runwayFrictionMap = {};
 
+// 35
+const airportsB = ['EPKK', 'LTAF', 'ZPPP', 'LTDB', 'ZLLL', 'LCLK', 'UAAA', 'KLAS', 'LFLL', 'KLAX', 'FMMI', 'UHMM', 'USCM', 'VAAH', 'LEBL', 'KMIA', 'VMMC', 'LEMG', 'RPLL', 'SBBR', 'OOMS', 'LEVC', 'URML', 'MUVR', 'URMM', 'LIPX', 'HKMO', 'UHWW', 'DTMB', 'URMO', 'CYUL', 'EGKK', 'VABB', 'VHHH', 'GCLP', 'URMN', 'URMG', 'UTFN', 'ZGGG', 'UOOO', 'UACC', 'VVDN', 'HTDA', 'KONT', 'WADD', 'KMCO', 'KDTW', 'RJBB', 'CYOW', 'HTZA', 'LTBJ', 'LFPG', 'LFPO', 'UCFL', 'ULMK', 'ZBAA', 'OPPS', 'RJTT', 'UNTT', 'VTSP', 'CYYZ', 'LTCG', 'SBRF', 'DTTA', 'LIRF', 'ZMCK', 'LIPR', 'UIUU', 'SBGL', 'VTBU', 'URRP', 'UTFF', 'GVAC', 'KPHL', 'SBSV', 'EDDF', 'UTSS', 'VVNB', 'KSAN', 'ZSHC', 'ZJSY', 'UTDL', 'SBGR', 'KSFO', 'RKSI', 'RKPC', 'ZLXY', 'VOMM', 'URMS', 'UIAA', 'LBSF', 'ZUUU', 'KTPA', 'ZYTX', 'UUEE', 'DTNH', 'GCTS', 'UTST']
+// 98
+const airportsBz = ['GMAD', 'LEAL', 'OJAI', 'LTAC', 'EGLL', 'LTAI', 'LGAV', 'LEMD', 'OLBA', 'UCFM', 'UHBB', 'LIMC', 'LOWW', 'ULMM', 'UNBG', 'UTSA', 'UBBG', 'LLOV', 'UDYZ', 'LSGG', 'UCFO', 'LEPA', 'UIII', 'LCPH', 'BIKF', 'LBPD', 'BIRK', 'HEGN', 'LSZH', 'LTBA', 'HESH', 'UGTB', 'OIIE', 'LLBG', 'UHSS']
+// 37
+const airportsC = ['OJAQ', 'FIMP', 'UHMA', 'LFML', 'LFKJ', 'LTFE', 'LIME', 'MMMX', 'RKPK', 'LIRN', 'URKG', 'LFMN', 'LFLS', 'KJFK', 'LTBS', 'UHPP', 'LDDU', 'LYPG', 'UTDD', 'LGTS', 'LOWS', 'FSIA', 'LOWI', 'URSS', 'LGIR', 'LDSP', 'LKKV', 'ZBYN', 'VNKT', 'OIII', 'LGKR', 'LYTV', 'UTDK', 'LIMF', 'LJLJ', 'LFLB', 'LTCE']
+
 const reportedBrakingActions = {
     takeoff: {
         dry: {
@@ -225,6 +232,44 @@ const colorPriority = [
 
 function formatNumber(num) {
     return String(num).padStart(3, '0');
+}
+
+function getAirportIconClass(icaoCode) {
+    if (airportsB.includes(icaoCode)) {
+        return '<i class="fa-solid fa-b"></i>'
+    } else if (airportsBz.includes(icaoCode)) {
+        return '<i class="fa-solid fa-b"></i>*'
+    } else if  (airportsC.includes(icaoCode)) {
+        return '<i class="fa-solid fa-c"></i>'
+    }
+    return '<i class="fa-solid fa-a"></i>'
+}
+
+function getAirportColorClass(icaoCode) {
+    if (airportsB.includes(icaoCode)) {
+        return 'badge-green'
+    } else if (airportsBz.includes(icaoCode)) {
+        return 'badge-orange'
+    } else if  (airportsC.includes(icaoCode)) {
+        return 'badge-red'
+    }
+    return 'badge-green'
+}
+
+function getAirportClassInfoText(icaoCode) {
+    let infoText =  `Аэродроме <b>${icaoCode}</b> относится к категории <b>`;
+    if (airportsB.includes(icaoCode)) {
+        infoText += `B</b>.<br><br>Нет ограничений.`
+        return infoText
+    } else if (airportsBz.includes(icaoCode)) {
+        infoText += `B*</b>.<br><br>Пилотирование ВП на посадке без КВС инструктора в контуре управления <b>запрещено</b>.`
+        return infoText
+    } else if  (airportsC.includes(icaoCode)) {
+        infoText += `C</b>.<br><br>Пилотирование ВП <b>запрещено</b>.`
+        return infoText
+    }
+    infoText += `A</b>. Нет ограничений.`
+    return infoText
 }
 
 function isRussianAirport(icaoCode) {
@@ -839,6 +884,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
+
+            const airportClassBadge = document.createElement('div');
+            airportClassBadge.className = 'time-badge';
+            airportClassBadge.id = 'showMaintenanceInfoModal';
+            airportClassBadge.classList.add(getAirportColorClass(nowIcao));
+            airportClassBadge.classList.add('content-clickable');
+            airportClassBadge.innerHTML = getAirportIconClass(nowIcao);
+
+            airportClassBadge.addEventListener('click', () => {
+                showMaintenanceInfoModal(getAirportClassInfoText(nowIcao));
+            });
+
+            if (!silent) {
+                timeBadgeContainer.appendChild(airportClassBadge);
+            }
 
             if (airportMaintenanceCodes.includes(icao)) {
                 const maintenanceBadge = document.createElement('div');

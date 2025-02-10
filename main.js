@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Селекторы
     const icaoInput = document.getElementById('icao');
     const fetchBtn = document.getElementById('fetchBtn');
-    const calcBtn = document.getElementById('calcBtn');
+    const gpsBtn = document.getElementById('gpsBtn');
     const aiBtn = document.getElementById('aiBtn');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
     const removeSavedIcaosBtn = document.getElementById('removeSavedIcaos');
@@ -497,10 +497,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (icao.length === 4) {
             fetchBtn.disabled = false;
-            calcBtn.disabled = false;
         } else {
             fetchBtn.disabled = true;
-            calcBtn.disabled = true;
         }
     }
 
@@ -997,7 +995,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyIcaoButtonColors(icao, buttonInHistory);
             }
 
-
+            updateGpsButton();
         } catch (err) {
             responseContainer.textContent = 'Ошибка при запросе: ' + err;
         }
@@ -1299,6 +1297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         icaoInput.value = icao;
         getWeather(icao, false);
         updateFetchBtn();
+        updateGpsButton();
 
         // --- добавляешь это ---
         const suggestionsContainer = document.getElementById('icaoSuggestions');
@@ -1928,7 +1927,16 @@ document.addEventListener('DOMContentLoaded', () => {
         offlineMode = !offlineMode;
         localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
         updateOfflineButton();
+        updateGpsButton();
     });
+
+    function updateGpsButton() {
+        if (nowIcao && nowIcao.length === 4 && !offlineMode) {
+            gpsBtn.disabled = false;
+        } else {
+            gpsBtn.disabled = true;
+        }
+    }
 
     function checkInternetConnection() {
         if (!navigator.onLine && !offlineMode && autoGoOffline) {
@@ -2289,14 +2297,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (showSecondMenu) {
             zoomInBtn.hidden = true;
             zoomOutBtn.hidden = true;
-            calcBtn.hidden = false;
+            gpsBtn.hidden = false;
             aiBtn.hidden = false;
             refreshAllBtn.hidden = false;
             settingsBtn.hidden = true;
         } else {
             zoomInBtn.hidden = false;
             zoomOutBtn.hidden = false;
-            calcBtn.hidden = true;
+            gpsBtn.hidden = true;
             aiBtn.hidden = true;
             refreshAllBtn.hidden = true;
             settingsBtn.hidden = false;
@@ -2647,13 +2655,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const calcModalBackdrop = document.getElementById('calcModalBackdrop');
     const closeCalcModalBtn = document.getElementById('closeCalcModalBtn');
 
-    calcBtn.addEventListener('click', () => {
-        if (!nowIcao) {
-            alert('Сначала введите ICAO аэродрома!');
-            return;
-        }
-        showCalcModal(nowIcao);
-    });
+//    gpsBtn.addEventListener('click', () => {
+//        if (!nowIcao) {
+//            alert('Сначала введите ICAO аэродрома!');
+//            return;
+//        }
+//        showCalcModal(nowIcao);
+//    });
 
     closeCalcModalBtn.addEventListener('click', hideCalcModal);
 
@@ -3068,6 +3076,33 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    // Найдите сразу после других обработчиков внутри document.addEventListener('DOMContentLoaded', ...)
+    const gpsModalBackdrop = document.getElementById('gpsModalBackdrop');
+    const gpsIframe = document.getElementById('gpsIframe');
+    const closeGpsModalBtn = document.getElementById('closeGpsModalBtn');
+    
+    gpsBtn.addEventListener('click', () => {
+        // Устанавливаем адрес в iframe
+        const now = new Date();
+        const yesterday = new Date(now.getTime() - 86400000); // 86400000 мс = 24 часа
+        const year = yesterday.getFullYear();
+        const month = String(yesterday.getMonth() + 1).padStart(2, '0');
+        const day = String(yesterday.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+
+        const airport = airportInfoDb[nowIcao];
+        gpsIframe.src = `https://gpsjam.org/?lat=${airport.latitude}&lon=${airport.longitude}&z=7&date=${dateStr}`;
+
+        // Показываем модальное окно, добавляя класс "show"
+        gpsModalBackdrop.classList.add('show');
+    });
+    
+    closeGpsModalBtn.addEventListener('click', () => {
+        // Скрываем модальное окно и очищаем src, чтобы остановить загрузку сайта
+        gpsModalBackdrop.classList.remove('show');
+        gpsIframe.src = "";
+    });
 
     updateMenuShow();
     setInterval(updateBadgesTimeAndColors, 15000);

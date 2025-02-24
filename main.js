@@ -2599,36 +2599,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function startBatchRefresh(aerodromes) {
-        // Показываем модалку прогресса
         showBatchRefreshModal();
-
-        batchRefreshInfo.textContent = `Аэродромов: ${aerodromes.length}`;
+        const total = aerodromes.length;
+        batchRefreshInfo.textContent = `Аэродромов: ${total}`;
         batchRefreshProgress.style.width = '0%';
         batchRefreshCurrentIcao.textContent = '...';
 
-        for (let i = 0; i < aerodromes.length; i++) {
-            const icao = aerodromes[i];
-            // Обновляем прогресс (в %)
-            const percent = Math.round(((i) / aerodromes.length) * 100);
+        const batchSize = 10; // количество запросов одновременно
+        for (let i = 0; i < total; i += batchSize) {
+            // Берём батч из 10 аэродромов (или меньше, если оставшихся меньше 10)
+            const batch = aerodromes.slice(i, i + batchSize);
+            // Обновляем текущий статус: показываем аэродромы из текущего батча
+            batchRefreshCurrentIcao.textContent = `Обновляются: ${batch.join(', ')}`;
+
+            // Отправляем запросы асинхронно в рамках батча и ждем, пока все завершатся
+            await Promise.all(batch.map(icao => getWeather(icao, true, true)));
+
+            // Обновляем прогресс
+            const percent = Math.round(((i + batch.length) / total) * 100);
             batchRefreshProgress.style.width = percent + '%';
 
-            // Показываем текущий ICAO
-            batchRefreshCurrentIcao.textContent = `Обновляется: ${icao || '...'}`;
-
-            // Асинхронно вызываем getWeather(icao, true), но не отключаем offlineMode
-            // потому что в offline смысла нет? Считаем, что getWeather всё же сходит в сеть
-            await getWeather(icao, /* isRefresh = */ true, /* silent = */ true);
-
-            // Небольшая задержка, чтобы анимация прогресса успевала отображаться
-            // (необязательно)
+            // Небольшая задержка между батчами для плавности (необязательно)
             await new Promise(r => setTimeout(r, 400));
         }
 
-        // Финальная установка 100%
         batchRefreshProgress.style.width = '100%';
-        batchRefreshCurrentIcao.textContent = `Готово!`;
-
-        // Например, через 1 секунду — закрываем модалку
+        batchRefreshCurrentIcao.textContent = 'Готово!';
         setTimeout(() => {
             hideBatchRefreshModal();
         }, 1000);

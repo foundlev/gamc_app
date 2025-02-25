@@ -1048,6 +1048,10 @@ footer {
     .tempo-line .color-description.color-purple {
         color: white;
     }
+
+    #gamcUidContainer #gamcUidInput {
+        background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+    }
 }
 
 .original-link {
@@ -1604,4 +1608,53 @@ button[hidden] {
     max-height: 90%;
     height: 90%;
     padding: 0;
+}
+
+/* Стили для блока редактирования GAMC UID в настройках */
+#gamcUidContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;              /* как у других кнопок */
+    height: 38px;            /* примерно такая же высота, как у кнопок */
+    background-color: var(--accent-color);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: default;
+}
+
+#gamcUidContainer input {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    text-align: center;
+    flex: 1;
+    padding: 9px;
+    background: linear-gradient(135deg, #ffffff, #f7f9fc);
+    text-transform: uppercase;  /* все символы сразу переводятся в верхний регистр */
+}
+
+#gamcUidContainer input[readonly] {
+    opacity: 0.6;          /* когда поле не редактируется, выглядит блекло */
+}
+
+#gamcUidContainer button {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    width: 38px;
+    height: 38px;
+}
+
+.modal #gamcUidInput {
+    margin: 0;
+    margin-left: 1px;
+}
+
+#gamcUidContainer button:focus {
+    outline: none;
 }

@@ -1051,9 +1051,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setButtonColorSplit(btn, metarColor, tafColor);
     }
 
-
-
-
     function insertLineBreaks(text) {
         // Вставляем перенос строки перед PROB40 и PROB30
         text = text.replace(/\b(PROB40|PROB30)\b/g, '\n$1');
@@ -3098,6 +3095,46 @@ document.addEventListener('DOMContentLoaded', () => {
         // Скрываем модальное окно и очищаем src, чтобы остановить загрузку сайта
         gpsModalBackdrop.classList.remove('show');
         gpsIframe.src = "";
+    });
+
+    // Логика для редактирования gamcUid
+    const gamcUidInput = document.getElementById('gamcUidInput');
+    const editGamcUidBtn = document.getElementById('editGamcUidBtn');
+
+    // Функция для загрузки текущего gamcUid (использует уже существующую функцию getGamcUID)
+    function loadGamcUid() {
+        gamcUidInput.value = getGamcUID();
+    }
+    loadGamcUid();
+
+    let isEditingGamcUid = false;
+    editGamcUidBtn.addEventListener('click', () => {
+        if (!isEditingGamcUid) {
+            // Переключаемся в режим редактирования
+            gamcUidInput.removeAttribute('readonly');
+            gamcUidInput.style.opacity = '1';
+            gamcUidInput.focus();
+            editGamcUidBtn.innerHTML = '<i class="fas fa-save"></i>';
+            isEditingGamcUid = true;
+        } else {
+            // При сохранении проверяем: должно быть ровно 6 символов (A-Z и цифры)
+            let newUid = gamcUidInput.value.trim().toUpperCase();
+            if (/^[A-Z0-9]{6}$/.test(newUid)) {
+                localStorage.setItem('gamcUid', newUid);
+                gamcUidInput.value = newUid;
+                gamcUidInput.setAttribute('readonly', true);
+                gamcUidInput.style.opacity = '0.6';
+                editGamcUidBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+                isEditingGamcUid = false;
+            } else {
+                alert('Введите корректный шестизначный код (только заглавные латинские буквы и цифры)');
+            }
+        }
+    });
+
+    // Автоматически переводим вводимые символы в верхний регистр
+    gamcUidInput.addEventListener('input', () => {
+        gamcUidInput.value = gamcUidInput.value.toUpperCase();
     });
 
     updateMenuShow();

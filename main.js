@@ -22,7 +22,7 @@ let worstRunwayFrictionCode = null; // например, 95, 92, 10..90, 99 ил
 let runwayFrictionMap = {};
 
 // 35
-const airportsB = ['EPKK', 'LTAF', 'ZPPP', 'LTDB', 'ZLLL', 'LCLK', 'UAAA', 'KLAS', 'LFLL', 'KLAX', 'FMMI', 'UHMM', 'USCM', 'VAAH', 'LEBL', 'KMIA', 'VMMC', 'LEMG', 'RPLL', 'SBBR', 'OOMS', 'LEVC', 'URML', 'MUVR', 'URMM', 'LIPX', 'HKMO', 'UHWW', 'DTMB', 'URMO', 'CYUL', 'EGKK', 'VABB', 'VHHH', 'GCLP', 'URMN', 'URMG', 'UTFN', 'ZGGG', 'UOOO', 'UACC', 'VVDN', 'HTDA', 'KONT', 'WADD', 'KMCO', 'KDTW', 'RJBB', 'CYOW', 'HTZA', 'LTBJ', 'LFPG', 'LFPO', 'UCFL', 'ULMK', 'ZBAA', 'OPPS', 'RJTT', 'UNTT', 'VTSP', 'CYYZ', 'LTCG', 'SBRF', 'DTTA', 'LIRF', 'ZMCK', 'LIPR', 'UIUU', 'SBGL', 'VTBU', 'URRP', 'UTFF', 'GVAC', 'KPHL', 'SBSV', 'EDDF', 'UTSS', 'VVNB', 'KSAN', 'ZSHC', 'ZJSY', 'UTDL', 'SBGR', 'KSFO', 'RKSI', 'RKPC', 'ZLXY', 'VOMM', 'URMS', 'UIAA', 'LBSF', 'ZUUU', 'KTPA', 'ZYTX', 'UUEE', 'DTNH', 'GCTS', 'UTST']
+const airportsB = ['VVCR', 'EPKK', 'LTAF', 'ZPPP', 'LTDB', 'ZLLL', 'LCLK', 'UAAA', 'KLAS', 'LFLL', 'KLAX', 'FMMI', 'UHMM', 'USCM', 'VAAH', 'LEBL', 'KMIA', 'VMMC', 'LEMG', 'RPLL', 'SBBR', 'OOMS', 'LEVC', 'URML', 'MUVR', 'URMM', 'LIPX', 'HKMO', 'UHWW', 'DTMB', 'URMO', 'CYUL', 'EGKK', 'VABB', 'VHHH', 'GCLP', 'URMN', 'URMG', 'UTFN', 'ZGGG', 'UOOO', 'UACC', 'VVDN', 'HTDA', 'KONT', 'WADD', 'KMCO', 'KDTW', 'RJBB', 'CYOW', 'HTZA', 'LTBJ', 'LFPG', 'LFPO', 'UCFL', 'ULMK', 'ZBAA', 'OPPS', 'RJTT', 'UNTT', 'VTSP', 'CYYZ', 'LTCG', 'SBRF', 'DTTA', 'LIRF', 'ZMCK', 'LIPR', 'UIUU', 'SBGL', 'VTBU', 'URRP', 'UTFF', 'GVAC', 'KPHL', 'SBSV', 'EDDF', 'UTSS', 'VVNB', 'KSAN', 'ZSHC', 'ZJSY', 'UTDL', 'SBGR', 'KSFO', 'RKSI', 'RKPC', 'ZLXY', 'VOMM', 'URMS', 'UIAA', 'LBSF', 'ZUUU', 'KTPA', 'ZYTX', 'UUEE', 'DTNH', 'GCTS', 'UTST']
 // 98
 const airportsBz = ['GMAD', 'LEAL', 'OJAI', 'LTAC', 'EGLL', 'LTAI', 'LGAV', 'LEMD', 'OLBA', 'UCFM', 'UHBB', 'LIMC', 'LOWW', 'ULMM', 'UNBG', 'UTSA', 'UBBG', 'LLOV', 'UDYZ', 'LSGG', 'UCFO', 'LEPA', 'UIII', 'LCPH', 'BIKF', 'LBPD', 'BIRK', 'HEGN', 'LSZH', 'LTBA', 'HESH', 'UGTB', 'OIIE', 'LLBG', 'UHSS']
 // 37
@@ -2323,8 +2323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title,
             message,
             () => {
-                // Пока заглушка
-                console.log('Делаем выгрузку: заглушка');
+                doUpload();
             },
             'var(--badge-orange-bg)' // Можно поставить любой цвет для "Да"
         );
@@ -2339,12 +2338,121 @@ document.addEventListener('DOMContentLoaded', () => {
             title,
             message,
             () => {
-                // Пока заглушка
-                console.log('Делаем загрузку: заглушка');
+                doDownload();
             },
             'var(--badge-orange-bg)'
         );
     });
+
+    function showResultModal(title, message) {
+        const backdrop = document.getElementById('resultModalBackdrop');
+        const titleEl = document.getElementById('resultModalTitle');
+        const msgEl = document.getElementById('resultModalMessage');
+
+        titleEl.textContent = title;
+        msgEl.textContent = message; // или .innerHTML = ... если хотим HTML
+
+        backdrop.classList.add('show');
+    }
+
+    function hideResultModal() {
+        const backdrop = document.getElementById('resultModalBackdrop');
+        backdrop.classList.remove('show');
+    }
+
+    // Событие закрытия (по кнопке)
+    document.getElementById('closeResultModalBtn').addEventListener('click', hideResultModal);
+    document.getElementById('resultOkBtn').addEventListener('click', hideResultModal);
+
+    // Дополнительно, если хотите закрывать по клику вне модалки
+    document.getElementById('resultModalBackdrop').addEventListener('click', (e) => {
+        if (e.target.id === 'resultModalBackdrop') {
+            hideResultModal();
+        }
+    });
+
+    async function doUpload() {
+        // 1) Формируем тело запроса для отправки
+        const password = localStorage.getItem('gamcPassword') || '';
+        const gamcUid = localStorage.getItem('gamcUid') || '';
+
+        // Собираем нужные ключи localStorage
+        const icaoData = localStorage.getItem('icaoData') || '{}';
+        const icaoHistory = localStorage.getItem('icaoHistory') || '[]';
+        const savedRoutes = localStorage.getItem('savedRoutes') || '[]';
+        const icaoColors = localStorage.getItem('icaoColors') || '{}';
+
+        const payload = {
+            action: 'upload',
+            password: password,
+            gamcUid: gamcUid,
+            icaoData: icaoData,
+            icaoHistory: icaoHistory,
+            savedRoutes: savedRoutes,
+            icaoColors: icaoColors
+        };
+
+        // 2) Делаем POST-запрос к вашему `api.php`
+        try {
+            const resp = await fetch('https://myapihelper.na4u.ru/gamc_app/api.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const text = await resp.text(); // Ответ в текстовом формате
+            // 3) Если всё ОК, показываем окно с результатом
+            showResultModal('Выгрузка завершена', text);
+        } catch (err) {
+            console.error('Ошибка при выгрузке:', err);
+            showResultModal('Ошибка при выгрузке', String(err));
+        }
+    }
+
+    async function doDownload() {
+        // 1) Формируем GET-параметры
+        const password = localStorage.getItem('gamcPassword') || '';
+        const gamcUid = localStorage.getItem('gamcUid') || '';
+
+        const payload = {
+            action: 'download',
+            password: password,
+            gamcUid: gamcUid
+        };
+
+        // 2) Делаем запрос
+        try {
+            const resp = await fetch('https://myapihelper.na4u.ru/gamc_app/api.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            if (!resp.ok) {
+                let text = await resp.text();
+                throw new Error(text || resp.statusText);
+            }
+            const serverData = await resp.json(); // ожидаем JSON
+
+            // 3) serverData = { icaoData, icaoHistory, savedRoutes, icaoColors, ... }
+            if (serverData.icaoData) {
+                localStorage.setItem('icaoData', serverData.icaoData);
+            }
+            if (serverData.icaoHistory) {
+                localStorage.setItem('icaoHistory', serverData.icaoHistory);
+            }
+            if (serverData.savedRoutes) {
+                localStorage.setItem('savedRoutes', serverData.savedRoutes);
+            }
+            if (serverData.icaoColors) {
+                localStorage.setItem('icaoColors', serverData.icaoColors);
+            }
+
+            showResultModal('Загрузка завершена', 'Данные с сервера приняты и сохранены в Local Storage.');
+        } catch (err) {
+            console.error('Ошибка при загрузке:', err);
+            showResultModal('Ошибка при загрузке', String(err));
+        }
+    }
 
     document.getElementById('icaoSuggestions').addEventListener('click', (e) => {
         const li = e.target.closest('li');

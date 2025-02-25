@@ -2007,25 +2007,29 @@ document.addEventListener('DOMContentLoaded', () => {
             let alternatesList = alts ? alts.split(/\s+/) : [];
             alternatesList = alternatesList.slice(0, LAST_COUNT).filter(a => a.length === 4);
 
-            // Перезаписываем только запасные:
             savedRoutes[editRouteIndex].alternates = alternatesList;
 
-            // Сохраняем
             localStorage.setItem(ROUTES_KEY, JSON.stringify(savedRoutes));
 
             // Возвращаем поля в обычное состояние:
             departureIcaoInput.disabled = false;
             arrivalIcaoInput.disabled = false;
 
-            // Сбрасываем флаги
+            // Сохраняем индекс редактируемого маршрута
+            const editedIndex = editRouteIndex;
+
+            // Сбрасываем флаги редактирования
             isEditingRoute = false;
             editRouteIndex = null;
 
             // Закрываем модалку
             hideAddRouteModal();
 
-            // Перерисовываем select
-            renderRoutesInSelect();
+            // Обновляем select, оставляя выбранным редактируемый маршрут
+            renderRoutesInSelect(editedIndex);
+
+            // Обновляем отображение плашек в истории
+            routeSelect.dispatchEvent(new Event('change'));
 
             return;
         }
@@ -2096,12 +2100,13 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     });
 
-    function renderRoutesInSelect() {
+    function renderRoutesInSelect(selectedValue = 'recent') {
         // Очистим все <option> сначала
         routeSelect.innerHTML = '';
 
+        console.log(selectedValue);
+
         // 1) «Недавние»
-        // Иконка font-awesome "clock-rotate-left" = "\f017"
         let recentOption = document.createElement('option');
         document.getElementById('editRouteBtn').disabled = true;
         recentOption.value = 'recent';
@@ -2127,9 +2132,10 @@ document.addEventListener('DOMContentLoaded', () => {
         addOption.innerHTML = 'Добавить маршрут...';
         routeSelect.appendChild(addOption);
 
+        routeSelect.value = selectedValue;
+
         // Всегда оставляем «Недавние» выбранным по умолчанию (если нужно)
         document.getElementById('editRouteBtn').disabled = true;
-        routeSelect.value = 'recent';
     }
     renderRoutesInSelect();
 

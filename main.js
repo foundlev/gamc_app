@@ -1908,11 +1908,15 @@ document.addEventListener('DOMContentLoaded', () => {
             offlineToggleBtn.classList.remove('online');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-plane"></i>';
             document.getElementById('refreshAllBtn').disabled = true;
+            document.getElementById('loadGamcUidBtn').disabled = true;
+            document.getElementById('exportGamcUidBtn').disabled = true;
         } else {
             offlineToggleBtn.classList.add('online');
             offlineToggleBtn.classList.remove('offline');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-signal"></i>';
             document.getElementById('refreshAllBtn').disabled = false;
+            document.getElementById('loadGamcUidBtn').disabled = false;
+            document.getElementById('exportGamcUidBtn').disabled = false;
         }
     }
 
@@ -2308,6 +2312,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
     }
+
+    document.getElementById('exportGamcUidBtn').addEventListener('click', () => {
+        const currentUid = localStorage.getItem('gamcUid') || '';
+        const title = 'Выгрузка информации';
+        const message = `Вы уверены, что хотите выгрузить всю информацию на сервер?\n\nЕсли на сервере есть более актуальные данные, они будут перезаписаны.\n\nВаш GAMCUID: ${currentUid}`;
+
+        // Вызываем наше стандартное окно подтверждения:
+        showConfirmModal(
+            title,
+            message,
+            () => {
+                // Пока заглушка
+                console.log('Делаем выгрузку: заглушка');
+            },
+            'var(--badge-orange-bg)' // Можно поставить любой цвет для "Да"
+        );
+    });
+
+    document.getElementById('loadGamcUidBtn').addEventListener('click', () => {
+        const currentUid = localStorage.getItem('gamcUid') || '';
+        const title = 'Загрузка информации';
+        const message = `Вы уверены, что хотите загрузить данные с сервера?\n\nЕсли на вашем устройстве есть более актуальные данные, они будут заменены.\n\nВаш GAMCUID: ${currentUid}`;
+
+        showConfirmModal(
+            title,
+            message,
+            () => {
+                // Пока заглушка
+                console.log('Делаем загрузку: заглушка');
+            },
+            'var(--badge-orange-bg)'
+        );
+    });
 
     document.getElementById('icaoSuggestions').addEventListener('click', (e) => {
         const li = e.target.closest('li');

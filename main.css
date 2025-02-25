@@ -379,7 +379,9 @@ footer {
 #airportSettingsBtn:disabled,
 #refreshAllBtn:disabled,
 #editRouteBtn:disabled,
-#gpsBtn:disabled {
+#gpsBtn:disabled,
+#loadGamcUidBtn:disabled,
+#exportGamcUidBtn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -1080,7 +1082,7 @@ footer {
 }
 
 #settingsModalBackdrop .modal .modal-button i,
-#addRouteModalBackdrop i {
+#addRouteModalBackdrop i, #loadGamcUidBtn i, #exportGamcUidBtn i {
     margin-right: 5px;
 }
 
@@ -1651,10 +1653,23 @@ button[hidden] {
 }
 
 .modal #gamcUidInput {
-    margin: 0;
-    margin-left: 1px;
+    margin: 0 0 0 1px;
 }
 
 #gamcUidContainer button:focus {
     outline: none;
+}
+
+.two-column-buttons {
+    display: flex;
+    gap: 10px; /* Немного отступа между кнопками */
+    width: 80%;
+}
+
+.two-column-buttons button {
+    flex: 1; /* Каждая кнопка будет занимать половину доступной ширины */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Можно подогнать стили под общую тематику, если нужно */
 }

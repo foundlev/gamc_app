@@ -11,9 +11,7 @@
     --badge-red-bg: #b22222;
     --badge-default-bg: #ecf0f1;
     --badge-text-color: #ffffff;
-}
 
-:root {
     /* Светлая тема */
     --col-green: #27ae60;
     /* то, что было в .color-green */
@@ -26,6 +24,18 @@
     --col-darkred: #5C0000;
     /* .color-darkred */
     --col-default: var(--accent-color);
+
+    /* Новые переменные */
+    --col-fire: #d32f2f;
+    --col-special: #8e44ad;
+    --col-instrument: #16a085;
+    --col-approach: #f39c12;
+    --col-security: #c0392b;
+    --col-rf: #2980b9;
+    --col-operating: #27ae60;
+    --col-temporary: #d35400;
+    --col-crane: #2c3e50;
+    --col-airspace: #7f8c8d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -34,12 +44,23 @@
         --col-green: #249152;
         /* то, что было в .color-green при тёмной теме */
         --col-yellow: #c88200;
-        --col-red: #881818;
+        --col-red: #ff6464;
         --col-purple: rgb(98, 0, 98);
         --col-darkred: #000000;
         /* или другой */
         --col-default: #34495e;
         /* например */
+
+        --col-fire: #aa3e34;
+        --col-special: #8c51a5;
+        --col-instrument: #1abc9c;
+        --col-approach: #e67e22;
+        --col-security: #e74c3c;
+        --col-rf: #3498db;
+        --col-operating: #2ecc71;
+        --col-temporary: #e67e22;
+        --col-crane: #34495e;
+        --col-airspace: #95a5a6;
     }
 }
 
@@ -1672,4 +1693,294 @@ button[hidden] {
     align-items: center;
     justify-content: center;
     /* Можно подогнать стили под общую тематику, если нужно */
+}
+
+/* NOTAM Modal Styles */
+#notamModalBackdrop .modal {
+    max-width: 800px;
+    width: 95%;
+    padding: 25px;
+    text-align: left;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.notam-item {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    margin: 15px 0;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notam-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.notam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.notam-id-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notam-alert-icon {
+    color: var(--col-red);
+    font-size: 1.4rem;
+}
+
+.notam-id {
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--accent-color);
+    font-size: 1.1rem;
+}
+
+.notam-category {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: var(--badge-default-bg);
+    color: var(--badge-text-color);
+}
+
+.notam-category i {
+    font-size: 0.9rem;
+}
+
+.notam-short-info {
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 10px 0;
+    padding-left: 26px;
+    position: relative;
+}
+
+.notam-short-info i {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: var(--col-yellow);
+}
+
+.notam-interpretation {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 15px 0;
+    padding: 15px;
+    background: var(--bg-color);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-color);
+}
+
+.notam-raw {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    background: var(--bg-color);
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    position: relative;
+    border: 1px dashed var(--border-color);
+}
+
+.notam-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.8rem;
+    color: var(--text-color);
+    opacity: 0.9;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.notam-period {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--col-red);
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .notam-interpretation {
+        border-left-color: var(--col-default);
+    }
+
+    .notam-raw {
+        background: #2a2a2a;
+        border-color: #444;
+    }
+
+    .notam-item {
+        border-color: #444;
+    }
+}
+
+.notam-doc-icon {
+    color: var(--accent-color);
+    font-size: 1.4rem;
+    opacity: 0.9;
+}
+
+.notam-category[data-category="Airspace Closure"],
+.notam-category[data-category="Special Use Airspace"] {
+    background: var(--col-darkred);
+}
+
+/* NOTAM Modal Styles */
+#notamModalBackdrop .modal {
+    max-width: 800px;
+    width: 95%;
+    padding: 25px;
+    text-align: left;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.notam-item {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    margin: 15px 0;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notam-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.notam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 10px;
+}
+
+.notam-id-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notam-doc-icon {
+    color: var(--accent-color);
+    font-size: 1.4rem;
+    opacity: 0.9;
+}
+
+.notam-id {
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--accent-color);
+    font-size: 1.1rem;
+}
+
+.notam-category {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: var(--badge-default-bg);
+    color: var(--badge-text-color);
+    flex-shrink: 0;
+}
+
+.notam-category i {
+    font-size: 0.9rem;
+    width: 16px;
+    text-align: center;
+}
+
+.notam-short-info {
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 10px 0;
+    padding-left: 26px;
+    position: relative;
+}
+
+.notam-short-info i {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: var(--col-yellow);
+}
+
+.notam-interpretation {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 15px 0;
+    padding: 15px;
+    background: var(--bg-color);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-color);
+}
+
+.notam-raw {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    background: var(--bg-color);
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    position: relative;
+    border: 1px dashed var(--border-color);
+}
+
+.notam-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.8rem;
+    color: var(--text-color);
+    opacity: 0.9;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.notam-period {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .notam-interpretation {
+        border-left-color: var(--col-default);
+    }
+
+    .notam-raw {
+        background: var(--bg-color);
+        border-color: var(--border-color);
+    }
+
+    .notam-item {
+        border-color: var(--border-color);
+        background: var(--card-bg);
+    }
 }

@@ -915,6 +915,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            const notamsBadge = document.createElement('div');
+            notamsBadge.className = 'time-badge';
+            notamsBadge.id = 'notamBtn';
+            notamsBadge.classList.add('badge-default');
+            notamsBadge.classList.add('content-clickable');
+            notamsBadge.onclick = showNotamModal;
+            notamsBadge.innerHTML = `<i class="fa-solid fa-file-alt"></i>`;
+
+            if (!silent) {
+                timeBadgeContainer.appendChild(notamsBadge);
+            }
+
             finalText = insertLineBreaks(finalText);
             if (doHighlight) {
                 // Сначала синхронизируем фрикцию по противоположным полосам
@@ -2103,8 +2115,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderRoutesInSelect(selectedValue = 'recent') {
         // Очистим все <option> сначала
         routeSelect.innerHTML = '';
-
-        console.log(selectedValue);
 
         // 1) «Недавние»
         let recentOption = document.createElement('option');

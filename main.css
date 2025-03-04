@@ -1701,7 +1701,7 @@ button[hidden] {
     width: 95%;
     padding: 25px;
     text-align: left;
-    max-height: 90vh;
+    max-height: 80vh;
     overflow-y: auto;
 }
 

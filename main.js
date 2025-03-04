@@ -2426,6 +2426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const icaoHistory = localStorage.getItem('icaoHistory') || '[]';
         const savedRoutes = localStorage.getItem('savedRoutes') || '[]';
         const icaoColors = localStorage.getItem('icaoColors') || '{}';
+        const notamData = localStorage.getItem('notamData') || '{}';
 
         const payload = {
             action: 'upload',
@@ -2434,7 +2435,8 @@ document.addEventListener('DOMContentLoaded', () => {
             icaoData: icaoData,
             icaoHistory: icaoHistory,
             savedRoutes: savedRoutes,
-            icaoColors: icaoColors
+            icaoColors: icaoColors,
+            notamData: notamData
         };
 
         // 2) Делаем POST-запрос к вашему `api.php`
@@ -2490,6 +2492,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (serverData.icaoColors) {
                 localStorage.setItem('icaoColors', serverData.icaoColors);
+            }
+            if (serverData.notamData) {
+                localStorage.setItem('notamData', serverData.notamData);
             }
 
             showResultModal('Загрузка завершена', 'Данные с сервера приняты и сохранены в Local Storage.');

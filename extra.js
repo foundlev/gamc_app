@@ -1,135 +1,52 @@
-const initialNotams = [
-  {
-    "EST": false,
-    "PERM": true,
-    "ai_ac_type": "",
-    "ai_category": "Weather Services",
-    "ai_interpretation": "MET and flight information within the designated area is provided to departing and arriving aircraft through ATIS, VOLMET, and ATS units via radio communication upon crew request.",
-    "ai_interpretation_role": "Pilot, Flight Dispatcher, ATC",
-    "ai_main_category": "WEATHER",
-    "ai_short_interpretation": "Additional information regarding transmission of MET and flight info.",
-    "ai_timing": null,
-    "ai_timing_ranges": null,
-    "all": "$17",
-    "enddate": "2100-01-01T00:00:00+00:00",
-    "has_active_range": true,
-    "icao": "UIAA",
-    "issuedate": "2023-11-14T05:27:00+00:00",
-    "key": "UIAA_A6723/23",
-    "location": "UIAA",
-    "message": "REF AIP PAGE 2.1 UIAA-17 ADDITIONAL INFO,\nPOINT 2 TRANSMISSION OF INFO, TEXT ADDED:\nMET AND FLIGHT INFO WI AD AREA PROVIDED TO DEP AND ARR ACFT\nBY ATIS, VOLMET AND ATS UNITS RADIO COM ON CREW REQ.\nMET...",
-    "notam_id": "4SCW3gCfEOt57460RARQm0",
-    "processed_at": "2024-11-25T15:30:11.765563",
-    "raw_id": "A6723/23",
-    "snowtam": {
-      "ai_decoded": null,
-      "decoded": null
-    },
-    "source_snowtam": false,
-    "startdate": "2023-11-14T05:15:00+00:00",
-    "sunrise_sunset_info": null,
-    "timing_info": null
-  },
-  {
-    "EST": false,
-    "PERM": false,
-    "ai_ac_type": "",
-    "ai_category": "Taxiway Operations",
-    "ai_interpretation": "Taxiway 5 is closed from February 26, 2025, at 04:19 to May 26, 2025, at 21:00.",
-    "ai_interpretation_role": "Pilot, Flight Dispatcher, ATC",
-    "ai_main_category": "AERODROME",
-    "ai_short_interpretation": "Taxiway 5 closed",
-    "ai_timing": null,
-    "ai_timing_ranges": null,
-    "all": "A1083/25 NOTAMR A8175/24\nQ) UIII/QMXLC/IV/M/A/000/999/5202N11318E005\nA) UIAA B) 2502260419 C) 2505262100\nE) TWY 5 CLSD.",
-    "enddate": "2025-05-26T21:00:00+00:00",
-    "has_active_range": true,
-    "icao": "UIAA",
-    "issuedate": "2025-02-26T04:36:00+00:00",
-    "key": "UIAA_A1083/25",
-    "location": "UIAA",
-    "message": "TWY 5 CLSD.",
-    "notam_id": "2Y1KfefiGhhKjvehY4jUFq",
-    "processed_at": "2025-02-26T06:02:38.127233+00:00",
-    "raw_id": "A1083/25",
-    "snowtam": {
-      "ai_decoded": null,
-      "decoded": null
-    },
-    "source_snowtam": false,
-    "startdate": "2025-02-26T04:19:00+00:00",
-    "sunrise_sunset_info": null,
-    "timing_info": null
-  },
-  {
-    "EST": false,
-    "PERM": false,
-    "ai_ac_type": "Fourth class aircraft, Helicopters",
-    "ai_category": "Runway Operations",
-    "ai_interpretation": "Runway 11 is under maintenance with REDL and RTHL unserviceable. Aircraft landing during nighttime is prohibited, while landing is allowed during daytime only for fourth class aircraft and helicopters by VFR. Aircraft takeoff is allowed during both day and night.",
-    "ai_interpretation_role": "Pilot, Flight Dispatcher",
-    "ai_main_category": "AERODROME",
-    "ai_short_interpretation": "Runway 11 restrictions",
-    "ai_timing": null,
-    "ai_timing_ranges": null,
-    "all": "A1084/25 NOTAMR A8177/24\nQ) UIII/QFAXX/IV/NBO/A/000/999/5202N11318E005\nA) UIAA B) 2502260423 C) 2505262100\nE) RWY 11: REDL, RTHL U/S.\nRWY 11: ACFT LDG DRG NIGHTTIME PROHIBITED.\nRWY 11: LDG ALLOWED DRG DAYTIME ONLY FOR FOURTH CLASS ACFT AND HEL\nBY VFR.\nRWY 11: ACFT TKOF ALLOWED DRG DAY, NIGHT.",
-    "enddate": "2025-05-26T21:00:00+00:00",
-    "has_active_range": true,
-    "icao": "UIAA",
-    "issuedate": "2025-02-26T04:37:00+00:00",
-    "key": "UIAA_A1084/25",
-    "location": "UIAA",
-    "message": "RWY 11: REDL, RTHL U/S.\nRWY 11: ACFT LDG DRG NIGHTTIME PROHIBITED.\nRWY 11: LDG ALLOWED DRG DAYTIME ONLY FOR FOURTH CLASS ACFT AND HEL\nBY VFR.\nRWY 11: ACFT TKOF ALLOWED DRG DAY, NIGHT.",
-    "notam_id": "61PW3fzOJnAZ2pfj9eQhVU",
-    "processed_at": "2025-02-26T06:02:38.127332+00:00",
-    "raw_id": "A1084/25",
-    "snowtam": {
-      "ai_decoded": null,
-      "decoded": null
-    },
-    "source_snowtam": false,
-    "startdate": "2025-02-26T04:23:00+00:00",
-    "sunrise_sunset_info": null,
-    "timing_info": null
-  },
-  {
-    "EST": false,
-    "PERM": false,
-    "ai_ac_type": "",
-    "ai_category": "Fire and Rescue Services",
-    "ai_interpretation": "The airport is operational 24 hours a day and has category 7 fire fighting services provided.",
-    "ai_interpretation_role": "Pilot, Flight Dispatcher",
-    "ai_main_category": "AERODROME",
-    "ai_short_interpretation": "Airport operation hours H24 and CAT 7 for fire fighting available.",
-    "ai_timing": null,
-    "ai_timing_ranges": null,
-    "all": "A1109/25 NOTAMR A0586/25\nQ) UIII/QFAAH/IV/NBO/A/000/999/5202N11318E005\nA) UIAA B) 2502270438 C) 2503312100\nE) AD OPR HR: H24.\nAD CAT 7 FOR FIRE FIGHTING PROVIDED.",
-    "enddate": "2025-03-31T21:00:00+00:00",
-    "has_active_range": true,
-    "icao": "UIAA",
-    "issuedate": "2025-02-27T04:42:00+00:00",
-    "key": "UIAA_A1109/25",
-    "location": "UIAA",
-    "message": "AD OPR HR: H24.\nAD CAT 7 FOR FIRE FIGHTING PROVIDED.",
-    "notam_id": "0c7BNGCmyobzCoToWmrSWp",
-    "processed_at": "2025-02-27T06:02:46.501943+00:00",
-    "raw_id": "A1109/25",
-    "snowtam": {
-      "ai_decoded": null,
-      "decoded": null
-    },
-    "source_snowtam": false,
-    "startdate": "2025-02-27T04:38:00+00:00",
-    "sunrise_sunset_info": null,
-    "timing_info": null
-  }
-]
-
 // Находим кнопку и модалку для NOTAM
 const notamBtn = document.getElementById('notamBtn');
 const notamModalBackdrop = document.getElementById('notamModalBackdrop');
 const closeNotamModalBtn = document.getElementById('closeNotamModalBtn');
 const notamContent = document.getElementById('notamContent');
+const notamModal = document.getElementById('notamModalWindow');
+const loadNotamBtn = document.getElementById('loadNotamBtn');
+
+
+function getNotamsForIcao(icao) {
+    const notamData = localStorage.getItem('notamData');
+
+    if (!notamData) return [];
+    const parsed = JSON.parse(notamData);
+    const key = icao.toUpperCase();
+
+    // Если для данного ICAO существуют данные, возвращаем их, иначе пустой массив
+    if (parsed[key] && parsed[key].data && !parsed[key].data.error) {
+        return parsed[key].data;
+    }
+    return [];
+}
+
+function getIcaoListUpdatedNotams(ms=86400000) {
+    const notamData = localStorage.getItem('notamData') || "{}";
+    const parsed = notamData ? JSON.parse(notamData) : {};
+    const updated = [];
+
+    // 86400000 - День
+    // 3600000 - Час
+
+    for (const key in parsed) {
+        if (parsed[key] && parsed[key].updated && !parsed[key].data?.error && parsed[key].data?.length !== 0) {
+            const updatedDate = new Date(parsed[key].updated);
+            const now = Date.now();
+
+            if (now - updatedDate.getTime() <= ms) {
+                updated.push(key);
+            }
+        }
+    }
+
+    return updated;
+}
+
+function hasNotamsForIcao(icao) {
+    const updatedIcao = getIcaoListUpdatedNotams();
+    return updatedIcao.includes(icao.toUpperCase());
+}
 
 // Когда нажимаем кнопку "NOTAM", показываем модалку
 function showNotamModal() {
@@ -139,11 +56,17 @@ function showNotamModal() {
     }
     // Фильтруем из initialNotams только нужные
     // смотрите, у вас ключи могут быть "icao" или "location", используйте одинаково
-    const notamsForIcao = initialNotams.filter(n => n.icao === nowIcao || n.location === nowIcao);
+    const notamsForIcao = getNotamsForIcao(nowIcao);
+    const loadNotamBtn = document.getElementById('loadNotamBtn');
 
     if (notamsForIcao.length === 0) {
         notamContent.innerHTML = `Нет NOTAMов для <b>${nowIcao}</b>`;
+        notamModal.classList.toggle('download-mode', true);
+        loadNotamBtn.style.display = 'block';
     } else {
+        notamModal.classList.toggle('download-mode', false);
+        loadNotamBtn.style.display = 'none';
+
         let html = '';
 
         notamsForIcao.forEach(n => {

@@ -1705,6 +1705,16 @@ button[hidden] {
     overflow-y: auto;
 }
 
+#notamModalBackdrop .modal.download-mode {
+    max-width: 400px;
+}
+
+#loadNotamBtnDiv {
+    justify-content: center;
+    display: flex;
+    margin-top: 25px;
+}
+
 .notam-item {
     background: var(--card-bg);
     border: 2px solid var(--border-color);
@@ -1832,25 +1842,9 @@ button[hidden] {
     }
 }
 
-.notam-doc-icon {
-    color: var(--accent-color);
-    font-size: 1.4rem;
-    opacity: 0.9;
-}
-
 .notam-category[data-category="Airspace Closure"],
 .notam-category[data-category="Special Use Airspace"] {
     background: var(--col-darkred);
-}
-
-/* NOTAM Modal Styles */
-#notamModalBackdrop .modal {
-    max-width: 800px;
-    width: 95%;
-    padding: 25px;
-    text-align: left;
-    max-height: 90vh;
-    overflow-y: auto;
 }
 
 .notam-item {
@@ -1885,7 +1879,6 @@ button[hidden] {
 .notam-doc-icon {
     color: var(--accent-color);
     font-size: 1.4rem;
-    opacity: 0.9;
 }
 
 .notam-id {
@@ -1966,6 +1959,11 @@ button[hidden] {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+.history button.not-updated-notam {
+    /*border: 1px solid var(--badge-green-bg);*/
+    box-shadow: 0 0 0 2px var(--badge-red-bg);
 }
 
 /* Темная тема */

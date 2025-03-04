@@ -1963,7 +1963,7 @@ button[hidden] {
 
 .history button.not-updated-notam {
     /*border: 1px solid var(--badge-green-bg);*/
-    box-shadow: 0 0 0 2px var(--badge-red-bg);
+    box-shadow: 0 0 0 2px var(--text-color);
 }
 
 /* Темная тема */

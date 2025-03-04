@@ -197,7 +197,7 @@ const coefficientBrakingActions = {
 const PASSWORD_KEY = 'gamcPassword';
 const ICAO_HISTORY_KEY = 'icaoHistory';
 
-const LAST_COUNT = 15;
+const LAST_COUNT = 30;
 const SUGGESTIONS_COUNT = 7;
 
 let airportInfoDb = {};
@@ -2780,7 +2780,7 @@ document.addEventListener('DOMContentLoaded', () => {
             msg,
             (isLoadNotam) => {
                 // Если нажали "Да" — запускаем пакетное обновление
-                startBatchRefresh(aerodromesToRefresh, true, isLoadNotam);
+                startBatchRefresh(aerodromesToRefresh, !isLoadNotam, isLoadNotam);
             },
             "",
             "",
@@ -2833,34 +2833,56 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             const total = aerodromesToUpdate.length;
 
-            const batchNotamSize = 3;
+            const batchNotamSize = 1;
+            const failedAttempts = 3;
 
             batchRefreshInfo.textContent = `Аэродромов: ${total}`;
             batchRefreshProgress.style.width = '0%';
             batchRefreshCurrentIcao.textContent = '...';
 
-            let updatedNotamsCount = 0
+            let updatedNow = 0;
+            let failedUpdated = [];
 
-            for (let i = 0; i < total; i += batchNotamSize) {
+            while (aerodromesToUpdate.length > 0) {
                 // Берём батч из 10 аэродромов (или меньше, если оставшихся меньше 10)
-                const batch = aerodromesToUpdate.slice(i, i + batchNotamSize);
+                const batch = aerodromesToUpdate.slice(0, batchNotamSize);
+
+                if (batch.length === 0) {
+                    break;
+                }
+
                 // Обновляем текущий статус: показываем аэродромы из текущего батча
                 batchRefreshCurrentIcao.textContent = `Обновление NOTAM: ${batch.join(', ')}`;
 
                 // Отправляем запросы асинхронно в рамках батча и ждем, пока все завершатся
                 const results = await Promise.all(batch.map(icao => getNotam(icao)));
-                updatedNotamsCount += results.length;
+                console.log(results);
+                // Удаляем из aerodromesToUpdate все аэродромы, которые в results
+                aerodromesToUpdate = aerodromesToUpdate.filter(icao => !results.includes(icao));
+
+                updatedNow = total - aerodromesToUpdate.length;
+                // Заносим в failedUpdated те, которые есть в batch, но нет в results.
+                failedUpdated = failedUpdated.concat(batch.filter(icao => !results.includes(icao)));
+                
+                // Если в failedUpdated аэродром повторяется failedAttempts раз, то удаляем их из aerodromesToUpdate.
+                const failedCount = {};
+                failedUpdated.forEach(icao => {
+                    failedCount[icao] = (failedCount[icao] || 0) + 1;
+                });
+
+                // Удаляем аэродромы из aerodromesToUpdate, если они повторяются failedAttempts раз в failedUpdated
+                aerodromesToUpdate = aerodromesToUpdate.filter(icao => !(failedCount[icao] >= failedAttempts));
 
                 // Обновляем прогресс
-                const percent = Math.round(((i + batch.length) / total) * 100);
+                const percent = Math.round((updatedNow / total) * 100);
                 batchRefreshProgress.style.width = percent + '%';
 
                 // Небольшая задержка между батчами для плавности (необязательно)
-                await new Promise(r => setTimeout(r, 400));
+                await new Promise(r => setTimeout(r, 1000));
             }
 
             batchRefreshProgress.style.width = '100%';
-            batchRefreshCurrentIcao.textContent = `Обновлено NOTAM: ${updatedNotamsCount} из ${aerodromesToUpdate.length}`;
+            batchRefreshCurrentIcao.textContent = `Обновлено NOTAM: ${updatedNow} из ${total}`;
         }
 
         updateHistoryBtnNotam();
@@ -2910,10 +2932,10 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             localStorage.setItem('notamData', JSON.stringify(notamData));
 
-            return true;
+            return icao;
         } catch (err) {
             console.error('Ошибка при получении NOTAM:', err);
-            return false;
+            return null;
         }
     }
 

@@ -15,11 +15,8 @@ const airportMaintenanceCodes = [
 ];
 
 let nowIcao = null;
-let showSecondMenu = JSON.parse(localStorage.getItem('showSecondMenu')) || false;;
+let showSecondMenu = JSON.parse(localStorage.getItem('showSecondMenu')) || false;
 let icaoKeys = null;
-let worstRunwayFrictionCode = null; // например, 95, 92, 10..90, 99 или null
-// Храним поназванно коэффициенты фрикции (число от 10..95) или null, если нет данных
-let runwayFrictionMap = {};
 
 // 35
 const airportsB = ['VVCR', 'EPKK', 'LTAF', 'ZPPP', 'LTDB', 'ZLLL', 'LCLK', 'UAAA', 'KLAS', 'LFLL', 'KLAX', 'FMMI', 'UHMM', 'USCM', 'VAAH', 'LEBL', 'KMIA', 'VMMC', 'LEMG', 'RPLL', 'SBBR', 'OOMS', 'LEVC', 'URML', 'MUVR', 'URMM', 'LIPX', 'HKMO', 'UHWW', 'DTMB', 'URMO', 'CYUL', 'EGKK', 'VABB', 'VHHH', 'GCLP', 'URMN', 'URMG', 'UTFN', 'ZGGG', 'UOOO', 'UACC', 'VVDN', 'HTDA', 'KONT', 'WADD', 'KMCO', 'KDTW', 'RJBB', 'CYOW', 'HTZA', 'LTBJ', 'LFPG', 'LFPO', 'UCFL', 'ULMK', 'ZBAA', 'OPPS', 'RJTT', 'UNTT', 'VTSP', 'CYYZ', 'LTCG', 'SBRF', 'DTTA', 'LIRF', 'ZMCK', 'LIPR', 'UIUU', 'SBGL', 'VTBU', 'URRP', 'UTFF', 'GVAC', 'KPHL', 'SBSV', 'EDDF', 'UTSS', 'VVNB', 'KSAN', 'ZSHC', 'ZJSY', 'UTDL', 'SBGR', 'KSFO', 'RKSI', 'RKPC', 'ZLXY', 'VOMM', 'URMS', 'UIAA', 'LBSF', 'ZUUU', 'KTPA', 'ZYTX', 'UUEE', 'DTNH', 'GCTS', 'UTST']
@@ -282,9 +279,9 @@ function isRussianAirport(icaoCode) {
     return /^U[A-Z]{3}$/.test(icaoCode);
 }
 
-function getWorstRunwayCondition(icao) {
+function getWorstRunwayCondition(state) {
     // Если ничего не нашли при разборе, возвращаем "good" из reportedBrakingActions
-    if (worstRunwayFrictionCode === null) {
+    if (state.worstRunwayFrictionCode === null) {
         return {
             kind: 'reported',
             category: 'good',
@@ -293,7 +290,7 @@ function getWorstRunwayCondition(icao) {
     }
 
     // Если >=91 => это зашитая таблица
-    const code = worstRunwayFrictionCode; // сокращение
+    const code = state.worstRunwayFrictionCode; // сокращение
     if (code >= 91 && code <= 95 || code === 99) {
         // Сопоставляем:
         const mapCode = {
@@ -314,7 +311,7 @@ function getWorstRunwayCondition(icao) {
         // code между 10..90, значит это 0.xx
         let friction = (code / 100).toFixed(2); // например "0.43"
         // ICAO начинается на "U"?
-        let isRussian = isRussianAirport(nowIcao);
+        let isRussian = isRussianAirport(state.nowIcao);
 
         // Выбираем таблицу normative или by_sft
         let relevantObj = isRussian ? coefficientBrakingActions.normative : coefficientBrakingActions.by_sft;
@@ -495,11 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchBtn.innerHTML = '<i class="fas fa-cloud-download-alt"></i>Запросить';
         }
 
-        if (icao.length === 4) {
-            fetchBtn.disabled = false;
-        } else {
-            fetchBtn.disabled = true;
-        }
+        fetchBtn.disabled = icao.length !== 4;
     }
 
     function updateIcaoSuggestions() {
@@ -600,37 +593,36 @@ document.addEventListener('DOMContentLoaded', () => {
         addTimeBadgeContainerBottomGap();
     }
 
-    function resolveOppositeFriction(icao) {
+    function resolveOppositeFriction(state) {
         // Пройдёмся по runwayFrictionMap
         // ищем каждую полосу и её «парную» (06L <-> 24R).
         // Если у одной есть фрикция, а у другой null, то копируем.
-        if (!airportInfoDb[icao] || !airportInfoDb[icao].runways) return;
+        if (!airportInfoDb[state.nowIcao] || !airportInfoDb[state.nowIcao].runways) return;
 
-        for (let rwyName in runwayFrictionMap) {
-            let frictionValue = runwayFrictionMap[rwyName];
-            let oppName = findOppositeRunway(icao, rwyName);
-            if (!runwayFrictionMap[oppName]) {
+        for (let rwyName in state.runwayFrictionMap) {
+            let frictionValue = state.runwayFrictionMap[rwyName];
+            let oppName = findOppositeRunway(state.nowIcao, rwyName);
+            if (!state.runwayFrictionMap[oppName]) {
                 // Если у противоположной нет данных, копируем
-                runwayFrictionMap[oppName] = frictionValue;
+                state.runwayFrictionMap[oppName] = frictionValue;
             } else if (!frictionValue) {
                 // Если у "текущей" нет, а у oppName есть
-                runwayFrictionMap[rwyName] = runwayFrictionMap[oppName];
+                state.runwayFrictionMap[rwyName] = state.runwayFrictionMap[oppName];
             }
         }
     }
 
-    function findWorstRunwayFriction(icao) {
+    function findWorstRunwayFriction(state) {
         // Собираем все не-null значения
-        let values = Object.keys(runwayFrictionMap)
-            .filter(k => runwayFrictionMap[k] !== null)
-            .map(k => runwayFrictionMap[k]);
+        let values = Object.keys(state.runwayFrictionMap)
+            .filter(k => state.runwayFrictionMap[k] !== null)
+            .map(k => state.runwayFrictionMap[k]);
         if (values.length === 0) {
             // совсем нет данных => пусть будет null
             return null;
         }
         // Находим минимальное
-        let minVal = Math.min(...values); // 10..95
-        return minVal;
+        return Math.min(...values);
     }
 
     savePasswordBtn.addEventListener('click', () => {
@@ -662,8 +654,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        runwayFrictionMap = {};
-        worstRunwayFrictionCode = null;
+        // Создаем локальное состояние для данного запроса
+        const state = {
+            nowIcao: icao,
+            worstRunwayFrictionCode: null,
+            runwayFrictionMap: {}
+        };
+
         nowIcao = icao;
         hideAirportInfo();
 
@@ -688,9 +685,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (silent) {
             responseContainer.textContent = 'Здесь будет отображаться погода...';
+            state.worstRunwayFrictionCode = null;
         } else {
             responseContainer.textContent = 'Загрузка...';
-            worstRunwayFrictionCode = null;
+            state.worstRunwayFrictionCode = null;
         }
         timeBadgeContainer.innerHTML = '';
         removeTimeBadgeContainerBottomGap();
@@ -712,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            let rawData = null;
+            let rawData;
             if (offlineMode && toShowOfflineWarning) {
                 rawData = savedData[icao];
             } else {
@@ -764,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Превращаем в объекты (текст, тип, приоритет, индекс)
             const blockObjects = blocks.map((blk, idx) => {
                 const trimmed = blk.trim();
-                let type = '';
+                let type;
                 const firstWord = trimmed.split(/\s+/, 1)[0].toUpperCase();
 
                 if (firstWord === 'METAR' || firstWord === 'SPECI') {
@@ -886,12 +884,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const airportClassBadge = document.createElement('div');
             airportClassBadge.className = 'time-badge';
             airportClassBadge.id = 'showMaintenanceInfoModal';
-            airportClassBadge.classList.add(getAirportColorClass(nowIcao));
+            airportClassBadge.classList.add(getAirportColorClass(state.nowIcao));
             airportClassBadge.classList.add('content-clickable');
-            airportClassBadge.innerHTML = getAirportIconClass(nowIcao);
+            airportClassBadge.innerHTML = getAirportIconClass(state.nowIcao);
 
             airportClassBadge.addEventListener('click', () => {
-                showMaintenanceInfoModal(getAirportClassInfoText(nowIcao));
+                showMaintenanceInfoModal(getAirportClassInfoText(state.nowIcao));
             });
 
             if (!silent) {
@@ -932,11 +930,11 @@ document.addEventListener('DOMContentLoaded', () => {
             finalText = insertLineBreaks(finalText);
             if (doHighlight) {
                 // Сначала синхронизируем фрикцию по противоположным полосам
-                resolveOppositeFriction(icao);
+                resolveOppositeFriction(state);
                 // Затем вычисляем худшую фрикцию (измеренную)
-                worstRunwayFrictionCode = findWorstRunwayFriction(icao);
+                state.worstRunwayFrictionCode = findWorstRunwayFriction(state);
                 // После этого выполняем подсветку, которая теперь будет учитывать измеренный коэффициент
-                finalText = highlightKeywords(finalText);
+                finalText = highlightKeywords(finalText, state);
             }
 
             if (!finalText.includes("НЕТ В КАТАЛОГЕ,ОБРАЩАЙТЕСЬ К СИНОПТИКУ=")) {
@@ -968,14 +966,17 @@ document.addEventListener('DOMContentLoaded', () => {
             blockObjects.forEach(block => {
                 if (block.type === "METAR" || block.type === "SPECI") {
                     // Ищем худший цвет в block.text
-                    const color = detectWorstMetarOrSpeciColor(block.text);
+                    if (icao === "URWA") {
+                        console.log(`ICAO: ${icao} TEXT: ${block.text}`);
+                    }
+                    const color = detectWorstMetarOrSpeciColor(block.text, state);
                     if (color) {
                         // Сравниваем с текущим metarWorstColor
                         metarWorstColor = compareWorstColor(metarWorstColor, color);
                     }
                 } else if (block.type === "TAF") {
                     // Ищем худший цвет в block.text (но без TEMPO/PROB)
-                    const color = detectWorstTafColor(block.text);
+                    const color = detectWorstTafColor(block.text, state);
                     if (color) {
                         tafWorstColor = compareWorstColor(tafWorstColor, color);
                     }
@@ -986,6 +987,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // (объявите его где-нибудь наверху: let icaoColors = {}; )
 
             if (!toShowOfflineWarning) {
+                console.log(`ICAO: ${icao} - METAR: ${metarWorstColor} - TAF: ${tafWorstColor}`);
+
                 if (!icaoColors[icao]) {
                     icaoColors[icao] = {};
                 }
@@ -1020,16 +1023,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `linear-gradient(to right, var(--col-${metarColor}) 50%, var(--col-${tafColor}) 50%)`;
         btn.style.color = 'white';
     }
-
-
-    function updateAllIcaoButtons() {
-        const buttons = document.querySelectorAll('.history button');
-
-        for (const btn of buttons) {
-            applyIcaoButtonColors(btn.textContent.trim().toUpperCase(), btn);
-        }
-    }
-
 
     function applyIcaoButtonColors(icao, btn) {
         const colObj = icaoColors[icao];
@@ -1079,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     }
 
-    function highlightKeywords(text) {
+    function highlightKeywords(text, state) {
         // 1) Подчёркиваем TEMPO, BECMG, PROB40, PROB30:
         text = text.replace(/\b(TEMPO|BECMG|INTER|PROB40|PROB30)\b/g, '<u>$1</u>');
 
@@ -1126,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
         text = text.replace(/\b(OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
             let height = parseInt(heightStr, 10);
-            let colorClass = '';
+            let colorClass;
 
             if (height < 2) {
                 colorClass = 'color-darkred';
@@ -1162,8 +1155,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Вместо записи в worstRunwayFrictionCode
                 // запоминаем отдельное значение фрикции для runway rwy:
 
-                if (!runwayFrictionMap[rwy]) {
-                    runwayFrictionMap[rwy] = frictionNum === 99 ? null : frictionNum;
+                if (!state.runwayFrictionMap[rwy]) {
+                    state.runwayFrictionMap[rwy] = frictionNum === 99 ? null : frictionNum;
                 }
             }
 
@@ -1172,7 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Распознавание и выделение информации о ветре
         text = text.replace(/\b((?:\d{3}|VRB)\d{2,3}(?:G\d{2,3})?(?:MPS|KT))\b/g,
-            (fullMatch, entireGroup) => {
+            (fullMatch, _) => {
                 // Разбираем группой: ddd - направление, потом скорость, потом G.., потом единицы
                 // Теперь учтём VRB в группе направления
                 let re = /^((?:\d{3}|VRB))(\d{2,3})(G\d{2,3})?(MPS|KT)$/;
@@ -1180,17 +1173,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!m) return fullMatch;
 
                 let [, dir, speedStr, gustStr, unit] = m;
-                let windDir = parseInt(dir, 10);
                 let windSpd = parseInt(speedStr, 10);
                 let windGust = gustStr ? parseInt(gustStr.slice(1), 10) : null;
 
                 // 1) Получаем «худшее» состояние полосы
-                const worst = getWorstRunwayCondition(nowIcao);
+                const worst = getWorstRunwayCondition(state);
 
                 // 2) Находим предельный боковой для landing (по заданию)
                 //    a) reportedBrakingActions   b) coefficientBrakingActions
-                let landingLimitKts = 40; // fallback
-                let landingLimitMps = 20.6;
+                let landingLimitKts; // fallback
+                let landingLimitMps;
 
                 if (worst.kind === 'reported') {
                     // например { category:'poor', ... }
@@ -1232,14 +1224,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     return (a < 0) ? a + 360 : a;
                 }
 
-                const declination = (airportInfoDb[nowIcao] && airportInfoDb[nowIcao].declination) || 0;
+                const declination = (airportInfoDb[state.nowIcao] && airportInfoDb[state.nowIcao].declination) || 0;
                 const windDirInt = (dir === "VRB") ? null : parseInt(dir, 10);
-                let ratio = 0;
-                if (windDirInt !== null && airportInfoDb[nowIcao] && airportInfoDb[nowIcao].runways) {
+                let ratio;
+                if (windDirInt !== null && airportInfoDb[state.nowIcao] && airportInfoDb[state.nowIcao].runways) {
                     const windDirMag = normalize(windDirInt - declination);
                     let worstCrosswindRatio = 0;
                     // Перебираем все полосы аэродрома
-                    Object.entries(airportInfoDb[nowIcao].runways).forEach(([rwyName, rwyData]) => {
+                    Object.entries(airportInfoDb[state.nowIcao].runways).forEach(([_, rwyData]) => {
                         const runwayHeading = rwyData.hdg;
                         // Разница между направлением ветра (магнитное) и курсом ВПП
                         let diffAngle = Math.abs(normalize(windDirMag - runwayHeading));
@@ -1371,8 +1363,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Но можно чуть хитрее. Например, прописать в CSS класс .split-button[color-red][color-green] { background: ... }
                 // Но проще inline-стилями:
                 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                let metarBg = convertColorClassToBg(mc, isDark);
-                let tafBg = convertColorClassToBg(tc, isDark);
+                convertColorClassToBg(mc, isDark);
+                convertColorClassToBg(tc, isDark);
 
                 btn.classList.remove('color-green', 'color-yellow', 'color-red', 'color-purple', 'color-darkred');
                 applyIcaoButtonColors(icao, btn);
@@ -1661,21 +1653,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === modal) hideMaintenanceInfoModal();
     });
 
-    function closestRunway(windDirInt, heading, headingOpp) {
-        // Функция для расчета минимальной разницы углов
-        function angularDifference(angle1, angle2) {
-            const diff = Math.abs(angle1 - angle2) % 360;
-            return diff > 180 ? 360 - diff : diff;
-        }
-
-        // Разница между направлением ветра и курсами ВПП
-        const diffHeading = angularDifference(windDirInt, heading);
-        const diffHeadingOpp = angularDifference(windDirInt, headingOpp);
-
-        // Определение ближайшего курса
-        return diffHeading <= diffHeadingOpp ? heading : headingOpp;
-    }
-
     // Вспомогательная функция, которая ищет «противоположную» ВПП в airportInfoDb
     function findOppositeRunway(icao, currentRwyName) {
         const airport = airportInfoDb[icao];
@@ -1773,10 +1750,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return spd * Math.cos(rad);
         }
 
+        const state = {
+            nowIcao: nowIcao,
+            worstRunwayFrictionCode: null,
+            runwayFrictionMap: {}
+        };
+
         // Перебираем все ВПП
         let shownSet = new Set();
-        const runwaysObj = airportInfoDb[nowIcao].runways;
-        const worstCond = getWorstRunwayCondition(nowIcao);
+        const runwaysObj = airportInfoDb[state.nowIcao].runways;
+        const worstCond = getWorstRunwayCondition(state);
 
         // Вставьте полностью этот вариант:
         for (const [rwyName, rwyData] of Object.entries(runwaysObj)) {
@@ -1784,7 +1767,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const hdgMag = rwyData.hdg;
 
             // Ищем противоположную полосу
-            const oppName = findOppositeRunway(nowIcao, rwyName);
+            const oppName = findOppositeRunway(state.nowIcao, rwyName);
             const oppHdgMag = runwaysObj[oppName]?.hdg || hdgMag;
 
             // Выбираем ту ВПП, которая ближе к ветру
@@ -1854,7 +1837,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const gustClass = windGust ? pickColor(ratioGust) : '';
 
             // ---- Читаем индивидуальный коэффициент сцепления для chosenName
-            const frictionCode = runwayFrictionMap[chosenName] ?? null;
+            const frictionCode = state.runwayFrictionMap[chosenName] ?? null;
             let frictionText = '(нет данных)';
             if (typeof frictionCode === 'number') {
                 if (frictionCode >= 91 && frictionCode <= 95) {
@@ -1970,11 +1953,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function updateGpsButton() {
-        if (nowIcao && nowIcao.length === 4 && !offlineMode) {
-            gpsBtn.disabled = false;
-        } else {
-            gpsBtn.disabled = true;
-        }
+        gpsBtn.disabled = !(nowIcao && nowIcao.length === 4 && !offlineMode);
     }
 
     function checkInternetConnection() {
@@ -2319,7 +2298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         countryElem.textContent = country ? country : 'Страна не указана';
         elevationElem.textContent = `${elevation} ft`;
 
-        let airportCodesText = '';
+        let airportCodesText;
         if (iata) {
             codesElem.textContent = `${icao}/${iata}`;
             airportCodesText = `(${icao}/${iata})`;
@@ -2338,7 +2317,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const zoomOutBtn = document.getElementById('zoomOutBtn');
         const refreshAllBtn = document.getElementById('refreshAllBtn');
         const settingsBtn = document.getElementById('settingsBtn');
-        const offlineToggleBtn = document.getElementById('offlineToggleBtn');
 
         if (showSecondMenu) {
             zoomInBtn.hidden = true;
@@ -2725,11 +2703,7 @@ document.addEventListener('DOMContentLoaded', () => {
         );
 
         // Если все условия выполнены => enable, иначе => disable
-        if (depValid && arrValid && altValid) {
-            saveRouteBtn.disabled = false;
-        } else {
-            saveRouteBtn.disabled = true;
-        }
+        saveRouteBtn.disabled = !(depValid && arrValid && altValid);
     }
 
     refreshAllBtn.addEventListener('click', onRefreshAllBtnClick);
@@ -2785,7 +2759,7 @@ document.addEventListener('DOMContentLoaded', () => {
             msg,
             (isLoadNotam) => {
                 // Если нажали "Да" — запускаем пакетное обновление
-                startBatchRefresh(aerodromesToRefresh, !isLoadNotam, isLoadNotam);
+                startBatchRefresh(aerodromesToRefresh, true, isLoadNotam);
             },
             "",
             "",
@@ -2809,8 +2783,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 batchRefreshCurrentIcao.textContent = `Обновление метео: ${batch.join(', ')}`;
 
                 // Отправляем запросы асинхронно в рамках батча и ждем, пока все завершатся
-                await Promise.all(batch.map(icao => getWeather(icao, true, true)));
-
+                // await Promise.all(batch.map(icao => getWeather(icao, true, true)));
+                for (let i = 0; i < batch.length; i++) {
+                    await getWeather(batch[i], true, true);
+                }
                 // Обновляем прогресс
                 const percent = Math.round(((i + batch.length) / total) * 100);
                 batchRefreshProgress.style.width = percent + '%';
@@ -3165,109 +3141,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // 1. Вставь сразу после остальных функций, где рассчитывается crosswind
-    function getWorstCrosswindColor(icao, dir, speed, gust, unit) {
-        // Если это 00000 (направление=000, скорость=0)
-        if (dir === '000' && parseInt(speed) === 0) {
-            // сразу возвращаем "color-green"
-            return 'color-green';
-        }
-
-        // 2) Если VRB — будем считать угол ветра 90° для «полного бокового»
-        let isVRB = false;
-        if (dir === 'VRB') {
-            isVRB = true;
-            dir = '090'; // или '180', неважно
-        }
-
-        // Если нет nowIcao или в базе нет данных о ВПП — вернём прежнюю «упрощённую» окраску:
-        if (!icao || !airportInfoDb[icao] || !airportInfoDb[icao].runways) {
-            // Можешь вернуть пусто, чтоб вообще без цвета, или сделать fallback
-            return '';
-        }
-
-        // Преобразуем в число:
-        const windDir = parseInt(dir, 10);
-        const windSpd = parseFloat(speed);
-        const windGust = gust ? parseFloat(gust.replace('G', '')) : null;
-
-        // Берём «худший» коэффициент сцепления из твоей глобальной логики
-        const worstCond = getWorstRunwayCondition(icao);
-
-        // Функция, которая отдаёт лимит бокового ветра для посадки (takeoff/landing) — у тебя уже есть что-то подобное
-        function getLandingLimit(unit) {
-            if (worstCond.kind === 'reported') {
-                // reportedBrakingActions.landing[ 'poor' / 'medium' / 'good'... ]
-                let cat = worstCond.category; // например 'poor','medium','good'
-                let limObj = reportedBrakingActions.landing[cat] || reportedBrakingActions.landing.good;
-                return (unit === 'MPS') ? limObj.mps : limObj.kts;
-            } else {
-                // measured => см. coefficientBrakingActions
-                let friction = worstCond.frictionValue;
-                let relevant = worstCond.relevantData.landing; // { 0.5:{kts:40,mps:20.6}, ...}
-                let limitObj = getCrosswindLimit('landing', {
-                    ...relevant,
-                    currentFriction: friction
-                }, reportedBrakingActions.landing.good);
-                return (unit === 'MPS') ? limitObj.mps : limitObj.kts;
-            }
-        }
-
-        // Вычислим лимит (в тех же единицах, что и METAR/TAF (MPS или KT))
-        const landingLimit = getLandingLimit(unit);
-
-        // Функция для вычитания магнитного склонения
-        function normalize(angle) {
-            let a = angle % 360;
-            return (a < 0) ? a + 360 : a;
-        }
-
-        // Получим магнитное направление ветра (dir - declination)
-        const declination = airportInfoDb[icao].declination || 0;
-        const windDirMag = normalize(windDir - declination);
-
-        // Подготовим функцию для рассчёта боковой и встречной
-        function calcXwind(magHdg, spd) {
-            let rad = (windDirMag - magHdg) * Math.PI / 180;
-            return spd * Math.sin(rad);
-        }
-
-        // Перебираем все ВПП аэродрома
-        let runwaysObj = airportInfoDb[icao].runways;
-        if (!runwaysObj) return '';
-
-        // Будем искать *максимальную* (по модулю) боковую для всех ВПП
-        let worstRatio = 0; // в процентах
-        for (let [rwyName, rwyData] of Object.entries(runwaysObj)) {
-            let magHdg = rwyData.hdg;
-            // steady
-            let xwMain = Math.abs(calcXwind(magHdg, windSpd));
-            // если есть порыв
-            let xwGust = windGust ? Math.abs(calcXwind(magHdg, windGust)) : xwMain;
-
-            // берём максимальную из steady/gust
-            let usedXw = Math.max(xwMain, xwGust);
-            // получаем %
-            let ratio = (usedXw / landingLimit) * 100;
-            if (ratio > worstRatio) {
-                worstRatio = ratio;
-            }
-        }
-
-        // Выбираем класс по процентам
-        if (worstRatio >= 90) {
-            return 'color-purple';
-        } else if (worstRatio >= 70) {
-            return 'color-red';
-        } else if (worstRatio >= 40) {
-            return 'color-yellow';
-        } else if (worstRatio > 0) {
-            return 'color-green';
-        } else {
-            return ''; // либо 'color-green' — на случай нулевой скорости?
-        }
-    }
-
     function findWorstColor(classes) {
         // classes — это массив вроде ["color-green", "color-red"] и т. п.
         // Сортируем по убыванию плохости, берём первый
@@ -3290,11 +3163,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return findWorstColor(arr);
     }
 
-    function detectWorstMetarOrSpeciColor(rawText) {
+    function detectWorstMetarOrSpeciColor(rawText, state) {
         // 1. Пропускаем через highlightKeywords
         //    (но учтите, что insertLineBreaks() вы уже делали, если нужно)
         const mainPart = rawText.split(/\s+(?=TEMPO|BECMG|PROB30|PROB40)/i)[0];
-        let tmp = highlightKeywords(insertLineBreaks(mainPart));
+        let tmp = highlightKeywords(insertLineBreaks(mainPart), state);
 
         // 2. Парсим как HTML
         let parser = new DOMParser();
@@ -3318,8 +3191,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return findWorstColor(foundColors); // вернёт наихудший
     }
 
-    function detectWorstTafColor(rawText) {
-        let tmp = highlightKeywords(insertLineBreaks(rawText));
+    function detectWorstTafColor(rawText, state) {
+        let tmp = highlightKeywords(insertLineBreaks(rawText), state);
 
         let parser = new DOMParser();
         let doc = parser.parseFromString(tmp, 'text/html');

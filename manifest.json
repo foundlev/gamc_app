@@ -1,6 +1,6 @@
 {
-  "name": "GAMC Weather",
-  "short_name": "GAMC Weather",
+  "name": "Weather Helper",
+  "short_name": "Weather Helper",
   "start_url": "/gamc_app/index.html",
   "display": "standalone",
   "background_color": "#ffffff",

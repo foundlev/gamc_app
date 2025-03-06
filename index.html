@@ -334,8 +334,51 @@
         </div>
     </div>
 
+    <!-- Модальное окно для систем захода на посадку -->
+    <div class="modal-backdrop" id="landingSystemsModalBackdrop">
+        <div class="modal" style="min-width: 350px;">
+            <button class="modal-close-btn" id="closeLandingSystemsModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 id="landingSystemsModalCaption">Системы захода на посадку</h2>
+
+            <!-- Список существующих систем -->
+            <div id="landingSystemsList" class="landing-systems-list" style="margin-bottom: 15px;"></div>
+
+            <!-- Блок добавления новой системы в одну строку -->
+            <div id="newSystemForm" class="new-system-form">
+                <label for="systemRunwaySelect">ВПП:</label>
+                <select id="systemRunwaySelect" class="no-default-arrow">
+                    <!-- Для примера, вставь заглушки. Позже наполнишь динамически -->
+                    <option value="12">12</option>
+                    <option value="30">30</option>
+                </select>
+
+                <label for="systemTypeSelect">Тип:</label>
+                <select id="systemTypeSelect" class="no-default-arrow">
+                    <option value="ILS (I)">ILS (I)</option>
+                    <option value="GLS">GLS</option>
+                    <option value="RNAV">RNAV</option>
+                    <option value="VOR">VOR</option>
+                    <option value="NDB">NDB</option>
+                    <option value="LOC">LOC</option>
+                </select>
+
+                <label for="rvrInput">RVR:</label>
+                <input id="rvrInput" type="number" placeholder="m" style="width: 80px;" />
+
+                <label for="dhInput">DH/MDH:</label>
+                <input id="dhInput" type="number" placeholder="ft" style="width: 80px;" />
+
+                <button id="addSystemBtn" style="opacity:0.5;" disabled>Добавить</button>
+            </div>
+        </div>
+    </div>
+
     <script src="main.js"></script>
     <script src="extra.js"></script>
+    <script src="landingSystems.js"></script>
+
 </body>
 
 </html>

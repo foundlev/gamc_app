@@ -913,6 +913,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            const hasLandingSystem = hasAirportLandingSystems(nowIcao);
+
+            const landingSystemBadge = document.createElement('div');
+            landingSystemBadge.className = 'time-badge';
+            landingSystemBadge.id = 'landingSystemBtn';
+            landingSystemBadge.classList.add(hasLandingSystem ? 'badge-default' : 'badge-red');
+            landingSystemBadge.classList.add('content-clickable');
+            landingSystemBadge.onclick = showLandingSystemModal;
+            landingSystemBadge.innerHTML = `<i class="fa-solid fa-plane-arrival"></i>`;
+
+            if (!silent) {
+                timeBadgeContainer.appendChild(landingSystemBadge);
+            }
+
+
             const isNotamUpdated = hasNotamsForIcao(icao);
 
             const notamsBadge = document.createElement('div');
@@ -2400,6 +2415,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedRoutes = localStorage.getItem('savedRoutes') || '[]';
         const icaoColors = localStorage.getItem('icaoColors') || '{}';
         const notamData = localStorage.getItem('notamData') || '{}';
+        const landingSystems = localStorage.getItem('landingSystems') || '{}';
 
         const payload = {
             action: 'upload',
@@ -2409,7 +2425,8 @@ document.addEventListener('DOMContentLoaded', () => {
             icaoHistory: icaoHistory,
             savedRoutes: savedRoutes,
             icaoColors: icaoColors,
-            notamData: notamData
+            notamData: notamData,
+            landingSystems: landingSystems
         };
 
         // 2) Делаем POST-запрос к вашему `api.php`
@@ -2468,6 +2485,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (serverData.notamData) {
                 localStorage.setItem('notamData', serverData.notamData);
+            }
+            if (serverData.landingSystems) {
+                localStorage.setItem('landingSystems', serverData.landingSystems);
             }
 
             showResultModal('Загрузка завершена', 'Данные с сервера приняты и сохранены в Local Storage.');
@@ -3339,6 +3359,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const nowIcaoList = [nowIcao];
         await startBatchRefresh(nowIcaoList, false, true);
         updateNotamButton();
+    });
+
+    // В main.js (или extra.js) найди где все остальные close*ModalBtn
+    const closeLandingSystemsBtn = document.getElementById('closeLandingSystemsModalBtn');
+    closeLandingSystemsBtn.addEventListener('click', () => {
+        hideLandingSystemModal();  // вызываем функцию из landingSystems.js
+    });
+
+    // Можно также закрывать по клику на фон
+    document.getElementById('landingSystemsModalBackdrop').addEventListener('click', (e) => {
+        const backdrop = e.target;
+        if (backdrop.id === 'landingSystemsModalBackdrop') {
+            hideLandingSystemModal();
+        }
     });
 
     updateMenuShow();

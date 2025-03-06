@@ -1984,3 +1984,161 @@ button[hidden] {
         background: var(--card-bg);
     }
 }
+
+/* ================
+   Стили для окна систем захода
+================ */
+#landingSystemsModalBackdrop .modal {
+    max-width: 600px;
+    /* или подбери на вкус */
+    width: 90%;
+}
+
+/* Общий контейнер для списков систем */
+.landing-systems-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Одна строчка (существующая система) */
+.landing-system-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+}
+
+/* Если система неактивна — делаем блеклый вид */
+.landing-system-item.inactive-system {
+    opacity: 0.5;
+}
+
+.landing-system-text {
+    flex: 1;
+    /* чтобы текст растягивался, кнопка Delete прижалась справа */
+}
+
+/* Минимальное оформление для отступа */
+.gray-sep {
+    color: #aaa;
+    margin: 0 4px;
+}
+
+.delete-system-btn {
+    background-color: var(--col-red);
+    color: #fff;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    padding: 5px 8px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.delete-system-btn:hover {
+    opacity: 0.8;
+}
+
+/* Блок добавления новой системы */
+.new-system-form {
+    display: flex;            /* В одну строку */
+    justify-content: space-between;
+    align-items: center;      /* Выравниваем по вертикали */
+    gap: 2px;                 /* Промежутки между элементами */
+    flex-wrap: wrap;          /* При слишком узком окне элементы могут переноситься */
+    margin-top: 10px;         /* Немного отступа сверху, если нужно */
+}
+
+.new-system-form label {
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;      /* Чтобы не переносило текст типа "RVR:" на две строки */
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.new-system-form select,
+.new-system-form input {
+    padding: 6px 8px;
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    /* На случай, если хочешь убрать стрелки у input[type=number]: */
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+}
+
+.landing-left-fields input[type="number"] {
+    -webkit-appearance: none;
+       -moz-appearance: textfield;
+}
+
+.new-system-form button {
+    padding: 7px 14px;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    border: none;
+    background-color: var(--accent-color);
+    color: #fff;
+    cursor: pointer;
+    margin-left: 10px; /* Чуть сдвигаем кнопку */
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.landing-systems-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.landing-system-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+}
+
+.landing-system-item.inactive-system {
+    opacity: 0.5;
+}
+
+.landing-system-text {
+    flex: 1;
+}
+
+.gray-sep {
+    color: #aaa;
+    margin: 0 4px;
+}
+
+.delete-system-btn {
+    background-color: var(--col-red);
+    color: #fff;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    padding: 5px 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.landing-system-group-header {
+    font-weight: bold;
+    margin-top: 10px;
+    color: var(--accent-color);
+}

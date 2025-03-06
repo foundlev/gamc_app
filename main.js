@@ -966,9 +966,6 @@ document.addEventListener('DOMContentLoaded', () => {
             blockObjects.forEach(block => {
                 if (block.type === "METAR" || block.type === "SPECI") {
                     // Ищем худший цвет в block.text
-                    if (icao === "URWA") {
-                        console.log(`ICAO: ${icao} TEXT: ${block.text}`);
-                    }
                     const color = detectWorstMetarOrSpeciColor(block.text, state);
                     if (color) {
                         // Сравниваем с текущим metarWorstColor
@@ -987,8 +984,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // (объявите его где-нибудь наверху: let icaoColors = {}; )
 
             if (!toShowOfflineWarning) {
-                console.log(`ICAO: ${icao} - METAR: ${metarWorstColor} - TAF: ${tafWorstColor}`);
-
                 if (!icaoColors[icao]) {
                     icaoColors[icao] = {};
                 }
@@ -2814,7 +2809,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             const total = aerodromesToUpdate.length;
 
-            const batchNotamSize = 1;
+            const batchNotamSize = 2;
             const failedAttempts = 3;
 
             batchRefreshInfo.textContent = `Аэродромов: ${total}`;
@@ -2837,7 +2832,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Отправляем запросы асинхронно в рамках батча и ждем, пока все завершатся
                 const results = await Promise.all(batch.map(icao => getNotam(icao)));
-                console.log(results);
                 // Удаляем из aerodromesToUpdate все аэродромы, которые в results
                 aerodromesToUpdate = aerodromesToUpdate.filter(icao => !results.includes(icao));
 

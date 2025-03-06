@@ -18,6 +18,7 @@
     --col-yellow: #eb862d;
     /* .color-yellow */
     --col-red: #b22222;
+    --col-pink: #b22222;
     /* .color-red */
     --col-purple: rgb(180, 0, 180);
     /* .color-purple */
@@ -45,6 +46,7 @@
         /* то, что было в .color-green при тёмной теме */
         --col-yellow: #c88200;
         --col-red: #881818;
+        --col-pink: #ff7a7a;
         --col-purple: rgb(98, 0, 98);
         --col-darkred: #000000;
         /* или другой */
@@ -1823,7 +1825,7 @@ button[hidden] {
     display: flex;
     align-items: center;
     gap: 5px;
-    color: var(--col-red);
+    color: var(--col-pink);
 }
 
 /* Темная тема */

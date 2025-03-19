@@ -279,3 +279,36 @@ notamModalBackdrop.addEventListener('click', (e) => {
         notamModalBackdrop.classList.remove('show');
     }
 });
+
+// Добавим в существующий код
+const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+const showPasswordBtn = document.getElementById('showPasswordBtn');
+const passwordBlock = document.querySelector('.password-block');
+
+let isPasswordVisible = false;
+
+showPasswordBtn.addEventListener('click', () => {
+    const password = localStorage.getItem(PASSWORD_KEY) || '';
+
+    if (!isPasswordVisible) {
+        // Скрываем кнопку сброса и показываем поле
+        resetPasswordBtn.style.display = 'none';
+
+        const passwordInput = document.createElement('input');
+        passwordInput.type = 'text';
+        passwordInput.value = password;
+        passwordInput.readOnly = true;
+        passwordInput.classList.add('password-input');
+
+        passwordBlock.insertBefore(passwordInput, showPasswordBtn);
+        showPasswordBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+    } else {
+        // Удаляем поле и показываем кнопку сброса
+        const input = passwordBlock.querySelector('.password-input');
+        if (input) passwordBlock.removeChild(input);
+        resetPasswordBtn.style.display = 'inline-block';
+        showPasswordBtn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+    }
+
+    isPasswordVisible = !isPasswordVisible;
+});

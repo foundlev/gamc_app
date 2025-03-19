@@ -18,7 +18,7 @@
 <body>
 
     <header>
-        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.41</span></h1>
+        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.42</span></h1>
     </header>
 
     <main>
@@ -165,7 +165,10 @@
             <h2>Настройки</h2>
             <div class="modal-button-container">
                 <button id="removeSavedIcaos" class="modal-button"><i class="fa-solid fa-trash"></i>Удалить сохранения</button>
-                <button id="resetPasswordBtn" class="modal-button"><i class="fas fa-unlock-alt"></i>Сбросить пароль</button>
+                <div class="password-block">
+                    <button id="resetPasswordBtn" class="modal-button"><i class="fas fa-unlock-alt"></i>Сбросить пароль</button>
+                    <button id="showPasswordBtn"  class="modal-button"><i class="fa-solid fa-eye"></i></button>
+                </div>
                 <button id="resetZoomBtn" class="modal-button"><i class="fas fa-compress-arrows-alt"></i>Сбросить масштаб</button>
                 <div id="gamcUidContainer">
                     <input type="text" id="gamcUidInput" value="" readonly maxlength="6" />

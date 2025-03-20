@@ -81,7 +81,7 @@ function renderLandingSystemsList() {
                     <span class="gray-sep">|</span> RVR: ${item.rvr} м
                     <span class="gray-sep">|</span> DH: ${item.dh} ft
                 </div>
-                <button class="delete-system-btn" data-idx="${item.idx}">Удалить</button>
+                <button class="delete-system-btn" data-idx="${item.idx}"><i class="fa-solid fa-minus"></i></button>
             `;
             contentElem.appendChild(row);
         });
@@ -103,16 +103,38 @@ function renderLandingSystemsList() {
         });
     });
 
-    // Обработчик кнопки "Удалить" – удаляет элемент из массива и обновляет localStorage
-    contentElem.querySelectorAll('.delete-system-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const idx = e.target.dataset.idx;
-            const landingSystems = getLandingSystems();
-            if (currentIcao in landingSystems) {
-                landingSystems[currentIcao].splice(idx, 1);
-                saveLandingSystems(landingSystems);
-                renderLandingSystemsList();
-            }
+    // Обработчик кнопки "Удалить" – открывает модальное окно подтверждения
+    document.querySelectorAll('.delete-system-btn').forEach(btn => {
+        const systemIdx = btn.getAttribute('data-idx');
+
+        btn.addEventListener('click', () => {
+            const idx = systemIdx;
+            const currentIcao = nowIcao ? nowIcao.toUpperCase() : '';
+
+            // Показываем модальное окно подтверждения
+            const confirmModal = document.getElementById('confirmModalBackdrop');
+            confirmModal.classList.add('show');
+
+            // Обработчик кнопки "Да" в модальном окне
+            document.getElementById('confirmYesBtn').onclick = () => {
+                const landingSystems = getLandingSystems();
+                if (currentIcao in landingSystems) {
+                    landingSystems[currentIcao].splice(idx, 1);
+                    saveLandingSystems(landingSystems);
+                    renderLandingSystemsList();
+                }
+                confirmModal.classList.remove('show');
+            };
+
+            // Обработчик кнопки "Нет" в модальном окне
+            document.getElementById('confirmNoBtn').onclick = () => {
+                confirmModal.classList.remove('show');
+            };
+
+            // Обработчик закрытия модального окна
+            document.getElementById('closeConfirmModalBtn').onclick = () => {
+                confirmModal.classList.remove('show');
+            };
         });
     });
 }

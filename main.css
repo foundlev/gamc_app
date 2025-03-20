@@ -1121,6 +1121,10 @@ footer {
     z-index: 1;
 }
 
+#landingSystemsModalBackdrop {
+    z-index: 1;
+}
+
 #confirmModalBackdrop {
     z-index: 2;
 }
@@ -2243,4 +2247,10 @@ input::-webkit-inner-spin-button {
 
 #maintenanceInfoContent {
     line-height: 1.5rem;
+}
+
+#landingSystemsList {
+    margin-bottom: 15px;
+    max-height: 50vh;
+    overflow-y: auto;
 }

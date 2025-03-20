@@ -962,7 +962,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const landingSystemBadge = document.createElement('div');
             landingSystemBadge.className = 'time-badge';
             landingSystemBadge.id = 'landingSystemBtn';
-            landingSystemBadge.classList.add(hasLandingSystem ? 'badge-default' : 'badge-red');
+            landingSystemBadge.classList.add(hasLandingSystem ? 'badge-green' : 'badge-default');
             landingSystemBadge.classList.add('content-clickable');
             landingSystemBadge.onclick = showLandingSystemModal;
             landingSystemBadge.innerHTML = `<i class="fa-solid fa-plane-arrival"></i>`;

@@ -2196,3 +2196,51 @@ input::-webkit-inner-spin-button {
 .password-block input::selection {
     background: transparent;
 }
+
+/* Стили для контейнера */
+.setting-row {
+    width: 80%;
+    margin-top: 10px;
+    text-align: left;
+}
+
+/* Стилизация выпадающего списка */
+#aircraftTypeSelect {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-size: 0.95rem;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    #aircraftTypeSelect {
+        background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23fff" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+    }
+}
+
+#aircraftTypeSelect:hover {
+    border-color: var(--accent-color);
+}
+
+#aircraftTypeSelect:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.2);
+}
+
+#maintenanceInfoContent {
+    line-height: 1.5rem;
+}

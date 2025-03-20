@@ -312,3 +312,48 @@ showPasswordBtn.addEventListener('click', () => {
 
     isPasswordVisible = !isPasswordVisible;
 });
+
+
+function getAircraftType() {
+    return localStorage.getItem('aircraftType') || 'B737';
+}
+
+
+function getAircraftMaintainanceIcaos() {
+    const aircraftType = getAircraftType();
+    return maintenance[aircraftType].icao || [];
+}
+
+
+function updateMaintenanceBadge() {
+    const badge = document.getElementById('showMaintenanceInfoModal');
+    console.log(badge);
+    if (badge) {
+        const selectedAircraft = getAircraftType();
+        const maintenanceCodes = getAircraftMaintainanceIcaos();
+
+        const isIncludesMaintenance = maintenanceCodes.includes(nowIcao);
+        console.log(isIncludesMaintenance);
+
+        badge.classList.toggle('badge-green', isIncludesMaintenance);
+        badge.classList.toggle('badge-red', !isIncludesMaintenance);
+    }
+}
+
+
+// В файле main.js или отдельном скрипте
+document.addEventListener('DOMContentLoaded', function() {
+    const aircraftSelect = document.getElementById('aircraftTypeSelect');
+
+    // Загрузка сохраненного значения
+    const savedType = getAircraftType();
+    if (savedType) {
+        aircraftSelect.value = savedType;
+    }
+
+    // Сохранение при изменении
+    aircraftSelect.addEventListener('change', function() {
+        localStorage.setItem('aircraftType', this.value);
+        updateMaintenanceBadge();
+    });
+});

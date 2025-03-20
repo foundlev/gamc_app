@@ -5,14 +5,45 @@ let autoGoOffline = localStorage.getItem('autoGoOffline') !== null ?
 let doHighlight = JSON.parse(localStorage.getItem('doHighlight')) || false;
 let canShowAirportInfo = JSON.parse(localStorage.getItem('canShowAirportInfo')) || false;
 
-// Maintenance support for B737 is provided in the following airports (29 NOV 24)
-const airportMaintenanceCodes = [
-    "UAAA", "UBBB", "UDYZ", "UEEE",
-    "UHWW", "UIII", "ULAA", "ULLI", "ULMM", "UMKK", "UMMS", "UNBG", "UNKL", "UNNT", "UNOO",
-    "URMG", "URML", "URMM", "URSS", "URWW", "USII", "USPP", "USRR", "USSS", "USTR", "UTTT",
-    "UUYY", "UWGG", "UWKD", "UWOO", "UWUU", "UWWW", "HECA", "HEGN", "HESH", "LTAI", "LTFM",
-    "OMAA", "OMDB", "OMDW", "VTBS", "ZJSY"
-];
+const maintenance = {
+    "B737": {
+        "icao": [
+            "UAAA", "UBBB", "UDYZ", "UEEE",
+            "UHWW", "UIII", "ULAA", "ULLI", "ULMM", "UMKK", "UMMS", "UNBG", "UNKL", "UNNT", "UNOO",
+            "URMG", "URML", "URMM", "URSS", "URWW", "USII", "USPP", "USRR", "USSS", "USTR", "UTTT",
+            "UUYY", "UWGG", "UWKD", "UWOO", "UWUU", "UWWW", "HECA", "HEGN", "HESH", "LTAI", "LTFM",
+            "OMAA", "OMDB", "OMDW", "VTBS", "ZJSY"
+        ],
+        "notam": "AFL 9EMIH/24 (29 NOV 24)"
+    },
+    "A320N,A321N": {
+        "icao": ['UAAA', 'UDYZ', 'ULAA', 'ULLI', 'ULMM', 'UMKK', 'UNKL', 'UNNT', 'UNOO', 'URMG', 'URML',
+            'URMM', 'URSS', 'USSS', 'UTSS', 'UTTT', 'UUYY', 'UWKD', 'UWOO', 'HECA', 'HEGN', 'HESH', 'LTAI',
+            'LTFM', 'OMAA', 'OMDB', 'OMDW'],
+        "notam": "AFL 9EMII/24 (29 NOV 24)"
+    },
+    "A320,A320S,A321,A321S": {
+        "icao": ['UAAA', 'UAFM', 'UAFO', 'UBBB', 'UDYZ', 'UIII', 'ULAA', 'ULLI', 'ULMM', 'UMKK', 'UMMS',
+            'UNBG', 'UNKL', 'UNNT', 'UNOO', 'URMG', 'URML', 'URMM', 'URMT', 'URSS', 'URWW', 'USCC', 'USII',
+            'USPP', 'USSS', 'USTR', 'UTSS', 'UTTT', 'UUYY', 'UWGG', 'UWKD', 'UWOO', 'UWUU', 'UWWW', 'HECA',
+            'HEGN', 'HESH', 'LTAI', 'LTFM', 'OMAA', 'OMDB', 'OMDW', 'VTBS', 'VTSP'],
+        "notam": "AFL 9EMJ1/24 (29 NOV 24)"
+    },
+    "B777": {
+        "icao": ['UHHH', 'UHPP', 'UHSS', 'UHWW', 'ULLI', 'UNNT', 'URSS', 'HECA', 'HEGN', 'HESH', 'LTAI',
+            'LTFM', 'VCBI', 'VIDP', 'VTBS', 'VTSP', 'ZJSY', 'ZSPD'],
+        "notam": "AFL 9EMIC/24 (29 NOV 24)"
+    },
+    "A330": {
+        "icao": ['UAAA', 'UHHH', 'UHWW', 'ULLI', 'UMKK', 'UNKL', 'UNNT', 'URSS', 'USSS', 'HECA', 'HEGN',
+            'HESH', 'LTAI', 'LTFM', 'OMDW', 'VCBI', 'VIDP', 'VTBS', 'VTSP', 'ZJSY'],
+        "notam": "AFL 9EMIE/24 (29 NOV 24)"
+    },
+    "A350": {
+        "icao": ['UHHH', 'UHWW', 'UMKK', 'URSS', 'LTBA', 'VCBI', 'VTBS', 'ZJSY'],
+        "notam": "AFL 9JDJ5/24 (29 NOV 24)"
+    }
+}
 
 let nowIcao = null;
 let showSecondMenu = JSON.parse(localStorage.getItem('showSecondMenu')) || false;
@@ -883,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const airportClassBadge = document.createElement('div');
             airportClassBadge.className = 'time-badge';
-            airportClassBadge.id = 'showMaintenanceInfoModal';
+            airportClassBadge.id = 'airportClassBadge';
             airportClassBadge.classList.add(getAirportColorClass(state.nowIcao));
             airportClassBadge.classList.add('content-clickable');
             airportClassBadge.innerHTML = getAirportIconClass(state.nowIcao);
@@ -896,21 +927,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 timeBadgeContainer.appendChild(airportClassBadge);
             }
 
-            if (airportMaintenanceCodes.includes(icao)) {
-                const maintenanceBadge = document.createElement('div');
-                maintenanceBadge.className = 'time-badge';
-                maintenanceBadge.id = 'showMaintenanceInfoModal';
-                maintenanceBadge.classList.add('badge-green');
-                maintenanceBadge.classList.add('content-clickable');
-                maintenanceBadge.innerHTML = `<i class="fa-solid fa-wrench"></i>`;
+            const selectedAircraft = getAircraftType();
+            const maintenanceCodes = getAircraftMaintainanceIcaos();
 
-                maintenanceBadge.addEventListener('click', () => {
-                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> осуществляется техническое обслуживание B737<br><br>NOTAM AFL 9EMIH/24 (29 NOV 24)`);
-                });
+            const isIncludesMaintenance = maintenanceCodes.includes(icao);
 
-                if (!silent) {
-                    timeBadgeContainer.appendChild(maintenanceBadge);
+            const maintenanceBadge = document.createElement('div');
+            maintenanceBadge.className = 'time-badge';
+            maintenanceBadge.id = 'showMaintenanceInfoModal';
+            maintenanceBadge.classList.add(isIncludesMaintenance ? 'badge-green' : 'badge-red');
+            maintenanceBadge.classList.add('content-clickable');
+            maintenanceBadge.innerHTML = `<i class="fa-solid fa-wrench"></i>`;
+
+            maintenanceBadge.addEventListener('click', () => {
+                const selectedAircraftLocal = getAircraftType();
+                const maintenanceCodesLocal = getAircraftMaintainanceIcaos();
+                const maintenanceNotamLocal = maintenance[selectedAircraftLocal]?.notam;
+
+                const isIncludesMaintenanceLocal = maintenanceCodesLocal.includes(icao);
+
+                if (isIncludesMaintenanceLocal) {
+                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> <span style="color: var(--badge-green-bg)"><b>осуществляется</b></span> техническое обслуживание <b>${selectedAircraftLocal}</b><br><br>${maintenanceNotamLocal}`);
+                } else {
+                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> <span style="color: var(--badge-red-bg)"><b>НЕ осуществляется</b></span> техническое обслуживание <b>${selectedAircraftLocal}</b>`);
                 }
+            });
+
+            if (!silent) {
+                timeBadgeContainer.appendChild(maintenanceBadge);
             }
 
             const hasLandingSystem = hasAirportLandingSystems(nowIcao);
@@ -2231,7 +2275,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const badges = document.querySelectorAll('.time-badge');
         badges.forEach(badge => {
             // Пропускаем плашку UTC и плашку «Wrench»
-            if (badge.id === 'utcBadge' || badge.id === 'showMaintenanceInfoModal') return;
+            if (badge.id === 'utcBadge' || badge.id === 'airportClassBadge' || badge.id === 'showMaintenanceInfoModal') return;
 
             // Извлекаем дату, которую мы записали в badge.dataset.msgDate
             const msgDateStr = badge.dataset.msgDate;

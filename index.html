@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="logo.png" sizes="100x100" type="image/png">
-    <link rel="apple-touch-icon" href="icons/icons8-prequel-app-128.png">
+    <link rel="apple-touch-icon" href="logo.png" sizes="100x100" type="image/png">
 </head>
 
 <body>
@@ -183,6 +183,17 @@
                     <button id="exportGamcUidBtn" disabled>
                         <i class="fas fa-upload"></i>Выгрузить
                     </button>
+                </div>
+                <div class="setting-row">
+                    <label for="aircraftTypeSelect">Тип ВС (maintenance support):</label>
+                    <select id="aircraftTypeSelect">
+                        <option value="B737">B737</option>
+                        <option value="A320N,A321N">A320N, A321N</option>
+                        <option value="A320,A320S,A321,A321S">A320, A320S, A321, A321S</option>
+                        <option value="B777">B777</option>
+                        <option value="A330">A330</option>
+                        <option value="A350">A350</option>
+                    </select>
                 </div>
                 <div class="modal-checkbox-group">
                     <label class="custom-checkbox">

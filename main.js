@@ -484,6 +484,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const editRouteBtn = document.getElementById('editRouteBtn');
     editRouteBtn.addEventListener('click', () => {
+        if (routeSelect.value === 'recent') {
+            // Показываем модалку
+            showAddRouteModal();
+            return;
+        }
+
         // 1) определить, какой индекс выбран
         const idx = parseInt(routeSelect.value, 10);
         if (isNaN(idx) || !savedRoutes[idx]) {
@@ -2077,11 +2083,35 @@ document.addEventListener('DOMContentLoaded', () => {
     closeAddRouteModalBtn.addEventListener('click', hideAddRouteModal);
 
     saveRouteBtn.addEventListener('click', () => {
+        const dep = departureIcaoInput.value.trim().toUpperCase();
+        const arr = arrivalIcaoInput.value.trim().toUpperCase();
+
+        if (dep.length !== 4 || arr.length !== 4) {
+            alert('Вылет и Назначение должны содержать по 4 латинских буквы!');
+            return;
+        }
+
+        const alts = alternatesIcaoInput.value.trim().toUpperCase();
+        let alternatesList = alts ? alts.split(/\s+/) : [];
+        // Убираем повторение из alternatesList.
+        alternatesList = [...new Set(alternatesList)];
+        alternatesList = alternatesList.slice(0, LAST_COUNT).filter(a => a.length === 4);
+
+        // Ограничим максимум LAST_COUNT
+        alternatesList = alternatesList.slice(0, LAST_COUNT).filter(a => a.length === 4);
+
+        if (airportInfoDb[dep]) {
+            const depLat = parseFloat(airportInfoDb[dep].latitude);
+            const depLon = parseFloat(airportInfoDb[dep].longitude);
+            alternatesList.sort((a, b) => {
+                if (!airportInfoDb[a] || !airportInfoDb[b]) return 0;
+                const distA = computeDistance(depLat, depLon, parseFloat(airportInfoDb[a].latitude), parseFloat(airportInfoDb[a].longitude));
+                const distB = computeDistance(depLat, depLon, parseFloat(airportInfoDb[b].latitude), parseFloat(airportInfoDb[b].longitude));
+                return distA - distB;
+            });
+        }
+
         if (isEditingRoute) {
-            // Редактируем существующий
-            const alts = alternatesIcaoInput.value.trim().toUpperCase();
-            let alternatesList = alts ? alts.split(/\s+/) : [];
-            alternatesList = alternatesList.slice(0, LAST_COUNT).filter(a => a.length === 4);
 
             savedRoutes[editRouteIndex].alternates = alternatesList;
 
@@ -2110,19 +2140,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const dep = departureIcaoInput.value.trim().toUpperCase();
-        const arr = arrivalIcaoInput.value.trim().toUpperCase();
-        const alts = alternatesIcaoInput.value.trim().toUpperCase();
-
-        if (dep.length !== 4 || arr.length !== 4) {
-            alert('Вылет и Назначение должны содержать по 4 латинских буквы!');
-            return;
+        if (airportInfoDb[dep]) {
+            const depLat = parseFloat(airportInfoDb[dep].latitude);
+            const depLon = parseFloat(airportInfoDb[dep].longitude);
+            alternatesList.sort((a, b) => {
+                if (!airportInfoDb[a] || !airportInfoDb[b]) return 0;
+                const distA = computeDistance(depLat, depLon, parseFloat(airportInfoDb[a].latitude), parseFloat(airportInfoDb[a].longitude));
+                const distB = computeDistance(depLat, depLon, parseFloat(airportInfoDb[b].latitude), parseFloat(airportInfoDb[b].longitude));
+                return distA - distB;
+            });
         }
-
-        // Парсим запасные
-        let alternatesList = alts ? alts.split(/\s+/) : [];
-        // Ограничим максимум LAST_COUNT
-        alternatesList = alternatesList.slice(0, LAST_COUNT).filter(a => a.length === 4);
 
         // Формируем объект нового маршрута
         const newRoute = {
@@ -2162,7 +2189,10 @@ document.addEventListener('DOMContentLoaded', () => {
             'Точно удалить этот маршрут?',
             () => {
                 // <-- это будет наш onYes коллбэк
-                savedRoutes.splice(editRouteIndex, 1);
+
+                const currentRouteIndex = routeSelect.value;
+                savedRoutes.splice(currentRouteIndex, 1);
+
                 localStorage.setItem(ROUTES_KEY, JSON.stringify(savedRoutes));
 
                 isEditingRoute = false;
@@ -2182,7 +2212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 1) «Недавние»
         let recentOption = document.createElement('option');
-        document.getElementById('editRouteBtn').disabled = true;
+        document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-plus"></i>';
         recentOption.value = 'recent';
         recentOption.innerHTML = 'Недавние';
         routeSelect.appendChild(recentOption);
@@ -2209,7 +2239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         routeSelect.value = selectedValue;
 
         // Всегда оставляем «Недавние» выбранным по умолчанию (если нужно)
-        document.getElementById('editRouteBtn').disabled = true;
+        document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-plus"></i>';
     }
     renderRoutesInSelect();
 
@@ -2220,14 +2250,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedValue === 'recent') {
             // Показываем "Недавние"
             renderHistory();
-            editBtn.disabled = true;
+            editBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
             return;
         }
 
         if (selectedValue === 'add') {
             // Показываем модалку
             showAddRouteModal();
-            editBtn.disabled = true;
+            editBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
             routeSelect.value = 'recent';
             return;
         }
@@ -2243,7 +2273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Рендерим их в #historyContainer
         renderRouteAerodromes(routeAerodromes);
 
-        editBtn.disabled = routeSelect.value === 'recent' || routeSelect.value === 'add';
+        editBtn.innerHTML = (routeSelect.value === 'recent' || routeSelect.value === 'add') ? '<i class="fa-solid fa-plus"></i>' : '<i class="fa-solid fa-pen"></i>';
     });
 
     function renderRouteAerodromes(aerodromes) {
@@ -3428,6 +3458,17 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLandingSystemModal();
         }
     });
+
+    function computeDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Радиус Земли в км
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
 
     updateMenuShow();
     setInterval(updateBadgesTimeAndColors, 15000);

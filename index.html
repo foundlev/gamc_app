@@ -18,7 +18,7 @@
 <body>
 
     <header>
-        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.46</span></h1>
+        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.47</span></h1>
     </header>
 
     <main>
@@ -55,8 +55,8 @@
                 </div>
             </div>
             <div class="route-dropdown">
-                <button id="editRouteBtn" disabled>
-                    <i class="fa-solid fa-pen"></i>
+                <button id="editRouteBtn">
+                    <i class="fa-solid fa-plus"></i>
                 </button>
                 <select id="routeSelect">
                     <option value="recent" selected>Недавние</option>
@@ -245,10 +245,16 @@
 
             <!-- Блок Запасные -->
             <div style="position: relative;">
-                <label for="alternatesIcao">
-                    <i class="fa-solid fa-location-dot"></i>Запасные (через пробел, максимум 30):
-                </label>
-                <textarea id="alternatesIcao" rows="3" placeholder="XXXX XXXX ..." style="width: 100%; resize: vertical; overflow-y: auto; resize: none;"></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label for="alternatesIcao">
+                        <i class="fa-solid fa-location-dot"></i>Запасные (через пробел, максимум 30):
+                    </label>
+                    <button id="copyAlternatesBtn" class="icon-button" title="Скопировать запасные аэродромы">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+                <textarea id="alternatesIcao" rows="3" placeholder="XXXX XXXX ..."
+                    style="width: 100%; resize: vertical; overflow-y: auto; resize: none;"></textarea>
                 <ul id="altsIcaoSuggestions" class="icao-suggestions"></ul>
             </div>
 

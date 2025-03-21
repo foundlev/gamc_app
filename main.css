@@ -2485,3 +2485,23 @@ input::-webkit-inner-spin-button {
   75% { content: '⠸'; }
   100% { content: '⠼'; }
 }
+
+/* Стили для кнопки копирования */
+#copyAlternatesBtn {
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    color: var(--accent-color);
+    font-size: 1rem;
+    transition: opacity 0.2s;
+    margin-left: 8px;
+}
+
+#copyAlternatesBtn:hover {
+    opacity: 0.7;
+}
+
+#copyAlternatesBtn:active {
+    transform: translateY(1px);
+}

@@ -400,3 +400,24 @@ document.getElementById('limitationsModalBackdrop').addEventListener('click', (e
         hideLimitationsModal();
     }
 });
+
+// Копирование запасных аэродромов
+document.getElementById('copyAlternatesBtn').addEventListener('click', function() {
+    const alternates = document.getElementById('alternatesIcao').value;
+    if (alternates.trim()) {
+        navigator.clipboard.writeText(alternates);
+
+        // На 1 секунду меняем иконку на <i class="fa-solid fa-check"></i>
+        document.getElementById('copyAlternatesBtn').innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => document.getElementById('copyAlternatesBtn').innerHTML = '<i class="fa-solid fa-copy"></i>', 1000);
+    }
+});
+
+// Функция показа уведомления (если уже существует в коде - не дублировать)
+function showResultModal(title, message) {
+    if (window.showResultModal) { // Проверка на существование функции
+        window.showResultModal(title, message);
+    } else {
+        alert(message); // Фолбэк если модалка не реализована
+    }
+}

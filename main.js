@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const icaoInput = document.getElementById('icao');
     const fetchBtn = document.getElementById('fetchBtn');
     const gpsBtn = document.getElementById('gpsBtn');
-    const aiBtn = document.getElementById('aiBtn');
+    const restrBtn = document.getElementById('restrBtn');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
     const removeSavedIcaosBtn = document.getElementById('removeSavedIcaos');
     const responseContainer = document.getElementById('responseContainer');
@@ -718,7 +718,12 @@ document.addEventListener('DOMContentLoaded', () => {
             responseContainer.textContent = 'Здесь будет отображаться погода...';
             state.worstRunwayFrictionCode = null;
         } else {
-            responseContainer.textContent = 'Загрузка...';
+            // Заменяем текст на анимацию загрузки
+            responseContainer.innerHTML = `
+              <div class="loading-container">
+                <div class="loading-text">Загрузка метеоданных</div>
+              </div>
+            `;
             state.worstRunwayFrictionCode = null;
         }
         timeBadgeContainer.innerHTML = '';
@@ -2376,14 +2381,14 @@ document.addEventListener('DOMContentLoaded', () => {
             zoomInBtn.hidden = true;
             zoomOutBtn.hidden = true;
             gpsBtn.hidden = false;
-            aiBtn.hidden = false;
+            restrBtn.hidden = false;
             refreshAllBtn.hidden = false;
             settingsBtn.hidden = true;
         } else {
             zoomInBtn.hidden = false;
             zoomOutBtn.hidden = false;
             gpsBtn.hidden = true;
-            aiBtn.hidden = true;
+            restrBtn.hidden = true;
             refreshAllBtn.hidden = true;
             settingsBtn.hidden = false;
         }

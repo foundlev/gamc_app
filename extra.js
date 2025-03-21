@@ -375,10 +375,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     updateAircraftTypeBadge();
+
+    // Клик по бейджу для открытия настроек
+    document.getElementById('aircraftTypeBadge').addEventListener('click', () => {
+        document.getElementById('settingsModalBackdrop').classList.add('show');
+    });
 });
 
 // Обработчики для модального окна ограничений
-document.getElementById('aircraftTypeBadge').addEventListener('click', showLimitationsModal);
+document.getElementById('restrBtn').addEventListener('click', showLimitationsModal);
 document.getElementById('closeLimitationsModalBtn').addEventListener('click', hideLimitationsModal);
 
 function showLimitationsModal() {

@@ -2371,3 +2371,117 @@ input::-webkit-inner-spin-button {
 .limitation-item {
     animation: slideIn 0.3s ease-out forwards;
 }
+
+/* Анимация пульсации */
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* Анимация нейроглифов */
+@keyframes neuro {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  justify-content: center;
+}
+
+.neuro-loader {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background: linear-gradient(
+    45deg,
+    var(--accent-color),
+    #7c3aed,
+    var(--accent-color)
+  );
+  background-size: 400% 400%;
+  animation: neuro 3s ease infinite, pulse 2s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.neuro-loader::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: var(--card-bg);
+  border-radius: 10px;
+}
+
+.dot-flashing {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--accent-color);
+  color: var(--accent-color);
+  animation: dot-flashing 1s infinite linear alternate;
+  animation-delay: 0.5s;
+}
+
+.dot-flashing::before,
+.dot-flashing::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+}
+
+.dot-flashing::before {
+  left: -15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--accent-color);
+  color: var(--accent-color);
+  animation: dot-flashing 1s infinite alternate;
+  animation-delay: 0s;
+}
+
+.dot-flashing::after {
+  left: 15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--accent-color);
+  color: var(--accent-color);
+  animation: dot-flashing 1s infinite alternate;
+  animation-delay: 1s;
+}
+
+@keyframes dot-flashing {
+  0% { opacity: 0.2; transform: translateY(0); }
+  100% { opacity: 1; transform: translateY(-10px); }
+}
+
+.loading-text {
+  font-family: monospace;
+  color: var(--accent-color);
+  text-align: center;
+  position: relative;
+}
+
+.loading-text::after {
+  content: '⠋';
+  animation: typing 1s infinite;
+  position: absolute;
+  margin-left: 5px;
+}
+
+@keyframes typing {
+  0% { content: '⠋'; }
+  25% { content: '⠙'; }
+  50% { content: '⠹'; }
+  75% { content: '⠸'; }
+  100% { content: '⠼'; }
+}

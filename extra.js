@@ -56,7 +56,10 @@ function showNotamModal() {
     }
     // Фильтруем из initialNotams только нужные
     // смотрите, у вас ключи могут быть "icao" или "location", используйте одинаково
-    const notamsForIcao = getNotamsForIcao(nowIcao);
+    let notamsForIcao = []
+    if (hasNotamsForIcao(nowIcao)) {
+        notamsForIcao = getNotamsForIcao(nowIcao);
+    }
     const loadNotamBtn = document.getElementById('loadNotamBtn');
 
     if (notamsForIcao.length === 0) {
@@ -356,4 +359,39 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('aircraftType', this.value);
         updateMaintenanceBadge();
     });
+
+    // Добавим в обработчик загрузки страницы
+    function updateAircraftTypeBadge() {
+        const selectedType = getAircraftType();
+        const badge = document.getElementById('selectedAircraftType');
+        if(badge) badge.textContent = selectedType.replaceAll(',', ', ');
+    }
+
+    // Обновим обработчик изменения селекта
+    aircraftSelect.addEventListener('change', function() {
+        localStorage.setItem('aircraftType', this.value);
+        updateMaintenanceBadge();
+        updateAircraftTypeBadge(); // Добавляем обновление бейджа
+    });
+
+    updateAircraftTypeBadge();
+});
+
+// Обработчики для модального окна ограничений
+document.getElementById('aircraftTypeBadge').addEventListener('click', showLimitationsModal);
+document.getElementById('closeLimitationsModalBtn').addEventListener('click', hideLimitationsModal);
+
+function showLimitationsModal() {
+    document.getElementById('limitationsModalBackdrop').classList.add('show');
+}
+
+function hideLimitationsModal() {
+    document.getElementById('limitationsModalBackdrop').classList.remove('show');
+}
+
+// Закрытие по клику вне модалки
+document.getElementById('limitationsModalBackdrop').addEventListener('click', (e) => {
+    if(e.target === document.getElementById('limitationsModalBackdrop')) {
+        hideLimitationsModal();
+    }
 });

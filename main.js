@@ -947,9 +947,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isIncludesMaintenanceLocal = maintenanceCodesLocal.includes(icao);
 
                 if (isIncludesMaintenanceLocal) {
-                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> <span style="color: var(--badge-green-bg)"><b>осуществляется</b></span> техническое обслуживание <b>${selectedAircraftLocal}</b><br><br>${maintenanceNotamLocal}`);
+                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> <span style="color: var(--badge-green-bg)"><b>осуществляется</b></span> техническое обслуживание <b>${selectedAircraftLocal.replaceAll(',', ', ')}</b><br><br>NOTAM: ${maintenanceNotamLocal}`);
                 } else {
-                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> <span style="color: var(--badge-red-bg)"><b>НЕ осуществляется</b></span> техническое обслуживание <b>${selectedAircraftLocal}</b>`);
+                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> <span style="color: var(--badge-red-bg)"><b>НЕ осуществляется</b></span> техническое обслуживание <b>${selectedAircraftLocal.replaceAll(',', ', ')}</b>`);
                 }
             });
 
@@ -2460,6 +2460,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const icaoColors = localStorage.getItem('icaoColors') || '{}';
         const notamData = localStorage.getItem('notamData') || '{}';
         const landingSystems = localStorage.getItem('landingSystems') || '{}';
+        const aircraftType = localStorage.getItem('aircraftType') || 'B737';
 
         const payload = {
             action: 'upload',
@@ -2470,7 +2471,8 @@ document.addEventListener('DOMContentLoaded', () => {
             savedRoutes: savedRoutes,
             icaoColors: icaoColors,
             notamData: notamData,
-            landingSystems: landingSystems
+            landingSystems: landingSystems,
+            aircraftType: aircraftType
         };
 
         // 2) Делаем POST-запрос к вашему `api.php`
@@ -2532,6 +2534,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (serverData.landingSystems) {
                 localStorage.setItem('landingSystems', serverData.landingSystems);
+            }
+            if (serverData.aircraftType) {
+                localStorage.setItem('aircraftType', serverData.aircraftType);
             }
 
             showResultModal('Загрузка завершена', 'Данные с сервера приняты и сохранены в Local Storage.');

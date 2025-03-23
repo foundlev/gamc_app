@@ -1970,6 +1970,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
 
     settingsBtn.addEventListener('click', () => {
+        updateExportButtonState();
         settingsModalBackdrop.classList.add('show');
     });
 
@@ -2525,6 +2526,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Ошибка при выгрузке:', err);
             showResultModal('Ошибка при выгрузке', String(err));
         }
+        markNowDataAsSynced();
     }
 
     async function doDownload() {
@@ -2574,7 +2576,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('aircraftType', serverData.aircraftType);
             }
 
+            markNowDataAsSynced();
+
             showResultModal('Загрузка завершена', 'Данные с сервера приняты и сохранены в Local Storage.');
+
+            // Через 2 секунды обновляем страницу.
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+
         } catch (err) {
             console.error('Ошибка при загрузке:', err);
             showResultModal('Ошибка при загрузке', String(err));

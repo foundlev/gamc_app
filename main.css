@@ -2505,3 +2505,32 @@ input::-webkit-inner-spin-button {
 #copyAlternatesBtn:active {
     transform: translateY(1px);
 }
+
+/* Стили для индикатора */
+#exportGamcUidBtn {
+    position: relative;
+    overflow: visible;
+}
+
+.export-indicator {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    display: none;
+    box-shadow: 0 0 4px rgba(255, 68, 68, 0.3);
+}
+
+#exportGamcUidBtn.need-sync .export-indicator {
+    display: block;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}

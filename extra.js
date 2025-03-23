@@ -380,6 +380,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('aircraftTypeBadge').addEventListener('click', () => {
         document.getElementById('settingsModalBackdrop').classList.add('show');
     });
+
+    updateExportButtonState();
 });
 
 // Обработчики для модального окна ограничений

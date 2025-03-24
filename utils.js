@@ -25,7 +25,7 @@ function setSyncDataHash(data) {
 }
 
 function getSyncDataHash() {
-    return localStorage.getItem('syncDataHash');
+    return localStorage.getItem('syncDataHash') || '';
 }
 
 function markNowDataAsSynced() {
@@ -40,8 +40,6 @@ function markNowDataAsSynced() {
 function needToUploadData(nowData) {
     const savedHash = getSyncDataHash();
     const newHash = convertToHash(nowData);
-
-    console.log(savedHash.toString(), newHash.toString());
 
     return savedHash && savedHash.toString() !== newHash.toString();
 }

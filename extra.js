@@ -378,6 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Клик по бейджу для открытия настроек
     document.getElementById('aircraftTypeBadge').addEventListener('click', () => {
+        updateExportButtonState();
         document.getElementById('settingsModalBackdrop').classList.add('show');
     });
 

@@ -18,7 +18,7 @@
 <body>
 
     <header>
-        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.50</span></h1>
+        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.51</span></h1>
     </header>
 
     <main>
@@ -39,10 +39,12 @@
         <div class="buttons">
             <button id="zoomInBtn"><i class="fas fa-search-plus"></i></button>
             <button id="zoomOutBtn"><i class="fas fa-search-minus"></i></button>
-            <button id="restrBtn" hidden><i class="fa-solid fa-scale-balanced"></i></button>
+            <button id="restrBtn" hidden><i class="fa-solid fa-ruler-combined"></i></button>
             <button id="gpsBtn" disabled hidden><i class="fa-solid fa-satellite-dish"></i></button>
+            <button id="systemsInfoBtn" disabled hidden onclick="showLandingSystemModal()"><i class="fa-solid fa-plane-arrival"></i></button>
             <button id="refreshAllBtn" hidden><i class="fa-solid fa-retweet"></i></button>
-            <button id="settingsBtn"><i class="fa-solid fa-gear"></i></button>
+            <button id="aiCheckBtn"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+            <button id="settingsBtn" disabled><i class="fa-solid fa-gear"></i></button>
             <button id="offlineToggleBtn"><i class="fa-solid fa-signal"></i></button>
             <button id="switchMenuBtn"><i class="fa-solid fa-right-left"></i></button>
         </div>

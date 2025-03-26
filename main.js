@@ -385,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const icaoInput = document.getElementById('icao');
     const fetchBtn = document.getElementById('fetchBtn');
     const gpsBtn = document.getElementById('gpsBtn');
+    const systemsInfoBtn = document.getElementById('systemsInfoBtn');
     const restrBtn = document.getElementById('restrBtn');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
     const removeSavedIcaosBtn = document.getElementById('removeSavedIcaos');
@@ -967,21 +968,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!silent) {
                 timeBadgeContainer.appendChild(maintenanceBadge);
             }
-
-            const hasLandingSystem = hasAirportLandingSystems(nowIcao);
-
-            const landingSystemBadge = document.createElement('div');
-            landingSystemBadge.className = 'time-badge';
-            landingSystemBadge.id = 'landingSystemBtn';
-            landingSystemBadge.classList.add(hasLandingSystem ? 'badge-green' : 'badge-default');
-            landingSystemBadge.classList.add('content-clickable');
-            landingSystemBadge.onclick = showLandingSystemModal;
-            landingSystemBadge.innerHTML = `<i class="fa-solid fa-plane-arrival"></i>`;
-
-            if (!silent) {
-                timeBadgeContainer.appendChild(landingSystemBadge);
-            }
-
 
             const isNotamUpdated = hasNotamsForIcao(icao);
 
@@ -2020,6 +2006,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateGpsButton() {
         gpsBtn.disabled = !(nowIcao && nowIcao.length === 4 && !offlineMode);
+        systemsInfoBtn.disabled = !(nowIcao && nowIcao.length === 4 && !offlineMode);
     }
 
     function checkInternetConnection() {
@@ -2407,21 +2394,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const zoomOutBtn = document.getElementById('zoomOutBtn');
         const refreshAllBtn = document.getElementById('refreshAllBtn');
         const settingsBtn = document.getElementById('settingsBtn');
+        const aiCheckBtn = document.getElementById('aiCheckBtn');
 
         if (showSecondMenu) {
             zoomInBtn.hidden = true;
             zoomOutBtn.hidden = true;
             gpsBtn.hidden = false;
+            systemsInfoBtn.hidden = false;
             restrBtn.hidden = false;
             refreshAllBtn.hidden = false;
             settingsBtn.hidden = true;
+            aiCheckBtn.hidden = true;
         } else {
             zoomInBtn.hidden = false;
             zoomOutBtn.hidden = false;
             gpsBtn.hidden = true;
+            systemsInfoBtn.hidden = true;
             restrBtn.hidden = true;
             refreshAllBtn.hidden = true;
             settingsBtn.hidden = false;
+            aiCheckBtn.hidden = false;
         }
 
     }
@@ -3048,14 +3040,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const calcModalBackdrop = document.getElementById('calcModalBackdrop');
     const closeCalcModalBtn = document.getElementById('closeCalcModalBtn');
-
-//    gpsBtn.addEventListener('click', () => {
-//        if (!nowIcao) {
-//            alert('Сначала введите ICAO аэродрома!');
-//            return;
-//        }
-//        showCalcModal(nowIcao);
-//    });
 
     closeCalcModalBtn.addEventListener('click', hideCalcModal);
 

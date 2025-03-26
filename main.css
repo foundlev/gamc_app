@@ -404,7 +404,9 @@ footer {
 #editRouteBtn:disabled,
 #gpsBtn:disabled,
 #loadGamcUidBtn:disabled,
-#exportGamcUidBtn:disabled {
+#exportGamcUidBtn:disabled,
+#systemsInfoBtn:disabled,
+#aiCheckBtn:disabled{
     cursor: not-allowed;
     opacity: 0.5;
 }

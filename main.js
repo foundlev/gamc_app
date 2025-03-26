@@ -2006,7 +2006,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateGpsButton() {
         gpsBtn.disabled = !(nowIcao && nowIcao.length === 4 && !offlineMode);
-        systemsInfoBtn.disabled = !(nowIcao && nowIcao.length === 4 && !offlineMode);
+        systemsInfoBtn.disabled = !(nowIcao && nowIcao.length === 4);
     }
 
     function checkInternetConnection() {

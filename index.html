@@ -18,7 +18,7 @@
 <body>
 
     <header>
-        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.52</span></h1>
+        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.53</span></h1>
     </header>
 
     <main>
@@ -409,13 +409,19 @@
 
             <div id="atisTab" class="tab-content">
                 <div class="atis-row">
-                    <label>DEP:</label>
+                    <label><b>DEP</b></label>
+                    <label>|</label>
+                    <label>ENG:</label>
                     <input type="text" id="atisDep1" maxlength="7" placeholder="0.000" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
+                    <label>RUS:</label>
                     <input type="text" id="atisDep2" maxlength="7" placeholder="0.000" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
                 </div>
                 <div class="atis-row">
-                    <label>ARR:</label>
+                    <label><b>ARR</b></label>
+                    <label>|</label>
+                    <label>ENG:</label>
                     <input type="text" id="atisArr1" maxlength="7" placeholder="0.000" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
+                    <label>RUS:</label>
                     <input type="text" id="atisArr2" maxlength="7" placeholder="0.000" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
                 </div>
                 <button id="saveAtisBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить ATIS</button>

@@ -2599,11 +2599,7 @@ input::-webkit-inner-spin-button {
     justify-content: space-between;
 }
 
-.atis-row label {
-    font-weight: bold;
-    /* Можно задать фиксированную ширину или оставить так */
-}
-
 .atis-row input {
     flex: 1;
+    margin: 10px 0;
 }

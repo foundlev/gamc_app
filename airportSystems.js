@@ -276,18 +276,18 @@ document.getElementById('saveAtisBtn').onclick = () => {
         atisData[currentIcao] = { departure: [], arrival: [] };
     }
     // Считываем значения из полей (если поле не пустое, добавляем)
-    const dep1 = document.getElementById('atisDep1').value.trim();
-    const dep2 = document.getElementById('atisDep2').value.trim();
-    const arr1 = document.getElementById('atisArr1').value.trim();
-    const arr2 = document.getElementById('atisArr2').value.trim();
+    const dep1 = document.getElementById('atisDep1').value.trim() || '';
+    const dep2 = document.getElementById('atisDep2').value.trim() || '';
+    const arr1 = document.getElementById('atisArr1').value.trim() || '';
+    const arr2 = document.getElementById('atisArr2').value.trim() || '';
 
     atisData[currentIcao].departure = [];
     atisData[currentIcao].arrival = [];
 
-    if (dep1) atisData[currentIcao].departure.push(dep1);
-    if (dep2) atisData[currentIcao].departure.push(dep2);
-    if (arr1) atisData[currentIcao].arrival.push(arr1);
-    if (arr2) atisData[currentIcao].arrival.push(arr2);
+    atisData[currentIcao].departure.push(dep1);
+    atisData[currentIcao].departure.push(dep2);
+    atisData[currentIcao].arrival.push(arr1);
+    atisData[currentIcao].arrival.push(arr2);
 
     saveAtisFrequencies(atisData);
 

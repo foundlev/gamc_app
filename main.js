@@ -2489,6 +2489,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const notamData = localStorage.getItem('notamData') || '{}';
         const landingSystems = localStorage.getItem('landingSystems') || '{}';
         const aircraftType = localStorage.getItem('aircraftType') || 'B737';
+        const atisFrequencies = localStorage.getItem('atisFrequencies') || '{}';
 
         const payload = {
             action: 'upload',
@@ -2500,7 +2501,8 @@ document.addEventListener('DOMContentLoaded', () => {
             icaoColors: icaoColors,
             notamData: notamData,
             landingSystems: landingSystems,
-            aircraftType: aircraftType
+            aircraftType: aircraftType,
+            atisFrequencies: atisFrequencies
         };
 
         // 2) Делаем POST-запрос к вашему `api.php`
@@ -2566,6 +2568,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (serverData.aircraftType) {
                 localStorage.setItem('aircraftType', serverData.aircraftType);
+            }
+            if (serverData.atisFrequencies) {
+                localStorage.setItem('atisFrequencies', serverData.atisFrequencies);
             }
 
             markNowDataAsSynced();

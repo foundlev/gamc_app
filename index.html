@@ -369,35 +369,56 @@
             </button>
             <h2 id="landingSystemsModalCaption">Системы захода на посадку</h2>
 
-            <!-- Список существующих систем -->
-            <div id="landingSystemsList" class="landing-systems-list" style="margin-bottom: 15px;"></div>
+            <div class="modal-tabs">
+                <button class="tab-button active" data-target="systemsTab">Системы захода</button>
+                <button class="tab-button" data-target="atisTab">ATIS</button>
+            </div>
 
-            <!-- Блок добавления новой системы в одну строку -->
-            <div id="newSystemForm" class="new-system-form">
-                <label for="systemRunwaySelect">ВПП:</label>
-                <select id="systemRunwaySelect" class="no-default-arrow">
-                    <!-- Для примера, вставь заглушки. Позже наполнишь динамически -->
-                    <option value="12">12</option>
-                    <option value="30">30</option>
-                </select>
+            <div id="systemsTab" class="tab-content active">
+                <!-- Список существующих систем -->
+                <div id="landingSystemsList" class="landing-systems-list" style="margin-bottom: 15px;"></div>
 
-                <label for="systemTypeSelect">Тип:</label>
-                <select id="systemTypeSelect" class="no-default-arrow">
-                    <option value="ILS (I)">ILS (I)</option>
-                    <option value="GLS">GLS</option>
-                    <option value="RNAV">RNAV</option>
-                    <option value="VOR">VOR</option>
-                    <option value="NDB">NDB</option>
-                    <option value="LOC">LOC</option>
-                </select>
+                <!-- Блок добавления новой системы в одну строку -->
+                <div id="newSystemForm" class="new-system-form">
+                    <label for="systemRunwaySelect">ВПП:</label>
+                    <select id="systemRunwaySelect" class="no-default-arrow">
+                        <!-- Для примера, вставь заглушки. Позже наполнишь динамически -->
+                        <option value="12">12</option>
+                        <option value="30">30</option>
+                    </select>
 
-                <label for="rvrInput">RVR:</label>
-                <input id="rvrInput" type="number" placeholder="m" style="width: 80px;" />
+                    <label for="systemTypeSelect">Тип:</label>
+                    <select id="systemTypeSelect" class="no-default-arrow">
+                        <option value="ILS (I)">ILS (I)</option>
+                        <option value="GLS">GLS</option>
+                        <option value="RNAV">RNAV</option>
+                        <option value="VOR">VOR</option>
+                        <option value="NDB">NDB</option>
+                        <option value="LOC">LOC</option>
+                    </select>
 
-                <label for="dhInput">DH/MDH:</label>
-                <input id="dhInput" type="number" placeholder="ft" style="width: 80px;" />
+                    <label for="rvrInput">RVR:</label>
+                    <input id="rvrInput" type="number" placeholder="m" style="width: 80px;" />
 
-                <button id="addSystemBtn" style="opacity:0.5;" disabled>Добавить</button>
+                    <label for="dhInput">DH/MDH:</label>
+                    <input id="dhInput" type="number" placeholder="ft" style="width: 80px;" />
+
+                    <button id="addSystemBtn" style="opacity:0.5;" disabled>Добавить</button>
+                </div>
+            </div>
+
+            <div id="atisTab" class="tab-content">
+                <div class="atis-row">
+                    <label>DEP:</label>
+                    <input type="text" id="atisDep1" maxlength="7" placeholder="0.000" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
+                    <input type="text" id="atisDep2" maxlength="7" placeholder="0.000" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
+                </div>
+                <div class="atis-row">
+                    <label>ARR:</label>
+                    <input type="text" id="atisArr1" maxlength="7" placeholder="0.000" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
+                    <input type="text" id="atisArr2" maxlength="7" placeholder="0.000" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
+                </div>
+                <button id="saveAtisBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить ATIS</button>
             </div>
         </div>
     </div>

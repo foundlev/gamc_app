@@ -155,7 +155,7 @@ function showLandingSystemModal() {
     const backdrop = document.getElementById('landingSystemsModalBackdrop');
 
     const landingSystemsModalCaption = document.getElementById('landingSystemsModalCaption');
-    landingSystemsModalCaption.textContent = `Системы захода на посадку: ${nowIcao}`;
+    landingSystemsModalCaption.textContent = `Информация аэродрома ${nowIcao}`;
 
     // Заполняем select ВПП данными из текущего аэродрома
     const runwaySelect = document.getElementById('systemRunwaySelect');
@@ -179,6 +179,8 @@ function showLandingSystemModal() {
 
     // Рендерим сохранённые системы для текущего ICAO
     renderLandingSystemsList();
+    // Загружаем сохранённые ATIS частоты для текущего аэродрома
+    loadAtisFrequenciesForModal();
 
     // Обработчик кнопки "Добавить"
     const addBtn = document.getElementById('addSystemBtn');
@@ -240,5 +242,76 @@ function validateLandingSystemForm() {
     } else {
         addBtn.disabled = true;
         addBtn.style.opacity = '0.5';
+    }
+}
+
+document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Удаляем активный класс у всех кнопок
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        // Добавляем активный класс к нажатой кнопке
+        btn.classList.add('active');
+
+        // Скрываем все вкладки
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        // Показываем ту вкладку, target которой указана в data-target кнопки
+        const targetId = btn.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+    });
+});
+
+function getAtisFrequencies() {
+    const data = localStorage.getItem('atisFrequencies');
+    return data ? JSON.parse(data) : {};
+}
+
+function saveAtisFrequencies(data) {
+    localStorage.setItem('atisFrequencies', JSON.stringify(data));
+}
+
+document.getElementById('saveAtisBtn').onclick = () => {
+    const currentIcao = nowIcao ? nowIcao.toUpperCase() : '';
+    let atisData = getAtisFrequencies();
+    if (!atisData[currentIcao]) {
+        atisData[currentIcao] = { departure: [], arrival: [] };
+    }
+    // Считываем значения из полей (если поле не пустое, добавляем)
+    const dep1 = document.getElementById('atisDep1').value.trim();
+    const dep2 = document.getElementById('atisDep2').value.trim();
+    const arr1 = document.getElementById('atisArr1').value.trim();
+    const arr2 = document.getElementById('atisArr2').value.trim();
+
+    atisData[currentIcao].departure = [];
+    atisData[currentIcao].arrival = [];
+
+    if (dep1) atisData[currentIcao].departure.push(dep1);
+    if (dep2) atisData[currentIcao].departure.push(dep2);
+    if (arr1) atisData[currentIcao].arrival.push(arr1);
+    if (arr2) atisData[currentIcao].arrival.push(arr2);
+
+    saveAtisFrequencies(atisData);
+
+    // на 1 секунду меняем на Сохранено
+    const saveAtisBtn = document.getElementById('saveAtisBtn');
+    saveAtisBtn.innerHTML = '<i class="fa-solid fa-check"></i> Сохранено';
+    // Таймер на 1 секунду
+    setTimeout(() => {
+        saveAtisBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Сохранить ATIS';
+    }, 1000);
+};
+
+function loadAtisFrequenciesForModal() {
+    const currentIcao = nowIcao ? nowIcao.toUpperCase() : '';
+    const atisData = getAtisFrequencies();
+    if (atisData[currentIcao]) {
+        document.getElementById('atisDep1').value = atisData[currentIcao].departure[0] || '';
+        document.getElementById('atisDep2').value = atisData[currentIcao].departure[1] || '';
+        document.getElementById('atisArr1').value = atisData[currentIcao].arrival[0] || '';
+        document.getElementById('atisArr2').value = atisData[currentIcao].arrival[1] || '';
+    } else {
+        document.getElementById('atisDep1').value = '';
+        document.getElementById('atisDep2').value = '';
+        document.getElementById('atisArr1').value = '';
+        document.getElementById('atisArr2').value = '';
     }
 }

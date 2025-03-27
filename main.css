@@ -1969,9 +1969,9 @@ button[hidden] {
     gap: 5px;
 }
 
-.history button.not-updated-notam {
+.history button.has-maintenance {
     /*border: 1px solid var(--badge-green-bg);*/
-    box-shadow: 0 0 0 2px var(--text-color);
+    box-shadow: 0 0 0 1.3px var(--text-color);
 }
 
 /* Темная тема */

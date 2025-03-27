@@ -354,26 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
         aircraftSelect.value = savedType;
     }
 
-    // Сохранение при изменении
-    aircraftSelect.addEventListener('change', function() {
-        localStorage.setItem('aircraftType', this.value);
-        updateMaintenanceBadge();
-    });
-
-    // Добавим в обработчик загрузки страницы
-    function updateAircraftTypeBadge() {
-        const selectedType = getAircraftType();
-        const badge = document.getElementById('selectedAircraftType');
-        if(badge) badge.textContent = selectedType.replaceAll(',', ', ');
-    }
-
-    // Обновим обработчик изменения селекта
-    aircraftSelect.addEventListener('change', function() {
-        localStorage.setItem('aircraftType', this.value);
-        updateMaintenanceBadge();
-        updateAircraftTypeBadge(); // Добавляем обновление бейджа
-    });
-
     updateAircraftTypeBadge();
 
     // Клик по бейджу для открытия настроек

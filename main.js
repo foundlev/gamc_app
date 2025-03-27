@@ -1387,11 +1387,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const historyBtns = historyContainer.querySelectorAll('button');
         const icaoUpdatedNotam = getIcaoListUpdatedNotams();
 
+        const maintenanceCodes = getAircraftMaintainanceIcaos();
+
         // Обновляем кнопки
         historyBtns.forEach(btn => {
             const i = btn.textContent.trim();
-            const isUpdated = icaoUpdatedNotam.includes(i);
-            btn.classList.toggle('not-updated-notam', !isUpdated);
+            const hasMaintenance = maintenanceCodes.includes(i);
+            btn.classList.toggle('has-maintenance', hasMaintenance);
         });
     }
 
@@ -2231,7 +2233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderRoutesInSelect();
 
-    routeSelect.addEventListener('change', () => {
+    function renderSelectedRoute() {
         const selectedValue = routeSelect.value;
         const editBtn = document.getElementById('editRouteBtn');
 
@@ -2262,6 +2264,25 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRouteAerodromes(routeAerodromes);
 
         editBtn.innerHTML = (routeSelect.value === 'recent' || routeSelect.value === 'add') ? '<i class="fa-solid fa-plus"></i>' : '<i class="fa-solid fa-pen"></i>';
+    }
+
+    routeSelect.addEventListener('change', renderSelectedRoute);
+
+    const aircraftSelect = document.getElementById('aircraftTypeSelect');
+
+    // Добавим в обработчик загрузки страницы
+    function updateAircraftTypeBadge() {
+        const selectedType = getAircraftType();
+        const badge = document.getElementById('selectedAircraftType');
+        if (badge) badge.textContent = selectedType.replaceAll(',', ', ');
+    }
+
+    // Обновим обработчик изменения селекта
+    aircraftSelect.addEventListener('change', function() {
+        localStorage.setItem('aircraftType', this.value);
+        updateMaintenanceBadge();
+        updateAircraftTypeBadge();
+        renderSelectedRoute();
     });
 
     function renderRouteAerodromes(aerodromes) {

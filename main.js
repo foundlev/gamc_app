@@ -2277,6 +2277,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (badge) badge.textContent = selectedType.replaceAll(',', ', ');
     }
 
+    updateAircraftTypeBadge();
+
     // Обновим обработчик изменения селекта
     aircraftSelect.addEventListener('change', function() {
         localStorage.setItem('aircraftType', this.value);

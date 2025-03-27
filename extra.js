@@ -354,8 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
         aircraftSelect.value = savedType;
     }
 
-    updateAircraftTypeBadge();
-
     // Клик по бейджу для открытия настроек
     document.getElementById('aircraftTypeBadge').addEventListener('click', () => {
         updateExportButtonState();

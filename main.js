@@ -229,8 +229,7 @@ const LAST_COUNT = 30;
 const SUGGESTIONS_COUNT = 7;
 
 let airportInfoDb = {};
-// Вместо:
-// let icaoColors = {};
+let airportsList = []
 
 let storedIcaoColors = JSON.parse(localStorage.getItem('icaoColors') || '{}');
 let icaoColors = storedIcaoColors;
@@ -242,6 +241,8 @@ fetch('data/airports_db.json')
         data.forEach(item => {
             airportInfoDb[item.icao] = item;
         });
+
+        airportsList = [...data];
         icaoKeys = Object.keys(airportInfoDb).sort();
     })
     .catch(err => {
@@ -485,6 +486,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const editRouteBtn = document.getElementById('editRouteBtn');
     editRouteBtn.addEventListener('click', () => {
+
+        if (routeSelect.value === 'temp') {
+            // Если выбран временный маршрут, открываем модальное окно для его редактирования.
+            const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+            if (tempRoute.departure && tempRoute.arrival) {
+                // Если временный маршрут уже задан – заполняем поля его значениями.
+                departureIcaoInput.value = tempRoute.departure;
+                arrivalIcaoInput.value = tempRoute.arrival;
+                alternatesIcaoInput.value = tempRoute.alternates ? tempRoute.alternates.join(' ') : '';
+            } else {
+                // Если не задан – очищаем поля, чтобы пользователь мог ввести новые данные.
+                departureIcaoInput.value = '';
+                arrivalIcaoInput.value = '';
+                alternatesIcaoInput.value = '';
+            }
+            // Разрешаем редактирование вылета и назначения
+            departureIcaoInput.disabled = false;
+            arrivalIcaoInput.disabled = false;
+            // Меняем заголовок модального окна для ясности
+            const modalTitle = addRouteModalBackdrop.querySelector('h2');
+            modalTitle.textContent = 'Редактировать маршрут';
+            // Скрываем кнопку удаления, если она не нужна для временного маршрута
+            deleteRouteBtn.style.display = 'none';
+            // Открываем модальное окно
+            addRouteModalBackdrop.classList.add('show');
+            document.getElementById('importGpxBtn').style.display = 'inline-block';
+            return;
+        }
+
+        document.getElementById('importGpxBtn').style.display = 'none';
+
         if (routeSelect.value === 'recent') {
             // Показываем модалку
             showAddRouteModal();
@@ -979,9 +1011,9 @@ document.addEventListener('DOMContentLoaded', () => {
             notamsBadge.onclick = showNotamModal;
             notamsBadge.innerHTML = `<i class="fa-solid fa-file-alt"></i>`;
 
-            if (!silent && (isNotamUpdated || !offlineMode)) {
-                timeBadgeContainer.appendChild(notamsBadge);
-            }
+            // if (!silent && (isNotamUpdated || !offlineMode)) {
+            //     timeBadgeContainer.appendChild(notamsBadge);
+            // }
 
             finalText = insertLineBreaks(finalText);
             if (doHighlight) {
@@ -1910,9 +1942,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // Получаем длинну ВПП
+            const rwyLength = runwaysObj[chosenName].xlda;
+
             // Формируем вывод
             content += `
                 <strong>ВПП ${chosenName}</strong> (${formatNumber(chosenHdg)}°):
+                <br>
+                <i class="fa-solid fa-ruler-vertical"></i> LDA: ${rwyLength} м
                 <br>
                 Коэф. сцепления: <b>${frictionText}</b>
                 <br>
@@ -2101,6 +2138,22 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        if (routeSelect.value === 'temp') {
+            const newRoute = {
+                departure: dep,
+                arrival: arr,
+                alternates: alternatesList
+            };
+            // Сохраняем временный маршрут в localStorage
+            localStorage.setItem('tempRoute', JSON.stringify(newRoute));
+            hideAddRouteModal();
+            // Перерисовываем список маршрутов и оставляем выбранным "Временный"
+            renderRoutesInSelect();
+            routeSelect.value = 'temp';
+            renderSelectedRoute();
+            return;
+        }
+
         if (isEditingRoute) {
 
             savedRoutes[editRouteIndex].alternates = alternatesList;
@@ -2128,17 +2181,6 @@ document.addEventListener('DOMContentLoaded', () => {
             routeSelect.dispatchEvent(new Event('change'));
 
             return;
-        }
-
-        if (airportInfoDb[dep]) {
-            const depLat = parseFloat(airportInfoDb[dep].latitude);
-            const depLon = parseFloat(airportInfoDb[dep].longitude);
-            alternatesList.sort((a, b) => {
-                if (!airportInfoDb[a] || !airportInfoDb[b]) return 0;
-                const distA = computeDistance(depLat, depLon, parseFloat(airportInfoDb[a].latitude), parseFloat(airportInfoDb[a].longitude));
-                const distB = computeDistance(depLat, depLon, parseFloat(airportInfoDb[b].latitude), parseFloat(airportInfoDb[b].longitude));
-                return distA - distB;
-            });
         }
 
         // Формируем объект нового маршрута
@@ -2207,6 +2249,12 @@ document.addEventListener('DOMContentLoaded', () => {
         recentOption.innerHTML = 'Недавние';
         routeSelect.appendChild(recentOption);
 
+        // Добавляем опцию "Временный"
+        let tempOption = document.createElement('option');
+        tempOption.value = 'temp';
+        tempOption.innerHTML = 'Временный';
+        routeSelect.appendChild(tempOption);
+
         // 2) Для каждого сохранённого маршрута
         savedRoutes.forEach((route, index) => {
             const option = document.createElement('option');
@@ -2241,6 +2289,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // Показываем "Недавние"
             renderHistory();
             editBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+            return;
+        }
+
+        if (selectedValue === 'temp') {
+            // Попытка получить временный маршрут из localStorage (например, под ключом 'tempRoute')
+            const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+            if (tempRoute.departure && tempRoute.arrival) {
+                // Функция renderRouteAerodromes уже используется для отображения маршрута
+                renderRouteAerodromes([tempRoute.departure, tempRoute.arrival, ...tempRoute.alternates]);
+            } else {
+                historyContainer.innerHTML = '<p>Временный маршрут не задан.</p>';
+            }
+            editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
             return;
         }
 
@@ -2377,7 +2438,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('airportInfoContainer');
         const nameElem = document.getElementById('airportName');
         const countryElem = document.getElementById('airportCountry');
-        const elevationElem = document.getElementById('airportElevation');
+        const elevationLength = document.getElementById('airportRunwayLength');
         const codesElem = document.getElementById('airportCodes');
         const notamModalName = document.getElementById('notamModalName');
 
@@ -2388,7 +2449,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const {
             geo,
             iata,
-            elevation
+            runways
         } = airportInfoDb[icao];
 
         const name = geo ? geo[0] : null;
@@ -2396,7 +2457,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         nameElem.textContent = name ? name : `Аэродром ${icao}`;
         countryElem.textContent = country ? country : 'Страна не указана';
-        elevationElem.textContent = `${elevation} ft`;
+
+        let maxLength = 0;
+        let maxLengthRunway = '';
+        for (const runwayKey in runways) {
+            const runway = runways[runwayKey];
+            if (runway.xlda && runway.xlda > maxLength) {
+                maxLength = runway.xlda;
+                maxLengthRunway = runwayKey;
+            }
+        }
+        elevationLength.textContent = `RW ${maxLengthRunway}: ${maxLength} м`;
 
         let airportCodesText;
         if (iata) {
@@ -2854,6 +2925,16 @@ document.addEventListener('DOMContentLoaded', () => {
             aerodromesToRefresh = Object.keys(savedData);
             // Если хотите брать из истории, то вместо этого
             // можно aerodromesToRefresh = JSON.parse(localStorage.getItem(ICAO_HISTORY_KEY) || '[]');
+        } else if (routeSelect.value === 'temp') {
+            // Если выбран временный маршрут – получаем его из localStorage (ключ 'tempRoute')
+            const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+            if (tempRoute.departure && tempRoute.arrival) {
+                aerodromesToRefresh = [
+                    tempRoute.departure,
+                    tempRoute.arrival,
+                    ...(tempRoute.alternates || [])
+                ];
+            }
         } else {
             // Иначе выбрана "маршрут"
             const idx = parseInt(routeSelect.value, 10);
@@ -2905,31 +2986,35 @@ document.addEventListener('DOMContentLoaded', () => {
             batchRefreshCurrentIcao.textContent = '...';
 
             const batchSize = 10; // количество запросов одновременно
+            let completed = 0;
+
             for (let i = 0; i < total; i += batchSize) {
                 // Берём батч из 10 аэродромов (или меньше, если оставшихся меньше 10)
                 const batch = aerodromes.slice(i, i + batchSize);
                 // Обновляем текущий статус: показываем аэродромы из текущего батча
                 batchRefreshCurrentIcao.textContent = `Обновление метео: ${batch.join(', ')}`;
 
-                // Отправляем запросы асинхронно в рамках батча и ждем, пока все завершатся
-                // await Promise.all(batch.map(icao => getWeather(icao, true, true)));
-                for (let i = 0; i < batch.length; i++) {
-                    await getWeather(batch[i], true, true);
-                }
-                // Обновляем прогресс
-                const percent = Math.round(((i + batch.length) / total) * 100);
-                batchRefreshProgress.style.width = percent + '%';
+                // Отправляем запросы асинхронно в рамках батча, обновляя progress по завершению каждого запроса
+                const promises = batch.map(icao =>
+                    getWeather(icao, true, true).then(() => {
+                        completed++;
+                        const percent = Math.round((completed / total) * 100);
+                        batchRefreshProgress.style.width = percent + '%';
+                    })
+                );
+                // Ждём завершения всех запросов батча
+                await Promise.all(promises);
 
                 // Небольшая задержка между батчами для плавности (необязательно)
                 await new Promise(r => setTimeout(r, 400));
             }
+
             batchRefreshProgress.style.width = '100%';
             batchRefreshCurrentIcao.textContent = 'Завершено обновление метео';
 
             // Делаем паузу на 1 секунду
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
-
 
         if (isLoadNotam) {
             // Получаем список обновленных аэродромов за последние 3 часа.

@@ -18,7 +18,7 @@
 <body>
 
     <header>
-        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.56</span></h1>
+        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.60</span></h1>
     </header>
 
     <main>
@@ -82,10 +82,9 @@
                 <div class="airport-country" id="airportCountry"></div>
             </div>
 
-            <!-- Справа (горка + высота) -->
             <div class="airport-right">
-                <i class="fa-solid fa-mountain"></i>
-                <span id="airportElevation"></span>
+                <i class="fa-solid fa-ruler-vertical"></i>
+                <span id="airportRunwayLength"></span>
             </div>
         </div>
 
@@ -268,8 +267,12 @@
                 <button id="deleteRouteBtn" style="display: none; background-color: var(--col-red);">
                     <i class="fa-solid fa-trash"></i>Удалить
                 </button>
+                <button id="importGpxBtn" style="display:none;">
+                    <i class="fa-solid fa-file-import"></i>Импорт GPX
+                </button>
             </div>
         </div>
+        <input type="file" id="gpxFileInput" accept=".gpx" style="display:none">
     </div>
 
     <!-- Модальное окно для пакетного обновления -->
@@ -540,6 +543,7 @@
     <script src="extra.js"></script>
     <script src="airportSystems.js"></script>
     <script src="synchash.js"></script>
+    <script src="routeCreator.js"></script>
 
 </body>
 

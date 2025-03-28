@@ -31,7 +31,9 @@ function getSyncDataHash() {
 function markNowDataAsSynced() {
     const savedData = {
         savedRoutes: localStorage.getItem('savedRoutes'),
-        landingSystems: localStorage.getItem('landingSystems')
+        landingSystems: localStorage.getItem('landingSystems'),
+        atisFrequencies: localStorage.getItem('atisFrequencies'),
+        tempRoute: localStorage.getItem('tempRoute')
     }
     setSyncDataHash(savedData);
     updateExportButtonState();
@@ -49,7 +51,9 @@ function updateExportButtonState() {
     if (exportBtn) {
         const savedData = {
             savedRoutes: localStorage.getItem('savedRoutes'),
-            landingSystems: localStorage.getItem('landingSystems')
+            landingSystems: localStorage.getItem('landingSystems'),
+            atisFrequencies: localStorage.getItem('atisFrequencies'),
+            tempRoute: localStorage.getItem('tempRoute')
         }
 
         exportBtn.classList.toggle('need-sync', needToUploadData(savedData))

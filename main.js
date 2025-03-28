@@ -1011,9 +1011,9 @@ document.addEventListener('DOMContentLoaded', () => {
             notamsBadge.onclick = showNotamModal;
             notamsBadge.innerHTML = `<i class="fa-solid fa-file-alt"></i>`;
 
-            // if (!silent && (isNotamUpdated || !offlineMode)) {
-            //     timeBadgeContainer.appendChild(notamsBadge);
-            // }
+            if (!silent && (isNotamUpdated || !offlineMode)) {
+                timeBadgeContainer.appendChild(notamsBadge);
+            }
 
             finalText = insertLineBreaks(finalText);
             if (doHighlight) {
@@ -3022,58 +3022,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (isLoadNotam) {
-            // Получаем список обновленных аэродромов за последние 3 часа.
-            const icaoRecentlyUpdatedNotam = getIcaoListUpdatedNotams(3600000 * 3)
+            // aerodromes
+            const total = aerodromes.length;
 
-            let aerodromesToUpdate = []
-            aerodromes.forEach(i => {
-                if (!icaoRecentlyUpdatedNotam.includes(i)) {
-                    aerodromesToUpdate.push(i)
-                }
-            })
-            const total = aerodromesToUpdate.length;
-
-            const batchNotamSize = 2;
-            const failedAttempts = 3;
+            const batchNotamSize = 3;
 
             batchRefreshInfo.textContent = `Аэродромов: ${total}`;
             batchRefreshProgress.style.width = '0%';
             batchRefreshCurrentIcao.textContent = '...';
+            
+            let completed = 0;
 
-            let updatedNow = 0;
-            let failedUpdated = [];
-
-            while (aerodromesToUpdate.length > 0) {
-                // Берём батч из 10 аэродромов (или меньше, если оставшихся меньше 10)
-                const batch = aerodromesToUpdate.slice(0, batchNotamSize);
-
-                if (batch.length === 0) {
-                    break;
-                }
-
+            for (let i = 0; i < total; i += batchNotamSize) {
+                const batch = aerodromes.slice(i, i + batchNotamSize);
                 // Обновляем текущий статус: показываем аэродромы из текущего батча
                 batchRefreshCurrentIcao.textContent = `Обновление NOTAM: ${batch.join(', ')}`;
 
-                // Отправляем запросы асинхронно в рамках батча и ждем, пока все завершатся
-                const results = await Promise.all(batch.map(icao => getNotam(icao)));
-                // Удаляем из aerodromesToUpdate все аэродромы, которые в results
-                aerodromesToUpdate = aerodromesToUpdate.filter(icao => !results.includes(icao));
+                // Отправляем запросы асинхронно в рамках батча, обновляя progress по завершению каждого запроса
 
-                updatedNow = total - aerodromesToUpdate.length;
-                // Заносим в failedUpdated те, которые есть в batch, но нет в results.
-                failedUpdated = failedUpdated.concat(batch.filter(icao => !results.includes(icao)));
-                
-                // Если в failedUpdated аэродром повторяется failedAttempts раз, то удаляем их из aerodromesToUpdate.
-                const failedCount = {};
-                failedUpdated.forEach(icao => {
-                    failedCount[icao] = (failedCount[icao] || 0) + 1;
-                });
-
-                // Удаляем аэродромы из aerodromesToUpdate, если они повторяются failedAttempts раз в failedUpdated
-                aerodromesToUpdate = aerodromesToUpdate.filter(icao => !(failedCount[icao] >= failedAttempts));
-
-                // Обновляем прогресс
-                const percent = Math.round((updatedNow / total) * 100);
+                await getNotam(batch);
+                completed += batch.length;
+                const percent = Math.round((completed / total) * 100);
                 batchRefreshProgress.style.width = percent + '%';
 
                 // Небольшая задержка между батчами для плавности (необязательно)
@@ -3081,7 +3050,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             batchRefreshProgress.style.width = '100%';
-            batchRefreshCurrentIcao.textContent = `Обновлено NOTAM: ${updatedNow} из ${total}`;
+            batchRefreshCurrentIcao.textContent = `Завершено обновление NOTAM`;
         }
 
         updateHistoryBtnNotam();
@@ -3089,53 +3058,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             hideBatchRefreshModal();
         }, 1000);
-    }
-
-    async function getNotam(icao) {
-        const password = localStorage.getItem(PASSWORD_KEY) || '';
-
-        const payload = {
-            password: password,
-            action: "get_notams",
-            icao: icao.toUpperCase()
-        };
-
-        try {
-            const response = await fetch('https://myapihelper.na4u.ru/gamc_app/api.php', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`);
-            }
-
-            // Предполагаем, что API возвращает JSON (если нет, замени response.json() на response.text())
-            const notams = await response.json();
-
-            // Получаем из localStorage словарь по ключу "notamData" или создаем новый
-            let notamData = localStorage.getItem('notamData');
-            notamData = notamData ? JSON.parse(notamData) : {};
-
-            if (notams.error) {
-                throw new Error(`Не удалось получить NOTAM: ${notams.error}`);
-            }
-
-            // Сохраняем полученные NOTAMы вместе с датой обновления под ключом аэродрома
-            notamData[icao.toUpperCase()] = {
-                data: notams,
-                updated: new Date().toISOString()
-            };
-            localStorage.setItem('notamData', JSON.stringify(notamData));
-
-            return icao;
-        } catch (err) {
-            console.error('Ошибка при получении NOTAM:', err);
-            return null;
-        }
     }
 
     function showBatchRefreshModal() {

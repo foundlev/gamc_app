@@ -15,8 +15,8 @@ function getNotamsForIcao(icao) {
     const key = icao.toUpperCase();
 
     // Если для данного ICAO существуют данные, возвращаем их, иначе пустой массив
-    if (parsed[key] && parsed[key].data && !parsed[key].data.error) {
-        return parsed[key].data;
+    if (parsed[key] && parsed[key].notams && parsed[key].updated && parsed[key].notams?.length !== 0) {
+        return parsed[key].notams;
     }
     return [];
 }
@@ -30,8 +30,8 @@ function getIcaoListUpdatedNotams(ms=86400000) {
     // 3600000 - Час
 
     for (const key in parsed) {
-        if (parsed[key] && parsed[key].updated && !parsed[key].data?.error && parsed[key].data?.length !== 0) {
-            const updatedDate = new Date(parsed[key].updated);
+        if (parsed[key] && parsed[key].notams && parsed[key].updated && parsed[key].notams?.length !== 0) {
+            const updatedDate = new Date(parsed[key].updated * 1000);
             const now = Date.now();
 
             if (now - updatedDate.getTime() <= ms) {
@@ -73,47 +73,128 @@ function showNotamModal() {
         let html = '';
 
         notamsForIcao.forEach(n => {
-            const cat = getCategoryAppearance(n.ai_category);
+            // Если у NOTAM вообще нет текста – пропустим
+            if (!n.text) return;
+
+            // Подставляем старые или новые поля (что есть).
+            // Если поле отсутствует, используем || '' или || null.
+            const rawId       = n.raw_id || n.name || '';          // старый n.raw_id или новый n.name
+            const cat         = n.ai_category ? getCategoryAppearance(n.ai_category) : null;
+            const shortInterp = n.ai_short_interpretation || '';
+            const fullInterp  = n.ai_interpretation || '';
+            const startTime   = n.startdate || n.from || null;
+            const endTime     = n.enddate || n.to   || null;
+            const issuedTime  = n.issuedate || n.created || null;
+            const isPerm      = !!n.PERM;
+
+            // Формируем HTML (учитывая, что какие-то блоки могут быть пустыми)
             html += `
-                <div class="notam-item">
-                    <div class="notam-header">
-                        <div class="notam-id-badge">
-                            <i class="fas fa-file-alt notam-doc-icon"></i>
-                            <span class="notam-id">${n.raw_id}</span>
-                        </div>
-                        <div class="notam-category" data-category="${n.ai_category}" style="background: ${cat.background}; color: ${cat.color};">
-                            <i class="${cat.icon}" style="color: ${cat.color};"></i>
-                            ${n.ai_category}
-                        </div>
-                    </div>
-                    
-                    <div class="notam-short-info">
-                        <i class="fa-solid fa-circle-info"></i>
-                        ${n.ai_short_interpretation}
+            <div class="notam-item">
+        
+                <!-- Шапка с номером NOTAM и категорией, если есть -->
+                <div class="notam-header">
+                    <div class="notam-id-badge">
+                        <i class="fas fa-file-alt notam-doc-icon"></i>
+                        <span class="notam-id">${rawId}</span>
                     </div>
         
-                    ${n.ai_interpretation ? `
-                    <div class="notam-interpretation">
-                        ${n.ai_interpretation}
+                    ${cat ? `
+                    <div class="notam-category" data-category="${n.ai_category}" 
+                         style="background: ${cat.background}; color: ${cat.color};">
+                        <i class="${cat.icon}" style="color: ${cat.color};"></i>
+                        ${n.ai_category}
                     </div>
                     ` : ''}
-        
-                    <div class="notam-raw">${n.all.replace(/\n/g, '<br>')}</div>
-        
-                    <div class="notam-meta">
-                        <span class="notam-period">
-                            <i class="fas fa-calendar-alt"></i>
-                            ${formatUTCDate(n.startdate)} - 
-                            ${n.PERM ? 'Постоянный' : formatUTCDate(n.enddate)}
-                        </span>
-                        <span>
-                            <i class="fas fa-clock"></i>
-                            Выпущен: ${formatUTCDate(n.issuedate)}
-                        </span>
-                    </div>
                 </div>
+        
+                <!-- Короткая интерпретация (если есть) -->
+                ${shortInterp ? `
+                <div class="notam-short-info">
+                    <i class="fa-solid fa-circle-info"></i>
+                    ${shortInterp}
+                </div>
+                ` : ''}
+        
+                <!-- Подробная интерпретация (если есть) -->
+                ${fullInterp ? `
+                <div class="notam-interpretation">
+                    ${fullInterp}
+                </div>
+                ` : ''}
+        
+                <!-- Исходный текст (обязательно заменяем переносы строк) -->
+                <div class="notam-raw">${n.text.replace(/\n/g, '<br>')}</div>
+        
+                <!-- Метаданные (даты, если есть) -->
+                ${(startTime || issuedTime) ? `
+                <div class="notam-meta">
+                    ${startTime ? `
+                    <span class="notam-period">
+                        <i class="fas fa-calendar-alt"></i>
+                        ${formatUTCDate(startTime)} -
+                        ${isPerm ? 'Постоянный' : formatUTCDate(endTime)}
+                    </span>
+                    ` : ''}
+        
+                    ${issuedTime ? `
+                    <span>
+                        <i class="fas fa-clock"></i>
+                        Выпущен: ${formatUTCDate(issuedTime)}
+                    </span>
+                    ` : ''}
+                </div>
+                ` : ''}
+        
+            </div>
             `;
         });
+
+        // Дальше html вставляете в notamContent.innerHTML = html;
+
+        // let html = '';
+        //
+        // notamsForIcao.forEach(n => {
+        //     const cat = getCategoryAppearance(n.ai_category);
+        //     html += `
+        //         <div class="notam-item">
+        //             <div class="notam-header">
+        //                 <div class="notam-id-badge">
+        //                     <i class="fas fa-file-alt notam-doc-icon"></i>
+        //                     <span class="notam-id">${n.raw_id}</span>
+        //                 </div>
+        //                 <div class="notam-category" data-category="${n.ai_category}" style="background: ${cat.background}; color: ${cat.color};">
+        //                     <i class="${cat.icon}" style="color: ${cat.color};"></i>
+        //                     ${n.ai_category}
+        //                 </div>
+        //             </div>
+        //
+        //             <div class="notam-short-info">
+        //                 <i class="fa-solid fa-circle-info"></i>
+        //                 ${n.ai_short_interpretation}
+        //             </div>
+        //
+        //             ${n.ai_interpretation ? `
+        //             <div class="notam-interpretation">
+        //                 ${n.ai_interpretation}
+        //             </div>
+        //             ` : ''}
+        //
+        //             <div class="notam-raw">${n.text.replace(/\n/g, '<br>')}</div>
+        //
+        //             <div class="notam-meta">
+        //                 <span class="notam-period">
+        //                     <i class="fas fa-calendar-alt"></i>
+        //                     ${formatUTCDate(n.startdate)} -
+        //                     ${n.PERM ? 'Постоянный' : formatUTCDate(n.enddate)}
+        //                 </span>
+        //                 <span>
+        //                     <i class="fas fa-clock"></i>
+        //                     Выпущен: ${formatUTCDate(n.issuedate)}
+        //                 </span>
+        //             </div>
+        //         </div>
+        //     `;
+        // });
 
         notamContent.innerHTML = html;
     }
@@ -257,16 +338,33 @@ function getCategoryAppearance(category) {
     };
 }
 
-function formatUTCDate(dateString) {
-    if(!dateString) return 'N/A';
+function formatUTCDate(value) {
+    if (!value) return 'N/A';
 
-    const issuedDate = new Date(dateString);
+    let dateObj;
 
-    const utcHours = String(issuedDate.getUTCHours()).padStart(2, '0');
-    const utcMinutes = String(issuedDate.getUTCMinutes()).padStart(2, '0');
-    const utcDay = String(issuedDate.getUTCDate()).padStart(2, '0');
-    const utcMonth = String(issuedDate.getUTCMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
-    const utcYear = String(issuedDate.getUTCFullYear()).slice(-2);
+    // Если value – это число (или строка с числом), считаем, что это секунды
+    if (typeof value === 'number') {
+        // Предполагаем, что value – это Unix time в секундах
+        dateObj = new Date(value * 1000);
+    } else {
+        // Могут прийти секунды в виде строки, проверим
+        const asNum = Number(value);
+        if (!isNaN(asNum) && asNum > 1000000000) {
+            // Например, 1741066920 – это точно Unix time (секунды),
+            // умножаем на 1000, чтобы получить миллисекунды
+            dateObj = new Date(asNum * 1000);
+        } else {
+            // Иначе пытаемся парсить как дату (например, '2025-03-06T10:00Z')
+            dateObj = new Date(value);
+        }
+    }
+
+    const utcHours = String(dateObj.getUTCHours()).padStart(2, '0');
+    const utcMinutes = String(dateObj.getUTCMinutes()).padStart(2, '0');
+    const utcDay = String(dateObj.getUTCDate()).padStart(2, '0');
+    const utcMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const utcYear = String(dateObj.getUTCFullYear()).slice(-2);
 
     return `${utcHours}:${utcMinutes} ${utcDay}.${utcMonth}.${utcYear}`;
 }

@@ -495,6 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 departureIcaoInput.value = tempRoute.departure;
                 arrivalIcaoInput.value = tempRoute.arrival;
                 alternatesIcaoInput.value = tempRoute.alternates ? tempRoute.alternates.join(' ') : '';
+                importedRouteCoords = tempRoute.coords;
             } else {
                 // Если не задан – очищаем поля, чтобы пользователь мог ввести новые данные.
                 departureIcaoInput.value = '';
@@ -502,8 +503,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 alternatesIcaoInput.value = '';
             }
             // Разрешаем редактирование вылета и назначения
-            departureIcaoInput.disabled = false;
-            arrivalIcaoInput.disabled = false;
+            departureIcaoInput.disabled = true;
+            arrivalIcaoInput.disabled = true;
             // Меняем заголовок модального окна для ясности
             const modalTitle = addRouteModalBackdrop.querySelector('h2');
             modalTitle.textContent = 'Редактировать маршрут';
@@ -631,7 +632,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const titleButton = document.getElementById('button-title');
     titleButton.addEventListener('click', () => {
-        location.reload();
+        if (!offlineMode) {
+            location.reload();
+        }
     });
 
 
@@ -2142,10 +2145,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const newRoute = {
                 departure: dep,
                 arrival: arr,
-                alternates: alternatesList
+                alternates: alternatesList,
+                coords: importedRouteCoords
             };
+
             // Сохраняем временный маршрут в localStorage
             localStorage.setItem('tempRoute', JSON.stringify(newRoute));
+
             hideAddRouteModal();
             // Перерисовываем список маршрутов и оставляем выбранным "Временный"
             renderRoutesInSelect();
@@ -2284,6 +2290,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSelectedRoute() {
         const selectedValue = routeSelect.value;
         const editBtn = document.getElementById('editRouteBtn');
+        const showMapBtn = document.getElementById('showMapBtn');
+        showMapBtn.style.display = 'none';
 
         if (selectedValue === 'recent') {
             // Показываем "Недавние"
@@ -2293,11 +2301,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (selectedValue === 'temp') {
+            showMapBtn.style.display = 'block';
             // Попытка получить временный маршрут из localStorage (например, под ключом 'tempRoute')
             const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
             if (tempRoute.departure && tempRoute.arrival) {
                 // Функция renderRouteAerodromes уже используется для отображения маршрута
                 renderRouteAerodromes([tempRoute.departure, tempRoute.arrival, ...tempRoute.alternates]);
+                importedRouteCoords = tempRoute.coords;
             } else {
                 historyContainer.innerHTML = '<p>Временный маршрут не задан.</p>';
             }

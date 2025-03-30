@@ -406,7 +406,8 @@ footer {
 #loadGamcUidBtn:disabled,
 #exportGamcUidBtn:disabled,
 #systemsInfoBtn:disabled,
-#aiCheckBtn:disabled{
+#aiCheckBtn:disabled,
+.modal input:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -1204,7 +1205,7 @@ footer {
     display: flex;
 }
 
-#editRouteBtn {
+#editRouteBtn, #showMapBtn {
     margin-right: 5px;
 }
 

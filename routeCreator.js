@@ -1,3 +1,5 @@
+let importedRouteCoords = null;
+
 // Функция перевода градусов в радианы
 function toRadians(deg) {
     return deg * Math.PI / 180;
@@ -185,7 +187,10 @@ function findAlternateAirportsByRoute(routeInfo, airports, max_alternates = 30, 
         uniqueMap[code] = apt;
     });
     const result = Object.values(uniqueMap);
-    return result.slice(0, max_alternates);
+    return {
+        airports: result,
+        route: routeInfo
+    };
 }
 
 
@@ -233,27 +238,34 @@ function gpxImport() {
 
                 const coords = [];
 
+                // Для каждого элемента получаем lat, lon и название точки (если есть)
                 for (let i = 0; i < wptElements.length; i++) {
                     const lat = wptElements[i].getAttribute("lat");
                     const lon = wptElements[i].getAttribute("lon");
+                    const nameElements = wptElements[i].getElementsByTagNameNS("*", "name");
+                    const pointName = nameElements.length > 0 ? nameElements[0].textContent.trim() : "";
                     if (lat && lon) {
-                        coords.push({ lat: parseFloat(lat), lon: parseFloat(lon) });
+                        coords.push({ lat: parseFloat(lat), lon: parseFloat(lon), name: pointName });
                     }
                 }
 
                 for (let i = 0; i < trkptElements.length; i++) {
                     const lat = trkptElements[i].getAttribute("lat");
                     const lon = trkptElements[i].getAttribute("lon");
+                    const nameElements = trkptElements[i].getElementsByTagNameNS("*", "name");
+                    const pointName = nameElements.length > 0 ? nameElements[0].textContent.trim() : "";
                     if (lat && lon) {
-                        coords.push({ lat: parseFloat(lat), lon: parseFloat(lon) });
+                        coords.push({ lat: parseFloat(lat), lon: parseFloat(lon), name: pointName });
                     }
                 }
 
                 for (let i = 0; i < rteptElements.length; i++) {
                     const lat = rteptElements[i].getAttribute("lat");
                     const lon = rteptElements[i].getAttribute("lon");
+                    const nameElements = rteptElements[i].getElementsByTagNameNS("*", "name");
+                    const pointName = nameElements.length > 0 ? nameElements[0].textContent.trim() : "";
                     if (lat && lon) {
-                        coords.push({ lat: parseFloat(lat), lon: parseFloat(lon) });
+                        coords.push({ lat: parseFloat(lat), lon: parseFloat(lon), name: pointName });
                     }
                 }
 
@@ -296,12 +308,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 arrivalIcaoInput.value = '';
                 alternatesIcaoInput.value = '';
 
-                const r = findAlternateAirportsByRoute(result, [...airportsList], LAST_COUNT);
+                const altResult = findAlternateAirportsByRoute(result, [...airportsList], LAST_COUNT);
+                const r = altResult.airports;
                 if (r.length > 0) {
                     // r = [{icao: UUDL, ...}, ...]
                     departureIcaoInput.value = result.route.departure;
                     arrivalIcaoInput.value = result.route.destination;
                     alternatesIcaoInput.value = r.map(a => a.icao).join(" ");
+                    importedRouteCoords = altResult.route.coordinates;
 
                     const saveRouteBtn = document.getElementById('saveRouteBtn');
                     saveRouteBtn.disabled = false;

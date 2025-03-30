@@ -34,12 +34,11 @@ function showRouteMap(routeData) {
     // Основная функция отрисовки
     function drawMap() {
         if (!canvas || !ctx) return;
-        let w = canvas.width,
-            h = canvas.height;
+        let rect = canvas.getBoundingClientRect();
+        let w = rect.width,
+            h = rect.height;
         ctx.clearRect(0, 0, w, h);
-        let cardBg = getComputedStyle(document.documentElement)
-            .getPropertyValue('--card-bg').trim();
-        ctx.fillStyle = cardBg;
+        ctx.fillStyle = "#f8f9fa";
         ctx.fillRect(0, 0, w, h);
 
         let scale = baseScale * userZoom;
@@ -51,14 +50,11 @@ function showRouteMap(routeData) {
         // Преобразование lat/lon -> x,y
         function toCanvas(lat, lon) {
             let dx = lon - mapCenterLon;
-            let dy = mapCenterLat - lat; // "север вверх"
-            return {
-                x: dx,
-                y: dy
-            };
+            let dy = mapCenterLat - lat;
+            return { x: dx, y: dy };
         }
 
-        // Рисуем линию маршрута (routeData.coords)
+        // Стиль линии маршрута
         if (routeData.coords && routeData.coords.length > 0) {
             ctx.beginPath();
             routeData.coords.forEach(function(p, i) {
@@ -66,58 +62,119 @@ function showRouteMap(routeData) {
                 if (i === 0) ctx.moveTo(c.x, c.y);
                 else ctx.lineTo(c.x, c.y);
             });
-            let accentColor = getComputedStyle(document.documentElement)
-                .getPropertyValue('--accent-color').trim();
-            ctx.strokeStyle = accentColor;
-            ctx.lineWidth = 2 / scale;
+            ctx.strokeStyle = "#000000"; // Чёрный контур
+            ctx.lineWidth = 10 / scale; // Увеличенная толщина для контура
+            ctx.lineJoin = "round";
+            ctx.stroke();
+
+            // Рисуем основную линию маршрута (можете изменить цвет на более яркий, если хотите)
+            ctx.beginPath();
+            routeData.coords.forEach(function(p, i) {
+                let c = toCanvas(p.lat, p.lon);
+                if (i === 0) ctx.moveTo(c.x, c.y);
+                else ctx.lineTo(c.x, c.y);
+            });
+            ctx.strokeStyle = "#4ea5ff"; // Ярко-синий (можно изменить на '#1E90FF' для более голубоватого оттенка, если требуется)
+            ctx.lineWidth = 6 / scale; // Чуть уже, чем контур
             ctx.stroke();
 
             // Точки маршрута
             routeData.coords.forEach(function(p) {
                 let c = toCanvas(p.lat, p.lon);
+                let r = 12 / scale;
+                let angle = Math.PI / 180;
                 ctx.beginPath();
-                ctx.arc(c.x, c.y, 4 / scale, 0, 2 * Math.PI);
-                let colFire = getComputedStyle(document.documentElement)
-                    .getPropertyValue('--col-fire').trim();
-                ctx.fillStyle = colFire;
+                ctx.moveTo(c.x, c.y - r); // Верхняя точка
+                ctx.lineTo(c.x + r * Math.cos(30 * angle), c.y + r * Math.sin(30 * angle)); // Правая нижняя точка
+                ctx.lineTo(c.x + r * Math.cos(150 * angle), c.y + r * Math.sin(150 * angle)); // Левая нижняя точка
+                ctx.closePath();
+                ctx.fillStyle = "#4ea5ff"; // Синяя заливка
                 ctx.fill();
+                ctx.lineWidth = 2 / scale;
+                ctx.strokeStyle = "#000000"; // Чёрная обводка
+                ctx.stroke();
+
                 if (p.name) {
-                    ctx.font = (16 / scale < maxFontSize ? 16 / scale: maxFontSize) + "px sans-serif";
-                    console.log(ctx.font);
-                    ctx.fillStyle = getComputedStyle(document.documentElement)
-                        .getPropertyValue('--text-color').trim();
-                    ctx.fillText(p.name, c.x + 8 / scale, c.y - 8 / scale);
+                    ctx.font = `${Math.min(14 / scale, 12)}px 'Roboto', sans-serif`;
+                    let textWidth = ctx.measureText(p.name).width;
+
+                    // Темный полупрозрачный фон
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+                    ctx.beginPath();
+                    ctx.roundRect(
+                        c.x + 10 / scale,
+                        c.y - 25 / scale,
+                        textWidth + 12 / scale, // Больше padding
+                        20 / scale,
+                        6 / scale // Больше скругление
+                    );
+                    ctx.fill();
+
+                    // Белый текст
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillText(p.name, c.x + 16 / scale, c.y - 10 / scale);
                 }
             });
         }
 
-        // Рисуем запасные аэродромы (другим цветом, например, голубым)
+        // Стиль запасных аэродромов
         alternateCoords.forEach(function(alt) {
             let c = toCanvas(alt.lat, alt.lon);
             ctx.beginPath();
-            ctx.arc(c.x, c.y, 5 / scale, 0, 2 * Math.PI);
-            ctx.fillStyle = getComputedStyle(document.documentElement)
-                .getPropertyValue('--col-instrument').trim();
+            ctx.arc(c.x, c.y, 6 / scale, 0, 2 * Math.PI);
+            ctx.fillStyle = "#e67e22"; // Оранжевая заливка
+            ctx.strokeStyle = "#ffffff"; // Белая обводка
+            ctx.lineWidth = 2 / scale;
             ctx.fill();
-            // Подпись — ICAO
-            ctx.font = (16 / scale < maxFontSize ? 16 / scale: maxFontSize) + "px sans-serif";
-            ctx.fillStyle = getComputedStyle(document.documentElement)
-                .getPropertyValue('--text-color').trim();
-            ctx.fillText(alt.icao, c.x + 10 / scale, c.y - 10 / scale);
+            ctx.stroke();
+
+            // Подпись ICAO
+            ctx.font = `${Math.min(14 / scale, 12)}px 'Roboto', sans-serif`;
+            let textWidth = ctx.measureText(alt.icao).width;
+
+            // Темный фон для ICAO
+            ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+            ctx.beginPath();
+            ctx.roundRect(
+                c.x + 10 / scale,
+                c.y - 25 / scale,
+                textWidth + 12 / scale,
+                20 / scale,
+                6 / scale
+            );
+            ctx.fill();
+
+            // Белый текст
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(alt.icao, c.x + 16 / scale, c.y - 10 / scale);
         });
 
-        // Геопозиция пользователя
+        // Стиль геопозиции пользователя
         if (userLocation) {
             let me = toCanvas(userLocation.lat, userLocation.lon);
             ctx.beginPath();
-            ctx.arc(me.x, me.y, 6 / scale, 0, 2 * Math.PI);
-            ctx.fillStyle = getComputedStyle(document.documentElement)
-                .getPropertyValue('--col-rf').trim();
+            ctx.arc(me.x, me.y, 8 / scale, 0, 2 * Math.PI);
+            ctx.fillStyle = "#27ae60"; // Зеленый цвет
+            ctx.strokeStyle = "#ffffff"; // Белая обводка
+            ctx.lineWidth = 2 / scale;
             ctx.fill();
-            ctx.font = (16 / scale < maxFontSize ? 16 / scale: maxFontSize) + "px sans-serif";
-            ctx.fillStyle = getComputedStyle(document.documentElement)
-                .getPropertyValue('--text-color').trim();
-            ctx.fillText("Я здесь", me.x + 10 / scale, me.y - 10 / scale);
+            ctx.stroke();
+
+            // Подпись "Я здесь"
+            ctx.font = `${Math.min(14 / scale, 12)}px 'Roboto', sans-serif`;
+            let text = "Я здесь";
+            let textWidth = ctx.measureText(text).width;
+
+            // Фон
+            ctx.fillStyle = "rgba(255,255,255,0.9)";
+            ctx.beginPath();
+            ctx.roundRect(me.x + 10 / scale, me.y - 25 / scale,
+                        textWidth + 8 / scale, 20 / scale, 4 / scale);
+            ctx.fill();
+
+            // Текст
+            ctx.fillStyle = "#2c3e50";
+            ctx.fillText(text, me.x + 14 / scale, me.y - 10 / scale);
         }
 
         ctx.restore();
@@ -146,8 +203,9 @@ function showRouteMap(routeData) {
         // let altBounds= computeBounds(alternateCoords);
         // Расширить bounds...
 
-        let w = canvas.width,
-            h = canvas.height;
+        let rect = canvas.getBoundingClientRect();
+        let w = rect.width,
+            h = rect.height;
         let geoWidth = bounds.maxLon - bounds.minLon;
         let geoHeight = bounds.maxLat - bounds.minLat;
         mapCenterLat = (bounds.maxLat + bounds.minLat) / 2;
@@ -206,7 +264,6 @@ function showRouteMap(routeData) {
             modalContent.id = 'modalMap';
 
             modalContent.style.width = "90%";
-            modalContent.style.maxWidth = "800px";
             modalContent.style.height = "90%";
             modalContent.style.position = "relative";
             modalContent.style.overflow = "hidden";
@@ -243,10 +300,11 @@ function showRouteMap(routeData) {
 
             setTimeout(function() {
                 let rect = canvas.getBoundingClientRect();
-                canvas.width = rect.width;
-                canvas.height = rect.height;
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
                 ctx = canvas.getContext("2d");
-
+                ctx.scale(dpr, dpr);
                 // Инициализируем
                 initCenterAndScale();
                 drawMap();

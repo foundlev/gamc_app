@@ -2604,3 +2604,20 @@ input::-webkit-inner-spin-button {
     flex: 1;
     margin: 10px 0;
 }
+
+.map-controls {
+    margin-bottom: 5px;
+    margin-top: 0;
+}
+
+.map-controls button {
+    margin: 0 5px;
+    width: 100px;
+}
+
+#modalMap {
+    padding: 10px;
+    max-height: 90%;
+    width: 90%;
+    max-width: 90%;
+}

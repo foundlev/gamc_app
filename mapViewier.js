@@ -163,19 +163,31 @@ function showRouteMap(routeData) {
         // Стиль запасных аэродромов
         alternateCoords.forEach(function(alt) {
             let c = toCanvas(alt.lat, alt.lon);
+            let r = 8 / scale;
+
+            // Рисуем крест внутри круга
+            let crossHalf = r * 1.7;
             ctx.beginPath();
-            ctx.arc(c.x, c.y, 6 / scale, 0, 2 * Math.PI);
-            ctx.fillStyle = "#e67e22"; // Оранжевая заливка
-            ctx.strokeStyle = "#ffffff"; // Белая обводка
+            ctx.moveTo(c.x - crossHalf, c.y);
+            ctx.lineTo(c.x + crossHalf, c.y);
+            ctx.moveTo(c.x, c.y - crossHalf);
+            ctx.lineTo(c.x, c.y + crossHalf);
             ctx.lineWidth = 2 / scale;
-            ctx.fill();
+            ctx.strokeStyle = "#000000";
             ctx.stroke();
 
-            // Подпись ICAO
+            // Рисуем круг с зелёной заливкой и чёрной обводкой
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, r, 0, 2 * Math.PI);
+            ctx.fillStyle = "#27ae60"; // Зелёная заливка
+            ctx.fill();
+            ctx.lineWidth = 2 / scale;
+            ctx.strokeStyle = "#000000"; // Чёрная обводка
+            ctx.stroke();
+
+            // Подпись ICAO (без изменений)
             ctx.font = `${Math.min(14 / scale, 12)}px 'Roboto', sans-serif`;
             let textWidth = ctx.measureText(alt.icao).width;
-
-            // Темный фон для ICAO
             ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
             ctx.beginPath();
             ctx.roundRect(
@@ -186,8 +198,6 @@ function showRouteMap(routeData) {
                 6 / scale
             );
             ctx.fill();
-
-            // Белый текст
             ctx.fillStyle = "#ffffff";
             ctx.fillText(alt.icao, c.x + 16 / scale, c.y - 10 / scale);
         });
@@ -196,16 +206,16 @@ function showRouteMap(routeData) {
         if (userLocation) {
             let me = toCanvas(userLocation.lat, userLocation.lon);
             ctx.beginPath();
-            ctx.arc(me.x, me.y, 8 / scale, 0, 2 * Math.PI);
-            ctx.fillStyle = "#27ae60"; // Зеленый цвет
-            ctx.strokeStyle = "#ffffff"; // Белая обводка
+            ctx.arc(me.x, me.y, 10 / scale, 0, 2 * Math.PI);
+            ctx.fillStyle = "#f35252";
+            ctx.strokeStyle = "#000000";
             ctx.lineWidth = 2 / scale;
             ctx.fill();
             ctx.stroke();
 
             // Подпись "Я здесь"
             ctx.font = `${Math.min(14 / scale, 12)}px 'Roboto', sans-serif`;
-            let text = "Я здесь";
+            let text = "GPS";
             let textWidth = ctx.measureText(text).width;
 
             // Фон
@@ -213,6 +223,11 @@ function showRouteMap(routeData) {
             ctx.beginPath();
             ctx.roundRect(me.x + 10 / scale, me.y - 25 / scale,
                         textWidth + 8 / scale, 20 / scale, 4 / scale);
+
+            // Добавляем черную обводку для фона текста
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+            ctx.lineWidth = 2 / scale;
+            ctx.stroke();
             ctx.fill();
 
             // Текст

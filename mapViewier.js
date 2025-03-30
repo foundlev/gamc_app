@@ -31,9 +31,17 @@ function showRouteMap(routeData) {
         }
     });
 
+    function isColliding(rect1, rect2) {
+        return !(rect1.x + rect1.width < rect2.x ||
+                 rect1.x > rect2.x + rect2.width ||
+                 rect1.y + rect1.height < rect2.y ||
+                 rect1.y > rect2.y + rect2.height);
+    }
+
     // Основная функция отрисовки
     function drawMap() {
         if (!canvas || !ctx) return;
+        let placedLabels = [];
         let rect = canvas.getBoundingClientRect();
         let w = rect.width,
             h = rect.height;
@@ -52,6 +60,29 @@ function showRouteMap(routeData) {
             let dx = lon - mapCenterLon;
             let dy = mapCenterLat - lat;
             return { x: dx, y: dy };
+        }
+
+        function getTangent(i) {
+            let coords = routeData.coords;
+            if (coords.length < 2) return { dx: 1, dy: 0 };
+            if (i === 0) {
+                let c0 = toCanvas(coords[0].lat, coords[0].lon);
+                let c1 = toCanvas(coords[1].lat, coords[1].lon);
+                return { dx: c1.x - c0.x, dy: c1.y - c0.y };
+            } else if (i === coords.length - 1) {
+                let cPrev = toCanvas(coords[i - 1].lat, coords[i - 1].lon);
+                let cCurr = toCanvas(coords[i].lat, coords[i].lon);
+                return { dx: cCurr.x - cPrev.x, dy: cCurr.y - cPrev.y };
+            } else {
+                let cPrev = toCanvas(coords[i - 1].lat, coords[i - 1].lon);
+                let cNext = toCanvas(coords[i + 1].lat, coords[i + 1].lon);
+                return { dx: cNext.x - cPrev.x, dy: cNext.y - cPrev.y };
+            }
+        }
+
+        function getNormal(tangent) {
+            // Выбираем нормаль в одну сторону (например, (dy, -dx))
+            return { dx: tangent.dy, dy: -tangent.dx };
         }
 
         // Стиль линии маршрута
@@ -79,7 +110,7 @@ function showRouteMap(routeData) {
             ctx.stroke();
 
             // Точки маршрута
-            routeData.coords.forEach(function(p) {
+            routeData.coords.forEach(function(p, i) {
                 let c = toCanvas(p.lat, p.lon);
                 let r = 12 / scale;
                 let angle = Math.PI / 180;
@@ -94,25 +125,37 @@ function showRouteMap(routeData) {
                 ctx.strokeStyle = "#000000"; // Чёрная обводка
                 ctx.stroke();
 
+
                 if (p.name) {
+                    let tangent = getTangent(i);
+                    let normal = getNormal(tangent);
+                    // Нормализуем нормаль
+                    let len = Math.sqrt(normal.dx * normal.dx + normal.dy * normal.dy) || 1;
+                    normal.dx /= len;
+                    normal.dy /= len;
+
+                    let offsetDistance = 25 / scale;
+                    let offsetX = normal.dx * offsetDistance * 1.5;
+                    let offsetY = normal.dy * offsetDistance * 1.5;
+
                     ctx.font = `${Math.min(14 / scale, 12)}px 'Roboto', sans-serif`;
                     let textWidth = ctx.measureText(p.name).width;
 
-                    // Темный полупрозрачный фон
+                    // Рисуем фон подписи со смещением по нормали
                     ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
                     ctx.beginPath();
                     ctx.roundRect(
-                        c.x + 10 / scale,
-                        c.y - 25 / scale,
-                        textWidth + 12 / scale, // Больше padding
+                        c.x + offsetX,
+                        c.y + offsetY,
+                        textWidth + 12 / scale,
                         20 / scale,
-                        6 / scale // Больше скругление
+                        6 / scale
                     );
                     ctx.fill();
 
-                    // Белый текст
+                    // Рисуем текст (подкорректируйте внутреннее смещение при необходимости)
                     ctx.fillStyle = "#ffffff";
-                    ctx.fillText(p.name, c.x + 16 / scale, c.y - 10 / scale);
+                    ctx.fillText(p.name, c.x + offsetX + 6 / scale, c.y + offsetY + 15 / scale);
                 }
             });
         }

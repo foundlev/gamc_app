@@ -1,3 +1,7 @@
+function getCssVar(varName, defaultColor) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || defaultColor;
+}
+
 function showRouteMap(routeData) {
     // routeData: {
     //   departure: "UUEE",
@@ -38,15 +42,68 @@ function showRouteMap(routeData) {
                  rect1.y > rect2.y + rect2.height);
     }
 
+    function getAirpotWeatherColor(icao) {
+        const colObj = icaoColors[icao];
+
+        // Если нет цветовых данных - ставим дефолт
+        if (!colObj) {
+            return;
+        }
+
+        // Проверяем, когда это обновлялось
+        if (!colObj.updatedAt) {
+            return;
+        } else {
+            const updatedTime = new Date(colObj.updatedAt).getTime();
+            const nowTime = Date.now();
+            const diffHours = (nowTime - updatedTime) / (1000 * 60 * 60);
+
+            // Если старше 10 часов
+            if (diffHours > 10) {
+                return;
+            }
+        }
+
+        // Обрабатываем metarColor / tafColor
+        const metarColor = colObj.metarColor ?
+            colObj.metarColor.replace('color-', '') :
+            'green';
+        const tafColor = colObj.tafColor ?
+            colObj.tafColor.replace('color-', '') :
+            'green';
+
+        const colors = {
+            "green": "--badge-green-bg",
+            "yellow": "--badge-orange-bg",
+            "red": "--badge-red-bg",
+            "purple": "--badge-red-bg"
+        }
+
+        const metarColorCss = getCssVar(colors[metarColor]) || metarColor;
+        const tafColorCss = getCssVar(colors[tafColor]) || tafColor;
+
+        return [metarColorCss, tafColorCss]
+    }
+
     // Основная функция отрисовки
     function drawMap() {
         if (!canvas || !ctx) return;
-        let placedLabels = [];
+
+        const bgColor = getCssVar('--bg-color', '#f8f9fa');
+        const textColor = getCssVar('--text-color', '#333333');
+        const accentColor = getCssVar('--accent-color', '#0077ff');
+        const borderColor = getCssVar('--border-color', '#dddddd');
+        const cardBg = getCssVar('--card-bg', '#f9f9fa');
+        const badgeGreenBg = getCssVar('--badge-green-bg', '#27ae60');
+        const badgeTextColor = getCssVar('--badge-text-color', '#ffffff');
+        const mapBgColor = getCssVar('--map-bg', '#ffffff');
+        const gpsPointColor = getCssVar('--gps-point-color', '#0077ff');
+
         let rect = canvas.getBoundingClientRect();
         let w = rect.width,
             h = rect.height;
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = "#f8f9fa";
+        ctx.fillStyle = mapBgColor;
         ctx.fillRect(0, 0, w, h);
 
         let scale = baseScale * userZoom;
@@ -93,7 +150,7 @@ function showRouteMap(routeData) {
                 if (i === 0) ctx.moveTo(c.x, c.y);
                 else ctx.lineTo(c.x, c.y);
             });
-            ctx.strokeStyle = "#000000"; // Чёрный контур
+            ctx.strokeStyle = 'black'; // Чёрный контур
             ctx.lineWidth = 10 / scale; // Увеличенная толщина для контура
             ctx.lineJoin = "round";
             ctx.stroke();
@@ -105,7 +162,7 @@ function showRouteMap(routeData) {
                 if (i === 0) ctx.moveTo(c.x, c.y);
                 else ctx.lineTo(c.x, c.y);
             });
-            ctx.strokeStyle = "#4ea5ff"; // Ярко-синий (можно изменить на '#1E90FF' для более голубоватого оттенка, если требуется)
+            ctx.strokeStyle = accentColor;
             ctx.lineWidth = 6 / scale; // Чуть уже, чем контур
             ctx.stroke();
 
@@ -122,7 +179,7 @@ function showRouteMap(routeData) {
                 ctx.fillStyle = "#4ea5ff"; // Синяя заливка
                 ctx.fill();
                 ctx.lineWidth = 2 / scale;
-                ctx.strokeStyle = "#000000"; // Чёрная обводка
+                ctx.strokeStyle = 'black'; // Чёрная обводка
                 ctx.stroke();
 
 
@@ -154,18 +211,18 @@ function showRouteMap(routeData) {
                     ctx.fill();
 
                     // Рисуем текст (подкорректируйте внутреннее смещение при необходимости)
-                    ctx.fillStyle = "#ffffff";
+                    ctx.fillStyle = badgeTextColor;
                     ctx.fillText(p.name, c.x + offsetX + 6 / scale, c.y + offsetY + 15 / scale);
                 }
             });
         }
 
-        // Стиль запасных аэродромов
+        // Стиль запасных аэродромов с раскраской кружка по половинам
         alternateCoords.forEach(function(alt) {
             let c = toCanvas(alt.lat, alt.lon);
             let r = 8 / scale;
 
-            // Рисуем крест внутри круга
+            // Рисуем крест внутри кружка (как и раньше)
             let crossHalf = r * 1.7;
             ctx.beginPath();
             ctx.moveTo(c.x - crossHalf, c.y);
@@ -173,16 +230,42 @@ function showRouteMap(routeData) {
             ctx.moveTo(c.x, c.y - crossHalf);
             ctx.lineTo(c.x, c.y + crossHalf);
             ctx.lineWidth = 2 / scale;
-            ctx.strokeStyle = "#000000";
+            ctx.strokeStyle = 'black';
             ctx.stroke();
 
-            // Рисуем круг с зелёной заливкой и чёрной обводкой
+            // Получаем массив цветов для аэропорта
+            let colorArr = getAirpotWeatherColor(alt.icao);
+            let fillLeft, fillRight;
+            if (colorArr && colorArr.length === 2) {
+                fillLeft = colorArr[0];
+                fillRight = colorArr[1];
+            } else {
+                // Если цветов нет, используем цвет фона по умолчанию
+                fillLeft = getCssVar('--map-bg', '#f8f9fa');
+                fillRight = fillLeft;
+            }
+
+            // Рисуем левую половину кружка
+            ctx.beginPath();
+            ctx.moveTo(c.x, c.y);
+            ctx.arc(c.x, c.y, r, Math.PI/2, 3*Math.PI/2, true);
+            ctx.closePath();
+            ctx.fillStyle = fillLeft;
+            ctx.fill();
+
+            // Рисуем правую половину кружка
+            ctx.beginPath();
+            ctx.moveTo(c.x, c.y);
+            ctx.arc(c.x, c.y, r, -Math.PI/2, Math.PI/2, true);
+            ctx.closePath();
+            ctx.fillStyle = fillRight;
+            ctx.fill();
+
+            // Обводка всего кружка
             ctx.beginPath();
             ctx.arc(c.x, c.y, r, 0, 2 * Math.PI);
-            ctx.fillStyle = "#27ae60"; // Зелёная заливка
-            ctx.fill();
             ctx.lineWidth = 2 / scale;
-            ctx.strokeStyle = "#000000"; // Чёрная обводка
+            ctx.strokeStyle = 'black';
             ctx.stroke();
 
             // Подпись ICAO (без изменений)
@@ -198,7 +281,7 @@ function showRouteMap(routeData) {
                 6 / scale
             );
             ctx.fill();
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = badgeTextColor;
             ctx.fillText(alt.icao, c.x + 16 / scale, c.y - 10 / scale);
         });
 
@@ -207,8 +290,8 @@ function showRouteMap(routeData) {
             let me = toCanvas(userLocation.lat, userLocation.lon);
             ctx.beginPath();
             ctx.arc(me.x, me.y, 10 / scale, 0, 2 * Math.PI);
-            ctx.fillStyle = "#f35252";
-            ctx.strokeStyle = "#000000";
+            ctx.fillStyle = gpsPointColor;
+            ctx.strokeStyle = 'black';
             ctx.lineWidth = 2 / scale;
             ctx.fill();
             ctx.stroke();
@@ -366,6 +449,13 @@ function showRouteMap(routeData) {
                 // Инициализируем
                 initCenterAndScale();
                 drawMap();
+
+                const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                darkMediaQuery.addEventListener('change', (e) => {
+                    // Если нужно полностью пересоздать карту (например, обновить CSS-переменные)
+                    drawMap();
+                });
+
                 startGeo();
             }, 0);
 

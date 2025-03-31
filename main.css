@@ -4,6 +4,8 @@
     --accent-color: #0077ff;
     --border-color: #dddddd;
     --card-bg: #f9f9f9;
+    --map-bg: #F8F9FA;
+    --gps-point-color: rgb(255, 103, 255);
 
     /* Светлая тема */
     --badge-green-bg: #27ae60;
@@ -52,6 +54,9 @@
         /* или другой */
         --col-default: #34495e;
         /* например */
+
+        --map-bg: #2C3E50;
+        --gps-point-color: rgb(225,72,225);
 
         --col-fire: #aa3e34;
         --col-special: #8c51a5;

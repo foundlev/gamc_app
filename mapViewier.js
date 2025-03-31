@@ -245,6 +245,12 @@ function showRouteMap(routeData) {
                 fillRight = fillLeft;
             }
 
+            // Заливаем весь круг левым цветом
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, r, 0, 2 * Math.PI);
+            ctx.fillStyle = fillLeft;
+            ctx.fill();
+
             // Рисуем левую половину кружка
             ctx.beginPath();
             ctx.moveTo(c.x, c.y);
@@ -425,10 +431,15 @@ function showRouteMap(routeData) {
             let controlsDiv = document.createElement("div");
             controlsDiv.className = "map-controls";
             controlsDiv.innerHTML = `
-        <button id="zoomMapInBtn"><i class="fa-solid fa-plus"></i></button>
-        <button id="zoomMapOutBtn"><i class="fa-solid fa-minus"></i></button>
-        <button id="centerMapGeoBtn"><i class="fa-solid fa-location-dot"></i></button>
-      `;
+                <button id="zoomMapInBtn"><i class="fa-solid fa-plus"></i></button>
+                <button id="zoomMapOutBtn"><i class="fa-solid fa-minus"></i></button>
+                <button id="centerMapGeoBtn"><i class="fa-solid fa-location-dot"></i></button>
+                <label class="gps-track-control">
+                    <input type="checkbox" id="gpsTrackCheckbox">
+                    <span class="gps-track-switch"></span>
+                    <i class="fa-solid fa-location-arrow"></i>
+                </label>
+            `;
             modalContent.appendChild(controlsDiv);
 
             canvas = document.createElement("canvas");

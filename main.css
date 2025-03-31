@@ -689,7 +689,7 @@ footer {
     color: #666;
 }
 
-.runway-info-modal-backdrop .modal-close-btn:hover {
+.runway-info-modal-backdrop .modal-close-btn:active {
     color: #000;
 }
 
@@ -704,7 +704,7 @@ footer {
     color: #333;
 }
 
-.modal-close-btn:hover {
+.modal-close-btn:active {
     color: #000;
 }
 
@@ -923,7 +923,7 @@ footer {
         /* Светло-серая кнопка закрытия */
     }
 
-    .modal .modal-close-btn:hover {
+    .modal .modal-close-btn:active {
         color: #ffffff;
         /* Белый при наведении */
     }
@@ -954,7 +954,7 @@ footer {
         /* Цвет кнопки закрытия */
     }
 
-    .runway-info-modal-backdrop .modal-close-btn:hover {
+    .runway-info-modal-backdrop .modal-close-btn:active {
         color: #fff;
         /* Яркий цвет при наведении на кнопку закрытия */
     }
@@ -1201,7 +1201,7 @@ footer {
     border-color: var(--accent-color);
 }
 
-.custom-checkbox:hover input[type="checkbox"]+span::before {
+.custom-checkbox:active input[type="checkbox"]+span::before {
     border-color: var(--accent-color);
 }
 
@@ -1266,7 +1266,7 @@ footer {
 }
 
 /* При наведении - слегка меняем цвет рамки */
-#routeSelect:hover {
+#routeSelect:active {
     border-color: var(--accent-color);
 }
 
@@ -1461,7 +1461,7 @@ button[hidden] {
     color: var(--text-color);
 }
 
-.icao-suggestions li:hover {
+.icao-suggestions li:active {
     background-color: var(--accent-color);
     color: #ffffff;
 }
@@ -1739,7 +1739,7 @@ button[hidden] {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.notam-item:hover {
+.notam-item:active {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
@@ -1871,7 +1871,7 @@ button[hidden] {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.notam-item:hover {
+.notam-item:active {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
@@ -2050,7 +2050,7 @@ button[hidden] {
     cursor: pointer;
     transition: opacity 0.2s;
 }
-.delete-system-btn:hover {
+.delete-system-btn:active {
     opacity: 0.8;
 }
 
@@ -2244,7 +2244,7 @@ input::-webkit-inner-spin-button {
     }
 }
 
-#aircraftTypeSelect:hover {
+#aircraftTypeSelect:active {
     border-color: var(--accent-color);
 }
 
@@ -2284,7 +2284,7 @@ input::-webkit-inner-spin-button {
     border: 1px solid rgba(255,255,255,0.1);
 }
 
-.aircraft-type-badge:hover {
+.aircraft-type-badge:active {
     opacity: 0.9;
     transform: translateY(-1px);
 }
@@ -2506,7 +2506,7 @@ input::-webkit-inner-spin-button {
     margin-left: 8px;
 }
 
-#copyAlternatesBtn:hover {
+#copyAlternatesBtn:active {
     opacity: 0.7;
 }
 
@@ -2613,6 +2613,8 @@ input::-webkit-inner-spin-button {
 .map-controls {
     margin-bottom: 5px;
     margin-top: 0;
+    display: flex;
+    justify-content: center;
 }
 
 .map-controls button {
@@ -2625,4 +2627,68 @@ input::-webkit-inner-spin-button {
     max-height: 90%;
     width: 90%;
     max-width: 90%;
+}
+
+/* Контрол слежения за GPS – упрощённый вариант */
+.gps-track-control {
+    display: inline-flex;
+    align-items: center;
+    height: 38px; /* высота как у остальных кнопок */
+    padding: 0 10px;
+    margin: 0 5px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.gps-track-switch {
+    width: 28px;
+    height: 16px;
+    background: var(--border-color);
+    border-radius: 8px;
+    margin-right: 8px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.gps-track-switch:after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.gps-track-control input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gps-track-control input:checked + .gps-track-switch {
+    background: var(--accent-color);
+}
+
+.gps-track-control input:checked + .gps-track-switch:after {
+    transform: translateX(12px);
+}
+
+.gps-track-control i {
+    font-size: 16px;
+    color: var(--text-color);
+    transition: color 0.2s ease;
+}
+
+/* Ховер-эффекты */
+.gps-track-control:active {
+    border-color: var(--accent-color);
+    background: rgba(0, 119, 255, 0.05);
 }

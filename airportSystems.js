@@ -269,6 +269,23 @@ function saveAtisFrequencies(data) {
     localStorage.setItem('atisFrequencies', JSON.stringify(data));
 }
 
+function getAtisFrequencyByIcao(icao) {
+    const frq = getAtisFrequencies();
+    const currentFrq = frq[icao];
+
+    if (!currentFrq) return;
+
+    if (currentFrq.arrival[0]) {
+        return currentFrq.arrival[0];
+    } else if (currentFrq.arrival[1]) {
+        return currentFrq.arrival[1];
+    } else if (currentFrq.departure[0]) {
+        return currentFrq.departure[0];
+    } else if (currentFrq.departure[0]) {
+        return currentFrq.departure[0];
+    }
+}
+
 document.getElementById('saveAtisBtn').onclick = () => {
     const currentIcao = nowIcao ? nowIcao.toUpperCase() : '';
     let atisData = getAtisFrequencies();

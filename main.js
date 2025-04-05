@@ -1018,6 +1018,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 timeBadgeContainer.appendChild(notamsBadge);
             }
 
+            const atisFrq = getAtisFrequencyByIcao(icao);
+
+            if (atisFrq) {
+                const atisBadge = document.createElement('div');
+                atisBadge.className = 'time-badge';
+                atisBadge.id = 'atisFrqBtn';
+                atisBadge.classList.add('badge-default');
+                atisBadge.classList.add('content-clickable');
+                atisBadge.onclick = showLandingSystemModal;
+                atisBadge.innerHTML = `<i class="fa-solid fa-tower-cell"></i> ${atisFrq}`;
+
+                if (!silent) {
+                    timeBadgeContainer.appendChild(atisBadge);
+                }
+            }
+
             finalText = insertLineBreaks(finalText);
             if (doHighlight) {
                 // Сначала синхронизируем фрикцию по противоположным полосам
@@ -1105,9 +1121,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setButtonColorSplit(btn, metarColor, tafColor) {
-        btn.style.background =
-            `linear-gradient(to right, var(--col-${metarColor}) 50%, var(--col-${tafColor}) 50%)`;
+        btn.style.background = `linear-gradient(to right, var(--col-${metarColor}) 50%, var(--col-${tafColor}) 50%)`;
         btn.style.color = 'white';
+        btn.style.textShadow = '0 0 2px rgba(0, 0, 0, 0.5)';
     }
 
     function applyIcaoButtonColors(icao, btn) {
@@ -2258,7 +2274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Добавляем опцию "Временный"
         let tempOption = document.createElement('option');
         tempOption.value = 'temp';
-        tempOption.innerHTML = 'Временный';
+        tempOption.innerHTML = 'Временный 🛰';
         routeSelect.appendChild(tempOption);
 
         // 2) Для каждого сохранённого маршрута
@@ -2306,7 +2322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
             if (tempRoute.departure && tempRoute.arrival) {
                 // Функция renderRouteAerodromes уже используется для отображения маршрута
-                renderRouteAerodromes([tempRoute.departure, tempRoute.arrival, ...tempRoute.alternates]);
+                renderRouteAerodromes([tempRoute.departure, ...tempRoute.alternates, tempRoute.arrival]);
                 importedRouteCoords = tempRoute.coords;
             } else {
                 historyContainer.innerHTML = '<p>Временный маршрут не задан.</p>';
@@ -2329,7 +2345,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!route) return;
 
         // Собираем массив [departure, arrival, ...alternates]
-        const routeAerodromes = [route.departure, route.arrival, ...route.alternates];
+        const routeAerodromes = [route.departure, ...route.alternates, route.arrival];
 
         // Рендерим их в #historyContainer
         renderRouteAerodromes(routeAerodromes);
@@ -2359,21 +2375,60 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function renderRouteAerodromes(aerodromes) {
-        // Очищаем
+        // Очищаем контейнер
         historyContainer.innerHTML = '';
-        // По аналогии с renderHistory(), но вместо history делаем buttons из массива aerodromes
-        aerodromes.forEach(icao => {
-            const btn = document.createElement('button');
-            btn.textContent = icao;
-            // Если хотим, чтобы при нажатии запрашивалась погода:
-            btn.addEventListener('click', () => {
-                document.getElementById('icao').value = icao;
-                getWeather(icao, false);
+        if (aerodromes.length === 0) return;
+
+        // Рендерим первый аэродром с иконкой взлёта
+        const firstBtn = document.createElement('button');
+        firstBtn.innerHTML = '<i class="fa-solid fa-plane-departure"></i> ' + aerodromes[0];
+        firstBtn.addEventListener('click', () => {
+            document.getElementById('icao').value = aerodromes[0];
+            getWeather(aerodromes[0], false);
+            updateFetchBtn();
+        });
+        applyIcaoButtonColors(aerodromes[0], firstBtn);
+        historyContainer.appendChild(firstBtn);
+
+        // Если аэродромов больше одного, вставляем разделитель после первого
+        if (aerodromes.length > 1) {
+            const sep1 = document.createElement('div');
+            sep1.className = 'aerodrome-separator';
+            historyContainer.appendChild(sep1);
+        }
+
+        // Если аэродромов больше двух, рендерим средние аэродромы (без иконок)
+        if (aerodromes.length > 2) {
+            for (let i = 1; i < aerodromes.length - 1; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = aerodromes[i];
+                btn.addEventListener('click', () => {
+                    document.getElementById('icao').value = aerodromes[i];
+                    getWeather(aerodromes[i], false);
+                    updateFetchBtn();
+                });
+                applyIcaoButtonColors(aerodromes[i], btn);
+                historyContainer.appendChild(btn);
+            }
+        }
+
+        // Если аэродромов больше одного, вставляем разделитель перед последним
+        if (aerodromes.length > 1) {
+            const sep2 = document.createElement('div');
+            sep2.className = 'aerodrome-separator';
+            historyContainer.appendChild(sep2);
+
+            // Рендерим последний аэродром с иконкой посадки
+            const lastBtn = document.createElement('button');
+            lastBtn.innerHTML = '<i class="fa-solid fa-plane-arrival"></i> ' + aerodromes[aerodromes.length - 1];
+            lastBtn.addEventListener('click', () => {
+                document.getElementById('icao').value = aerodromes[aerodromes.length - 1];
+                getWeather(aerodromes[aerodromes.length - 1], false);
                 updateFetchBtn();
             });
-            applyIcaoButtonColors(icao, btn);
-            historyContainer.appendChild(btn);
-        });
+            applyIcaoButtonColors(aerodromes[aerodromes.length - 1], lastBtn);
+            historyContainer.appendChild(lastBtn);
+        }
 
         updateHistoryBtnNotam();
     }

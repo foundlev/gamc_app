@@ -2629,66 +2629,31 @@ input::-webkit-inner-spin-button {
     max-width: 90%;
 }
 
-/* Контрол слежения за GPS – упрощённый вариант */
-.gps-track-control {
-    display: inline-flex;
-    align-items: center;
-    height: 38px; /* высота как у остальных кнопок */
-    padding: 0 10px;
-    margin: 0 5px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
+#centerMapGeoBtn.tracking-active {
+    background-color: var(--badge-green-bg);
 }
 
-.gps-track-switch {
-    width: 28px;
-    height: 16px;
-    background: var(--border-color);
-    border-radius: 8px;
-    margin-right: 8px;
-    position: relative;
-    flex-shrink: 0;
+.aerodrome-separator {
+    width: 2px; /* Thicker for visibility */
+    background-color: var(--text-color); /* Use the app's accent color for prominence */
+    opacity: 0.5;
+    height: 24px; /* Match the approximate height of the buttons */
+    align-self: center; /* Center vertically within the flex container */
+    margin: 0 6px; /* Adjusted spacing to fit between buttons */
+    border-radius: 1px; /* Subtle rounding for a polished look */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    transition: transform 0.2s ease; /* Smooth animation for interactivity */
 }
 
-.gps-track-switch:after {
-    content: "";
-    position: absolute;
-    left: 2px;
-    top: 2px;
-    width: 12px;
-    height: 12px;
-    background: white;
-    border-radius: 50%;
-    transition: transform 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* Hover effect for subtle interactivity */
+.aerodrome-separator:hover {
+    transform: scaleY(1.1); /* Slight vertical stretch on hover */
 }
 
-.gps-track-control input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.gps-track-control input:checked + .gps-track-switch {
-    background: var(--accent-color);
-}
-
-.gps-track-control input:checked + .gps-track-switch:after {
-    transform: translateX(12px);
-}
-
-.gps-track-control i {
-    font-size: 16px;
-    color: var(--text-color);
-    transition: color 0.2s ease;
-}
-
-/* Ховер-эффекты */
-.gps-track-control:active {
-    border-color: var(--accent-color);
-    background: rgba(0, 119, 255, 0.05);
+/* Ensure visibility when buttons wrap */
+.history {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    align-items: center; /* Ensure separators align with buttons vertically */
 }

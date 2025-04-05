@@ -3,13 +3,6 @@ function getCssVar(varName, defaultColor) {
 }
 
 function showRouteMap(routeData) {
-    // routeData: {
-    //   departure: "UUEE",
-    //   arrival: "UNKL",
-    //   alternates: [...],
-    //   coords: [{lat, lon, name}, ... ]
-    // }
-
     let mapModal, canvas, ctx;
     let mapCenterLat = 0,
         mapCenterLon = 0;
@@ -21,6 +14,9 @@ function showRouteMap(routeData) {
         dragStartY = 0;
 
     const maxFontSize = 5;
+
+    let gpsTracking = false;
+    let trackingTimer = null;
 
     // "Коллекция" запасных аэродромов (lat/lon).
     // Получаем их из airportsDB
@@ -40,6 +36,25 @@ function showRouteMap(routeData) {
                  rect1.x > rect2.x + rect2.width ||
                  rect1.y + rect1.height < rect2.y ||
                  rect1.y > rect2.y + rect2.height);
+    }
+
+    function animatePan(newLat, newLon) {
+        const duration = 500; // время анимации в мс
+        const startLat = mapCenterLat, startLon = mapCenterLon;
+        const diffLat = newLat - startLat;
+        const diffLon = newLon - startLon;
+        let startTime = null;
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            mapCenterLat = startLat + diffLat * progress;
+            mapCenterLon = startLon + diffLon * progress;
+            drawMap();
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            }
+        }
+        requestAnimationFrame(step);
     }
 
     function getAirpotWeatherColor(icao) {
@@ -237,8 +252,8 @@ function showRouteMap(routeData) {
             let colorArr = getAirpotWeatherColor(alt.icao);
             let fillLeft, fillRight;
             if (colorArr && colorArr.length === 2) {
-                fillLeft = colorArr[0];
-                fillRight = colorArr[1];
+                fillLeft = colorArr[1];
+                fillRight = colorArr[0];
             } else {
                 // Если цветов нет, используем цвет фона по умолчанию
                 fillLeft = getCssVar('--map-bg', '#f8f9fa');
@@ -433,12 +448,7 @@ function showRouteMap(routeData) {
             controlsDiv.innerHTML = `
                 <button id="zoomMapInBtn"><i class="fa-solid fa-plus"></i></button>
                 <button id="zoomMapOutBtn"><i class="fa-solid fa-minus"></i></button>
-                <button id="centerMapGeoBtn"><i class="fa-solid fa-location-dot"></i></button>
-                <label class="gps-track-control">
-                    <input type="checkbox" id="gpsTrackCheckbox">
-                    <span class="gps-track-switch"></span>
-                    <i class="fa-solid fa-location-arrow"></i>
-                </label>
+                <button id="centerMapGeoBtn"><i class="fa-solid fa-location-arrow"></i></button>
             `;
             modalContent.appendChild(controlsDiv);
 
@@ -475,6 +485,12 @@ function showRouteMap(routeData) {
                 isDragging = true;
                 dragStartX = e.clientX;
                 dragStartY = e.clientY;
+                // Если режим слежения активен, отключаем его при начале перетаскивания
+                if (gpsTracking) {
+                    gpsTracking = false;
+                    clearInterval(trackingTimer);
+                    document.getElementById("centerMapGeoBtn").classList.remove("tracking-active");
+                }
             });
             canvas.addEventListener("mousemove", (e) => {
                 if (isDragging) {
@@ -528,7 +544,36 @@ function showRouteMap(routeData) {
                 drawMap();
             });
             document.getElementById("centerMapGeoBtn").addEventListener("click", () => {
-                centerOnUser();
+                if (!userLocation) return;
+                // Проверяем, насколько центр карты близок к GPS-позиции
+                const latDiff = Math.abs(mapCenterLat - userLocation.lat);
+                const lonDiff = Math.abs(mapCenterLon - userLocation.lon);
+                const threshold = 0.01; // подберите порог (например, 0.01 градуса)
+
+                if (latDiff < threshold && lonDiff < threshold) {
+                    // Если уже сцентрировано, переключаем режим отслеживания
+                    gpsTracking = !gpsTracking;
+                    // Добавляем/удаляем класс для изменения цвета кнопки
+                    document.getElementById("centerMapGeoBtn").classList.toggle("tracking-active", gpsTracking);
+
+                    if (gpsTracking) {
+                        // Запускаем обновление GPS раз в 3 секунды
+                        trackingTimer = setInterval(() => {
+                            navigator.geolocation.getCurrentPosition((pos) => {
+                                const newLat = pos.coords.latitude;
+                                const newLon = pos.coords.longitude;
+                                animatePan(newLat, newLon);
+                            });
+                        }, 3000);
+                    } else {
+                        clearInterval(trackingTimer);
+                    }
+                } else {
+                    // Если карта не сцентрирована, сразу центрируем и отключаем отслеживание
+                    gpsTracking = false;
+                    document.getElementById("centerMapGeoBtn").classList.remove("tracking-active");
+                    centerOnUser();
+                }
             });
 
         } else {
@@ -546,255 +591,8 @@ document.addEventListener("DOMContentLoaded", function() {
     let btn = document.getElementById("showMapBtn");
     if (btn) {
         btn.addEventListener("click", function() {
-            let exampleRoute = {
-                "departure": "UUEE",
-                "arrival": "UNKL",
-                "alternates": [
-                    "UUWW",
-                    "UUBW",
-                    "UUDD",
-                    "UUDL",
-                    "UWGG",
-                    "UWPS",
-                    "UWLL",
-                    "UWKD",
-                    "UWLW",
-                    "USKK",
-                    "USPP",
-                    "USSS",
-                    "USCC",
-                    "USTR",
-                    "USHH",
-                    "USNN",
-                    "UNNT",
-                    "UNTT",
-                    "UNBB",
-                    "UNEE"
-                ],
-                "coords": [{
-                        "lat": 55.9725,
-                        "lon": 37.413053,
-                        "name": "UUEE"
-                    },
-                    {
-                        "lat": 55.909802,
-                        "lon": 37.006886,
-                        "name": ""
-                    },
-                    {
-                        "lat": 55.981111,
-                        "lon": 36.918224,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.111422,
-                        "lon": 37.039639,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.158993,
-                        "lon": 37.330624,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.230833,
-                        "lon": 37.523886,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.301298,
-                        "lon": 37.709124,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.386458,
-                        "lon": 37.89276,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.683482,
-                        "lon": 37.94585,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.872225,
-                        "lon": 38.270561,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.872225,
-                        "lon": 38.270561,
-                        "name": "RILPO"
-                    },
-                    {
-                        "lat": 57.486114,
-                        "lon": 39.24945,
-                        "name": "RANTO"
-                    },
-                    {
-                        "lat": 57.627225,
-                        "lon": 40.002228,
-                        "name": "TUNEG"
-                    },
-                    {
-                        "lat": 57.902503,
-                        "lon": 41.562783,
-                        "name": "IBREN"
-                    },
-                    {
-                        "lat": 58.538614,
-                        "lon": 45.75945,
-                        "name": "BAPUN"
-                    },
-                    {
-                        "lat": 58.925281,
-                        "lon": 47.46695,
-                        "name": "AGNOG"
-                    },
-                    {
-                        "lat": 59.205558,
-                        "lon": 48.796117,
-                        "name": "SONAT"
-                    },
-                    {
-                        "lat": 59.361947,
-                        "lon": 50.776394,
-                        "name": "TIKRO"
-                    },
-                    {
-                        "lat": 59.442225,
-                        "lon": 52.041672,
-                        "name": "BAMAL"
-                    },
-                    {
-                        "lat": 59.504447,
-                        "lon": 53.182506,
-                        "name": "NEGOK"
-                    },
-                    {
-                        "lat": 59.546669,
-                        "lon": 54.571672,
-                        "name": "FALBU"
-                    },
-                    {
-                        "lat": 59.588058,
-                        "lon": 57.917783,
-                        "name": "MOTUB"
-                    },
-                    {
-                        "lat": 59.583892,
-                        "lon": 59.089728,
-                        "name": "ADANU"
-                    },
-                    {
-                        "lat": 59.895836,
-                        "lon": 62.40445,
-                        "name": "ULRES"
-                    },
-                    {
-                        "lat": 59.944725,
-                        "lon": 63.019172,
-                        "name": "IDKOM"
-                    },
-                    {
-                        "lat": 60.013614,
-                        "lon": 63.958339,
-                        "name": "NALOG"
-                    },
-                    {
-                        "lat": 60.116947,
-                        "lon": 64.831672,
-                        "name": "PIGUR"
-                    },
-                    {
-                        "lat": 60.027225,
-                        "lon": 66.645283,
-                        "name": "RITNA"
-                    },
-                    {
-                        "lat": 59.918892,
-                        "lon": 68.348617,
-                        "name": "UNEKI"
-                    },
-                    {
-                        "lat": 59.823892,
-                        "lon": 69.605283,
-                        "name": "ADMUR"
-                    },
-                    {
-                        "lat": 59.333889,
-                        "lon": 74.498894,
-                        "name": "LITUN"
-                    },
-                    {
-                        "lat": 59.182222,
-                        "lon": 75.887228,
-                        "name": "IMETA"
-                    },
-                    {
-                        "lat": 59.110556,
-                        "lon": 76.493894,
-                        "name": "MEKSI"
-                    },
-                    {
-                        "lat": 59.078889,
-                        "lon": 76.755561,
-                        "name": "TEBGI"
-                    },
-                    {
-                        "lat": 58.683889,
-                        "lon": 79.682506,
-                        "name": "ADIMA"
-                    },
-                    {
-                        "lat": 58.327222,
-                        "lon": 82.932506,
-                        "name": "KUMOD"
-                    },
-                    {
-                        "lat": 56.912222,
-                        "lon": 88.487783,
-                        "name": "KELOK"
-                    },
-                    {
-                        "lat": 56.272222,
-                        "lon": 90.611117,
-                        "name": "ROTLI"
-                    },
-                    {
-                        "lat": 56.283889,
-                        "lon": 91.133061,
-                        "name": "RANET"
-                    },
-                    {
-                        "lat": 56.28389,
-                        "lon": 91.133061,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.420887,
-                        "lon": 91.724651,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.392694,
-                        "lon": 91.842581,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.151556,
-                        "lon": 92.584025,
-                        "name": ""
-                    },
-                    {
-                        "lat": 56.173056,
-                        "lon": 92.493331,
-                        "name": "UNKL"
-                    }
-                ]
-            };
             // Вызываем нашу универсальную функцию
-            showRouteMap(exampleRoute);
+            showRouteMap(JSON.parse(localStorage.getItem('tempRoute') || '{}'));
         });
     }
 });

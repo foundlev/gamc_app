@@ -11,7 +11,7 @@ async function requestWakeLock() {
         });
         console.log('Wake Lock активирован');
     } catch (err) {
-        console.error(`Ошибка при запросе Wake Lock: ${err.message}`);
+
     }
 }
 

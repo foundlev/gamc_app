@@ -1118,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyIcaoButtonColors(icao, buttonInHistory);
             }
 
-            updateGpsButton();
+            updateGpsButton(silent);
         } catch (err) {
             responseContainer.textContent = 'Ошибка при запросе: ' + err;
         }
@@ -2066,9 +2066,14 @@ document.addEventListener('DOMContentLoaded', () => {
         updateGpsButton();
     });
 
-    function updateGpsButton() {
-        gpsBtn.disabled = !(nowIcao && nowIcao.length === 4 && !offlineMode);
-        systemsInfoBtn.disabled = !(nowIcao && nowIcao.length === 4);
+    function updateGpsButton(forceDisable=false) {
+        if (forceDisable) {
+            gpsBtn.disabled = true;
+            systemsInfoBtn.disabled = true;
+        } else {
+            gpsBtn.disabled = !(nowIcao && nowIcao.length === 4 && !offlineMode);
+            systemsInfoBtn.disabled = !(nowIcao && nowIcao.length === 4);
+        }
     }
 
     function checkInternetConnection() {

@@ -77,12 +77,24 @@ function formatTimeDifference(updatedTimestamp) {
     const now = Date.now();
     const diffMs = now - updatedTimestamp;
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    if (diffMinutes < 1) return "только что";
-    if (diffMinutes < 60) return `${diffMinutes} минут назад`;
     const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours} часов назад`;
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays} дней назад`;
+
+    let text;
+    if (diffMinutes < 1) {
+        text = "только что";
+    } else if (diffMinutes < 60) {
+        text = `${diffMinutes} мин назад`;
+    } else if (diffHours < 24) {
+        text = `${diffHours} ч назад`;
+    } else {
+        const diffDays = Math.floor(diffHours / 24);
+        text = `${diffDays} дн назад`;
+    }
+
+    return {
+        text: `Обновлено: ${text}`,
+        isOutdated: diffHours >= 1 // Флаг: true, если прошло больше 1 часа
+    };
 }
 
 // Функция для создания и отображения модального окна с объяснением от ИИ
@@ -161,8 +173,14 @@ function showAIExplanationModal() {
     storedData = storedData ? JSON.parse(storedData) : {};
 
     if (storedData[icaoInput]) {
-        aiExplanationData.innerHTML = storedData[icaoInput].html; // Вставляем данные в отдельный контейнер
-        aiLastUpdated.textContent = `Обновлено: ${formatTimeDifference(storedData[icaoInput].updated)}`;
+        aiExplanationData.innerHTML = storedData[icaoInput].html;
+        const { text, isOutdated } = formatTimeDifference(storedData[icaoInput].updated);
+        aiLastUpdated.textContent = text;
+        if (isOutdated) {
+            aiLastUpdated.classList.add('outdated');
+        } else {
+            aiLastUpdated.classList.remove('outdated');
+        }
         if (loadingOverlay) {
             loadingOverlay.style.display = 'none';
             console.log('Скрываем loadingOverlay при наличии данных');
@@ -171,6 +189,7 @@ function showAIExplanationModal() {
             noDataMessage.style.display = 'none';
             console.log('Скрываем noDataMessage при наличии данных');
         }
+
     } else {
         // Показываем сообщение "нет данных"
         aiExplanationData.innerHTML = ''; // Очищаем контейнер данных
@@ -229,7 +248,14 @@ async function fetchAndUpdateAIExplanation(icao, contentElement, updatedElement,
         };
         localStorage.setItem('aiWeatherExplanation', JSON.stringify(storedData));
 
-        updatedElement.textContent = 'Обновлено: только что';
+        const { text, isOutdated } = formatTimeDifference(Date.now());
+        updatedElement.textContent = text;
+        if (isOutdated) {
+            updatedElement.classList.add('outdated');
+        } else {
+            updatedElement.classList.remove('outdated');
+        }
+
     } catch (error) {
         if (aiExplanationData) {
             aiExplanationData.innerHTML = '<p class="error">Ошибка загрузки объяснения. Попробуйте снова.</p>';

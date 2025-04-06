@@ -289,9 +289,12 @@ function showRouteMap(routeData) {
             ctx.strokeStyle = 'black';
             ctx.stroke();
 
+            const atisFrq = getAtisFrequencyByIcao(alt.icao);
+            const airportInfo = alt.icao + (atisFrq ? '\n' + atisFrq : '');
+
             // Подпись ICAO (без изменений)
             ctx.font = `${Math.min(14 / scale, 12)}px 'Roboto', sans-serif`;
-            let textWidth = ctx.measureText(alt.icao).width;
+            let textWidth = ctx.measureText(airportInfo).width;
             ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
             ctx.beginPath();
             ctx.roundRect(
@@ -303,7 +306,7 @@ function showRouteMap(routeData) {
             );
             ctx.fill();
             ctx.fillStyle = badgeTextColor;
-            ctx.fillText(alt.icao, c.x + 16 / scale, c.y - 10 / scale);
+            ctx.fillText(airportInfo, c.x + 16 / scale, c.y - 10 / scale);
         });
 
         // Стиль геопозиции пользователя
@@ -532,6 +535,29 @@ function showRouteMap(routeData) {
                 let factor = (e.deltaY < 0) ? 1.1 : 0.9;
                 userZoom *= factor;
                 drawMap();
+            });
+
+            canvas.addEventListener("touchstart", (e) => {
+                isDragging = true;
+                const touch = e.touches[0];
+                dragStartX = touch.clientX;
+                dragStartY = touch.clientY;
+            });
+
+            canvas.addEventListener("touchmove", (e) => {
+                if (!isDragging) return;
+                const touch = e.touches[0];
+                let dx = touch.clientX - dragStartX;
+                let dy = touch.clientY - dragStartY;
+                applyPan(dx, dy);
+                drawMap();
+                dragStartX = touch.clientX;
+                dragStartY = touch.clientY;
+                e.preventDefault(); // чтобы предотвратить скроллинг страницы
+            });
+
+            canvas.addEventListener("touchend", (e) => {
+                isDragging = false;
             });
 
             // Кнопки

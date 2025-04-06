@@ -1,3 +1,11 @@
+const aiAccessedUid = "LEV737"
+
+function getAiAccess() {
+    const currentUid = localStorage.getItem('gamcUid') || '';
+    return currentUid && currentUid === aiAccessedUid;
+}
+
+
 // Находим кнопку и модалку для NOTAM
 const notamBtn = document.getElementById('notamBtn');
 const notamModalBackdrop = document.getElementById('notamModalBackdrop');

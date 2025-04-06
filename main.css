@@ -257,7 +257,7 @@ button:active {
 .response-container {
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    padding: 10px;
+    padding: 10px 40px 10px 10px;
     background-color: var(--card-bg);
     overflow: auto;
     min-height: 100px;
@@ -265,9 +265,6 @@ button:active {
     font-family: monospace;
     font-size: 1rem;
     line-height: 1.7em;
-    /* По умолчанию скрыто, а при обновлении JS
-     можно добавлять класс .show или что-то
-     вроде этого для анимации, но можно и сразу. */
     opacity: 1;
     animation: fadeSlideIn 0.4s ease forwards;
 }
@@ -412,7 +409,8 @@ footer {
 #exportGamcUidBtn:disabled,
 #systemsInfoBtn:disabled,
 #aiCheckBtn:disabled,
-.modal input:disabled {
+.modal input:disabled,
+#refreshAIExplanationBtn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -2656,4 +2654,257 @@ input::-webkit-inner-spin-button {
     gap: 5px;
     flex-wrap: wrap;
     align-items: center; /* Ensure separators align with buttons vertically */
+}
+
+#responseContainer {
+    position: relative;
+}
+
+#aiIcon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    color: var(--accent-color); /* или другой нужный цвет */
+    cursor: pointer;
+}
+
+/* AI Explanation Modal Styles */
+.ai-explanation-modal {
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    padding: 25px;
+    text-align: left;
+    background: linear-gradient(135deg, #ffffff, #f7f9fc);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    color: var(--text-color);
+    animation: modalPop 0.4s ease-out;
+}
+
+#aiExplanationModalBackdrop {
+    z-index: 0;
+}
+
+.ai-explanation-modal h2 {
+    margin: 0 0 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.ai-explanation-content {
+    max-height: 50vh; /* Limit height to allow scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding-right: 10px; /* Space for scrollbar */
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.ai-explanation-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ai-explanation-content::-webkit-scrollbar-track {
+    background: var(--card-bg);
+    border-radius: 4px;
+}
+
+.ai-explanation-content::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+.ai-explanation-content::-webkit-scrollbar-thumb:hover {
+    background: var(--col-default);
+}
+
+.weather-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-color);
+    transition: transform 0.2s ease;
+}
+
+.weather-section:hover {
+    transform: translateX(5px);
+}
+
+.weather-section h3 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.weather-section p {
+    margin: 5px 0;
+}
+
+.weather-section p strong {
+    color: var(--accent-color);
+}
+
+.ai-explanation-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.ai-explanation-footer span {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.ai-explanation-footer button {
+    background-color: var(--accent-color);
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.ai-explanation-footer button:hover {
+    background-color: var(--col-default);
+}
+
+.ai-explanation-footer button:active {
+    transform: translateY(-2px);
+}
+
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+    .ai-explanation-modal {
+        background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+        border: 1px solid #444444;
+        color: #f0f0f0;
+    }
+
+    .ai-explanation-modal h2 {
+        color: #ffffff;
+    }
+
+    .weather-section {
+        background: #2a2a2a;
+        border-left-color: var(--col-default);
+    }
+
+    .weather-section h3 {
+        color: #ffffff;
+    }
+
+    .ai-explanation-footer {
+        border-top-color: #444444;
+    }
+
+    .ai-explanation-content::-webkit-scrollbar-track {
+        background: #2a2a2a;
+    }
+
+    .ai-explanation-content::-webkit-scrollbar-thumb {
+        background: var(--col-default);
+    }
+
+    .ai-explanation-content::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-color);
+    }
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 10;
+    border-radius: 12px;
+}
+
+.loading-overlay p {
+    margin-top: 15px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.neuro-loader {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border: 3px solid var(--accent-color);
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    animation: spin 1.5s linear infinite;
+}
+
+.neuro-loader::before {
+    content: '\f303'; /* Иконка карандаша из Font Awesome */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+    color: var(--accent-color);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* No Data Message */
+.no-data-message {
+    text-align: center;
+    font-size: 1rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    padding: 20px;
+}
+
+/* Тёмная тема */
+@media (prefers-color-scheme: dark) {
+    .loading-overlay {
+        background: rgba(30, 30, 30, 0.95);
+    }
+
+    .loading-overlay p {
+        color: #f0f0f0;
+    }
+
+    .neuro-loader {
+        border-color: var(--col-default);
+        border-top-color: transparent;
+    }
+
+    .neuro-loader::before {
+        color: var(--col-default);
+    }
+
+    .no-data-message {
+        color: #f0f0f0;
+    }
 }

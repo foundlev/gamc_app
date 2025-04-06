@@ -1060,7 +1060,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Выводим как HTML (чтобы теги <b>, <u> работали)
             if (!silent) {
-                responseContainer.innerHTML = finalText;
+                if (getAiAccess()) {
+                    responseContainer.innerHTML = '<div id="aiIcon" onclick="showAIExplanationModal()"><i class="fa-solid fa-wand-magic-sparkles"></i></i></div>' + finalText;
+                } else {
+                    responseContainer.innerHTML = finalText;
+                }
                 showAirportInfo(icao);
             }
 

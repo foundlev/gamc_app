@@ -2370,9 +2370,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Добавим в обработчик загрузки страницы
     function updateAircraftTypeBadge() {
-        const selectedType = getAircraftType();
+        const aircraftTypeShortMap = {
+            "B737": "B737",
+            "A320N,A321N": "A320N / A321N",
+            "A320,A320S,A321,A321S": "A320 / A321",
+            "B777": "B777",
+            "A330": "A330",
+            "A350": "A350"
+        };
+        const selectedTypeText = aircraftTypeShortMap[getAircraftType()] || '-';
         const badge = document.getElementById('selectedAircraftType');
-        if (badge) badge.textContent = selectedType.replaceAll(',', ', ');
+        if (badge) badge.textContent = selectedTypeText;
     }
 
     updateAircraftTypeBadge();

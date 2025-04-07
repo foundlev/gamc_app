@@ -35,7 +35,6 @@
     // Функция обновления GPS-позиции каждые 3 минуты
     function updateGpsPosition() {
         if (!navigator.geolocation) {
-            console.error("Geolocation не поддерживается вашим браузером.");
             return;
         }
 
@@ -44,12 +43,11 @@
                 window.currentGpsPosition = {
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
-                    timestamp: position.timestamp
+                    timestamp: position.timestamp,
+                    dateTimestamp: Date.now()
                 };
             },
-            function (error) {
-                console.error("Логирование: Ошибка получения GPS-позиции:", error);
-            }
+            function (error) {}
         );
     }
 
@@ -63,7 +61,6 @@
         }
 
         if (!window.currentGpsPosition) {
-            console.warn("Логирование: GPS-позиция ещё не установлена.");
             return;
         }
 
@@ -72,7 +69,6 @@
 
         const historyContainer = document.getElementById('historyContainer');
         if (!historyContainer) {
-            console.warn("Логирование: Не найден контейнер historyContainer");
             return;
         }
 
@@ -132,3 +128,47 @@
         });
     }
 })();
+
+function updateCurrentGPS() {
+    const gpsTextEl = document.getElementById('currentGPS');
+    const gpsBadgeEl = document.getElementById('gpsBadge');
+
+    if (
+        window.currentGpsPosition &&
+        typeof window.currentGpsPosition.latitude === 'number' &&
+        typeof window.currentGpsPosition.longitude === 'number' &&
+        typeof window.currentGpsPosition.timestamp === 'number'
+    ) {
+        const lat = window.currentGpsPosition.latitude;
+        const lon = window.currentGpsPosition.longitude;
+        const lastUpdate = window.currentGpsPosition.dateTimestamp;
+        const now = Date.now();
+        const diff = now - lastUpdate;
+
+        const latAbs = Math.abs(lat).toFixed(2);
+        const lonAbs = Math.abs(lon).toFixed(2);
+        const latDir = lat >= 0 ? 'N' : 'S';
+        const lonDir = lon >= 0 ? 'E' : 'W';
+
+        // Формируем строку в виде: "52.2873° N, 104.2701° E"
+        gpsTextEl.textContent = `${latAbs}° ${latDir}, ${lonAbs}° ${lonDir}`;
+
+        // Удаляем все стильные классы (gps-error, gps-success, gps-outdate)
+        gpsBadgeEl.classList.remove('gps-error', 'gps-success', 'gps-outdate');
+        // Если позиция обновлена более 10 минут назад, выставляем outdated 600000
+        if (diff > 600000) {
+            gpsBadgeEl.classList.add('gps-outdate');
+        } else {
+            gpsBadgeEl.classList.add('gps-success');
+        }
+    } else {
+        gpsTextEl.textContent = "-";
+        gpsBadgeEl.classList.remove('gps-success', 'gps-outdate');
+        gpsBadgeEl.classList.add('gps-error');
+    }
+}
+
+// Обновляем сразу
+updateCurrentGPS();
+// И устанавливаем интервал обновления каждые 30 секунд (30000 мс)
+setInterval(updateCurrentGPS, 1000);

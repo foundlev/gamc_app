@@ -2940,24 +2940,6 @@ input::-webkit-inner-spin-button {
     text-shadow: rgba(0, 0, 0, 0.5) 0 0 2px;
 }
 
-/*.history button.selected {*/
-/*    position: relative;*/
-/*    padding-left: 10px;*/
-/*}*/
-
-/*.history button.selected::before {*/
-/*    content: '';*/
-/*    position: absolute;*/
-/*    top: 2px;*/
-/*    bottom: 2px;*/
-/*    left: 2px;*/
-/*    width: 4px;*/
-/*    background-color: white; !* Цвет текста *!*/
-/*    border-radius: 2px;*/
-/*    opacity: 0.8; !* Легкая прозрачность для мягкости *!*/
-/*    text-shadow: rgba(0, 0, 0, 0.5) 0 0 2px;*/
-/*}*/
-
 .history button.selected {
     position: relative;
     padding-bottom: 5px; /* Отступ для полосы */
@@ -2975,3 +2957,18 @@ input::-webkit-inner-spin-button {
     border-radius: 4px;
 }
 
+#gpsBadge {
+    margin-left: 5px;
+}
+
+.gps-success {
+    background-color: var(--badge-green-bg);
+}
+
+.gps-outdate {
+    background-color: var(--badge-orange-bg);
+}
+
+.gps-error {
+    opacity: 0.5;
+}

@@ -15,6 +15,15 @@ const notamModal = document.getElementById('notamModalWindow');
 const loadNotamBtn = document.getElementById('loadNotamBtn');
 
 
+function getAirportPosition(icaoCode) {
+    const airportInfo = airportInfoDb[icaoCode] || {};
+    if (!airportInfo.latitude || !airportInfo.longitude) return null;
+    return {
+        lat: airportInfo.latitude,
+        lon: airportInfo.longitude
+    };
+}
+
 function getNotamsForIcao(icao) {
     const notamData = localStorage.getItem('notamData');
 
@@ -507,4 +516,30 @@ function showResultModal(title, message) {
     } else {
         alert(message); // Фолбэк если модалка не реализована
     }
+}
+
+function updateSelectedPlacard() {
+    // Получаем все кнопки в контейнере с плашками аэродромов
+    const placards = document.querySelectorAll('#historyContainer button');
+
+    // Перебираем все найденные плашки
+    placards.forEach(placard => {
+        // Пытаемся получить ICAO из data-атрибута
+        let icao = placard.textContent.trim();
+        // Если data-атрибут не задан, пробуем извлечь ICAO из текста (ищем 4 подряд идущие заглавные буквы)
+        if (!icao) {
+            const text = placard.textContent.trim();
+            const match = text.match(/\b[A-Z]{4}\b/);
+            if (match) {
+                icao = match[0];
+            }
+        }
+        // Если найден ICAO и он совпадает с глобальной переменной nowIcao, добавляем класс "selected",
+        // иначе удаляем этот класс
+        if (icao && nowIcao && icao === nowIcao) {
+            placard.classList.add('selected');
+        } else {
+            placard.classList.remove('selected');
+        }
+    });
 }

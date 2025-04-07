@@ -6,10 +6,7 @@ let wakeLock = null;
 async function requestWakeLock() {
     try {
         wakeLock = await navigator.wakeLock.request('screen');
-        wakeLock.addEventListener('release', () => {
-            console.log('Wake Lock был отпущен');
-        });
-        console.log('Wake Lock активирован');
+        wakeLock.addEventListener('release', () => {});
     } catch (err) {
 
     }
@@ -20,7 +17,6 @@ async function releaseWakeLock() {
     if (wakeLock !== null) {
         await wakeLock.release();
         wakeLock = null;
-        console.log('Wake Lock освобожден');
     }
 }
 

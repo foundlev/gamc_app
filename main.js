@@ -1412,6 +1412,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const suggestionsContainer = document.getElementById('icaoSuggestions');
         suggestionsContainer.classList.remove('show');
         suggestionsContainer.innerHTML = '';
+
+        updateSelectedPlacard();
     }
 
     fetchBtn.addEventListener('click', () => {
@@ -2395,6 +2397,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('icao').value = aerodromes[0];
             getWeather(aerodromes[0], false);
             updateFetchBtn();
+            updateSelectedPlacard();
         });
         applyIcaoButtonColors(aerodromes[0], firstBtn);
         historyContainer.appendChild(firstBtn);
@@ -2415,6 +2418,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('icao').value = aerodromes[i];
                     getWeather(aerodromes[i], false);
                     updateFetchBtn();
+                    updateSelectedPlacard();
                 });
                 applyIcaoButtonColors(aerodromes[i], btn);
                 historyContainer.appendChild(btn);
@@ -2434,12 +2438,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('icao').value = aerodromes[aerodromes.length - 1];
                 getWeather(aerodromes[aerodromes.length - 1], false);
                 updateFetchBtn();
+                updateSelectedPlacard();
             });
             applyIcaoButtonColors(aerodromes[aerodromes.length - 1], lastBtn);
             historyContainer.appendChild(lastBtn);
         }
 
         updateHistoryBtnNotam();
+        updateSelectedPlacard();
     }
 
     function updateBadgesTimeAndColors() {

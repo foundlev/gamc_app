@@ -8,7 +8,6 @@ function showRouteMap(routeData) {
         mapCenterLon = 0;
     let baseScale = 100;
     let userZoom = 1;
-    let userLocation = null;
     let isDragging = false;
     let dragStartX = 0,
         dragStartY = 0;
@@ -310,8 +309,8 @@ function showRouteMap(routeData) {
         });
 
         // Стиль геопозиции пользователя
-        if (userLocation) {
-            let me = toCanvas(userLocation.lat, userLocation.lon);
+        if (window.currentGpsPosition) {
+            let me = toCanvas(window.currentGpsPosition.lat, window.currentGpsPosition.lon);
             ctx.beginPath();
             ctx.arc(me.x, me.y, 10 / scale, 0, 2 * Math.PI);
             ctx.fillStyle = gpsPointColor;
@@ -354,9 +353,9 @@ function showRouteMap(routeData) {
 
     // Центр на мою геопозицию
     function centerOnUser() {
-        if (!userLocation) return;
-        mapCenterLat = userLocation.lat;
-        mapCenterLon = userLocation.lon;
+        if (!window.currentGpsPosition) return;
+        mapCenterLat = window.currentGpsPosition.lat;
+        mapCenterLon = window.currentGpsPosition.lon;
         drawMap();
     }
 
@@ -405,18 +404,11 @@ function showRouteMap(routeData) {
     }
 
     // Геолокация
-  function startGeo(){
-      if(navigator.geolocation){
-          navigator.geolocation.getCurrentPosition(function(pos){
-              userLocation = {lat: pos.coords.latitude, lon: pos.coords.longitude};
-              userZoom = 3; // Устанавливаем масштаб в 5 раз больше
-              centerOnUser(); // Центрируем карту на геопозиции пользователя
-              drawMap();
-          }, function(err){
-              console.log("Geo error", err);
-          });
-      }
-  }
+    function startGeo(){
+        userZoom = 3; // Устанавливаем масштаб в 5 раз больше
+        centerOnUser(); // Центрируем карту на геопозиции пользователя
+        drawMap();
+    }
 
     // ===== Создаём модалку и canvas ====
     function openModal() {
@@ -481,6 +473,13 @@ function showRouteMap(routeData) {
                 });
 
                 startGeo();
+
+                // Добавьте этот блок для обновления позиции из window.currentGpsPosition каждые 60 секунд:
+                setInterval(function() {
+                    if (window.currentGpsPosition) {
+                        drawMap();
+                    }
+                }, 60000);
             }, 0);
 
             // DRAG
@@ -554,6 +553,13 @@ function showRouteMap(routeData) {
                 dragStartX = touch.clientX;
                 dragStartY = touch.clientY;
                 e.preventDefault(); // чтобы предотвратить скроллинг страницы
+
+                // Если режим слежения активен, отключаем его при начале перетаскивания
+                if (gpsTracking) {
+                    gpsTracking = false;
+                    clearInterval(trackingTimer);
+                    document.getElementById("centerMapGeoBtn").classList.remove("tracking-active");
+                }
             });
 
             canvas.addEventListener("touchend", (e) => {
@@ -570,10 +576,10 @@ function showRouteMap(routeData) {
                 drawMap();
             });
             document.getElementById("centerMapGeoBtn").addEventListener("click", () => {
-                if (!userLocation) return;
+                if (!window.currentGpsPosition) return;
                 // Проверяем, насколько центр карты близок к GPS-позиции
-                const latDiff = Math.abs(mapCenterLat - userLocation.lat);
-                const lonDiff = Math.abs(mapCenterLon - userLocation.lon);
+                const latDiff = Math.abs(mapCenterLat - window.currentGpsPosition.lat);
+                const lonDiff = Math.abs(mapCenterLon - window.currentGpsPosition.lon);
                 const threshold = 0.01; // подберите порог (например, 0.01 градуса)
 
                 if (latDiff < threshold && lonDiff < threshold) {

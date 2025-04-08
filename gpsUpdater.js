@@ -43,6 +43,8 @@
                 window.currentGpsPosition = {
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
+                    lat: position.coords.latitude,
+                    lon: position.coords.longitude,
                     timestamp: position.timestamp,
                     dateTimestamp: Date.now()
                 };

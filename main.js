@@ -4,6 +4,7 @@ let autoGoOffline = localStorage.getItem('autoGoOffline') !== null ?
     true;
 let doHighlight = JSON.parse(localStorage.getItem('doHighlight')) || false;
 let canShowAirportInfo = JSON.parse(localStorage.getItem('canShowAirportInfo')) || false;
+let useGpsPosition = JSON.parse(localStorage.getItem('useGpsPosition')) || false;
 
 const maintenance = {
     "B737": {
@@ -2095,11 +2096,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const autoOfflineCheckbox = document.getElementById('autoOfflineCheckbox');
     const doHighlightCheckbox = document.getElementById('doHighlightCheckbox');
     const showAirportInfoCheckbox = document.getElementById('showAirportInfoCheckbox');
+    const useGpsPositionCheckbox = document.getElementById('useGpsPositionCheckbox');
 
     // Установить состояние чекбокса при загрузке
     autoOfflineCheckbox.checked = autoGoOffline; // Установить состояние
     doHighlightCheckbox.checked = doHighlight; // Установить состояние
     showAirportInfoCheckbox.checked = canShowAirportInfo;
+    useGpsPositionCheckbox.checked = useGpsPosition;
 
     // Обработчик изменения чекбокса
     autoOfflineCheckbox.addEventListener('change', () => {
@@ -2116,6 +2119,11 @@ document.addEventListener('DOMContentLoaded', () => {
     showAirportInfoCheckbox.addEventListener('change', () => {
         canShowAirportInfo = showAirportInfoCheckbox.checked; // Обновить переменную
         localStorage.setItem('canShowAirportInfo', JSON.stringify(canShowAirportInfo)); // Сохранить в localStorage
+    });
+
+    useGpsPositionCheckbox.addEventListener('change', () => {
+        useGpsPosition = useGpsPositionCheckbox.checked; // Обновить переменную
+        localStorage.setItem('useGpsPosition', JSON.stringify(useGpsPosition)); // Сохранить в localStorage
     });
 
     function showAddRouteModal() {

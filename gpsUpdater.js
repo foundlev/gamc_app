@@ -111,21 +111,29 @@
         }
     }
 
-    // Первоначальное обновление GPS-позиции и плашек
-    updateGpsPosition();
-    updatePlacards();
+    if (JSON.parse(localStorage.getItem('useGpsPosition'))) {
+        // Первоначальное обновление GPS-позиции и плашек
+        updateGpsPosition();
+        updatePlacards();
 
-    // Обновляем GPS-позицию каждые 3 минуты (180000 мс)
-    setInterval(updateGpsPosition, 180000);
-    // Обновляем плашки аэродромов каждые 30 секунд (30000 мс)
-    setInterval(updatePlacards, 30000);
+        // Обновляем GPS-позицию каждые 3 минуты (180000 мс)
+        setInterval(updateGpsPosition, 180000);
+        // Обновляем плашки аэродромов каждые 30 секунд (30000 мс)
+        setInterval(updatePlacards, 30000);
 
-    // При изменении значения в dropdown с id "routeSelect" немедленно обновляем плашки
-    const routeSelect = document.getElementById('routeSelect');
-    if (routeSelect) {
-        routeSelect.addEventListener('change', () => {
-            setTimeout(updatePlacards, 100);
-        });
+        // При изменении значения в dropdown с id "routeSelect" немедленно обновляем плашки
+        const routeSelect = document.getElementById('routeSelect');
+        if (routeSelect) {
+            routeSelect.addEventListener('change', () => {
+                setTimeout(updatePlacards, 100);
+            });
+        }
+    } else {
+        const gpsTextEl = document.getElementById('currentGPS');
+        const gpsBadgeEl = document.getElementById('gpsBadge');
+
+        gpsTextEl.textContent = "Откл.";
+        gpsBadgeEl.classList.add('gps-error');
     }
 })();
 
@@ -168,7 +176,9 @@ function updateCurrentGPS() {
     }
 }
 
-// Обновляем сразу
-updateCurrentGPS();
-// И устанавливаем интервал обновления каждые 30 секунд (30000 мс)
-setInterval(updateCurrentGPS, 1000);
+if (JSON.parse(localStorage.getItem('useGpsPosition'))) {
+    // Обновляем сразу
+    updateCurrentGPS();
+    // И устанавливаем интервал обновления каждые 30 секунд (30000 мс)
+    setInterval(updateCurrentGPS, 1000);
+}

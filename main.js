@@ -2030,6 +2030,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Функция для обновления внешнего вида кнопки в зависимости от состояния
     function updateOfflineButton() {
         if (offlineMode) {
+            updateCurrentGPS();
+
             offlineToggleBtn.classList.add('offline');
             offlineToggleBtn.classList.remove('online');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-plane"></i>';
@@ -2037,6 +2039,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loadGamcUidBtn').disabled = true;
             document.getElementById('exportGamcUidBtn').disabled = true;
         } else {
+            resetGpsPositionBadge();
+
             offlineToggleBtn.classList.add('online');
             offlineToggleBtn.classList.remove('offline');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-signal"></i>';
@@ -2111,7 +2115,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     useGpsPositionCheckbox.addEventListener('change', () => {
         useGpsPosition = useGpsPositionCheckbox.checked; // Обновить переменную
-        localStorage.setItem('useGpsPosition', JSON.stringify(useGpsPosition)); // Сохранить в localStorage
+        localStorage.setItem('useGpsPosition', JSON.stringify(useGpsPosition));
+
+        if (useGpsPosition) {
+            updateGpsPosition();
+        } else {
+            window.currentGpsPosition = null;
+            updateSelectedPlacard();
+
+            const gpsTextEl = document.getElementById('currentGPS');
+            const gpsBadgeEl = document.getElementById('gpsBadge');
+
+            gpsTextEl.textContent = "Откл.";
+            gpsBadgeEl.classList.remove('gps-error', 'gps-success', 'gps-outdate');
+            gpsBadgeEl.classList.add('gps-error');
+        }
     });
 
     function showAddRouteModal() {

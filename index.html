@@ -18,8 +18,26 @@
 <body>
 
     <header>
-        <h1 id="button-title"><i class="fa-solid fa-cloud-sun"></i> Weather Helper <span style="opacity: 0.5;">v1.77</span></h1>
+        <h1>
+            <span id="button-title"><i class="fa-solid fa-plane-circle-check"></i> Weather App</span>
+            <span style="opacity: 0.5;" id="changelogBtn">v1.77</span>
+        </h1>
     </header>
+
+    <!-- Модальное окно для списка обновлений -->
+    <div class="modal-backdrop" id="changelogModalBackdrop">
+        <div class="modal changelog-modal">
+            <button class="modal-close-btn" id="closeChangelogModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>
+                <i class="fas fa-list-ul"></i> Журнал изменений
+            </h2>
+            <div id="changelogContent" class="changelog-content">
+                <!-- Список обновлений будет вставляться сюда -->
+            </div>
+        </div>
+    </div>
 
     <main>
         <div class="input-group">
@@ -55,9 +73,9 @@
                     <i class="fa-solid fa-plane"></i>
                     <span id="selectedAircraftType">B737</span>
                 </div>
-                <div class="aircraft-type-badge" id="gpsBadge">
+                <div class="aircraft-type-badge gps-error" id="gpsBadge">
                     <i class="fa-solid fa-location-arrow"></i>
-                    <span id="currentGPS">55.5N 37.6E</span>
+                    <span id="currentGPS">-</span>
                 </div>
             </div>
             <div class="route-dropdown">
@@ -106,7 +124,7 @@
         <i class="fa-solid fa-triangle-exclamation"></i>
         Источник:
         <a class="original-link" href="http://meteoinfo.gamc.ru" target="_blank" rel="noopener noreferrer">
-            meteoinfo.gamc.ru</a>. Перепроверяйте данные.
+            meteoinfo.gamc.ru</a> Перепроверяйте данные.
     </footer>
 
 
@@ -552,6 +570,7 @@
 
     <script src="main.js"></script>
     <script src="extra.js"></script>
+    <script src="extraTwo.js"></script>
     <script src="airportSystems.js"></script>
     <script src="synchash.js"></script>
     <script src="routeCreator.js"></script>

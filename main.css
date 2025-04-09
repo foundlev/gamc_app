@@ -343,7 +343,7 @@ footer {
     opacity: 0.6;
 }
 
-#button-title {
+#button-title, #changelogBtn {
     cursor: pointer;
 }
 
@@ -3035,8 +3035,448 @@ input::-webkit-inner-spin-button {
 
 .gps-outdate {
     background-color: var(--badge-orange-bg);
+    opacity: 0.5;
 }
 
 .gps-error {
     opacity: 0.5;
+}
+
+/* Стили для модального окна changelog */
+.changelog-modal {
+    max-width: 650px;
+    width: 90%;
+    max-height: 85vh;
+    padding: 30px;
+    text-align: left;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.changelog-modal h2 {
+    font-size: 1.6rem;
+    color: var(--accent-color);
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 10px;
+}
+
+.changelog-content {
+    max-height: 65vh;
+    overflow-y: auto;
+    padding-right: 15px;
+}
+
+/* Стили для элементов списка обновлений */
+.changelog-item {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.changelog-item:active {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.changelog-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-color);
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+}
+
+.changelog-item:active::before {
+    opacity: 0.8;
+}
+
+.changelog-date {
+    font-size: 0.95rem;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.changelog-date::before {
+    content: '\f017'; /* Иконка часов из Font Awesome */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.changelog-message {
+    font-size: 1rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    color: var(--text-color);
+}
+
+/* Стили скроллбара */
+.changelog-content::-webkit-scrollbar {
+    width: 10px;
+}
+
+.changelog-content::-webkit-scrollbar-track {
+    background: var(--card-bg);
+    border-radius: 5px;
+    margin: 5px 0;
+}
+
+.changelog-content::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 5px;
+    border: 2px solid var(--card-bg);
+}
+
+.changelog-content::-webkit-scrollbar-thumb:active {
+    background: var(--col-default);
+}
+
+/* Стили для кнопки закрытия */
+.changelog-modal .modal-close-btn {
+    top: 15px;
+    right: 15px;
+    font-size: 1.4rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.changelog-modal .modal-close-btn:active {
+    opacity: 1;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .changelog-modal {
+        background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+        border-color: #444444;
+    }
+
+    .changelog-item {
+        background: #2a2a2a;
+        border-color: #444444;
+    }
+
+    .changelog-item::before {
+        background: var(--col-default);
+    }
+
+    .changelog-content::-webkit-scrollbar-track {
+        background: #2a2a2a;
+    }
+
+    .changelog-content::-webkit-scrollbar-thumb {
+        border-color: #2a2a2a;
+    }
+}
+
+/* Анимация появления элементов */
+.changelog-item {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Обновлённые стили для header */
+/* Компактные стили для header */
+header {
+    padding: 8px 15px; /* Уменьшенные отступы */
+    background: linear-gradient(135deg, var(--card-bg), var(--bg-color)); /* Градиент сохранён */
+    border-bottom: 1px solid rgba(221, 221, 221, 0.3); /* Полупрозрачная граница */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Тень чуть меньше */
+    position: sticky;
+    top: 0;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Стили для h1 внутри header */
+header h1 {
+    margin: 0;
+    font-size: 1.3rem; /* Уменьшено с 1.5rem */
+    font-weight: 600;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* Уменьшено с 8px */
+    line-height: 1.2; /* Уменьшенная высота строки */
+}
+
+/* Контейнер для заголовка и иконки */
+#button-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Уменьшено с 10px */
+    padding: 4px 12px; /* Уменьшено с 8px 16px */
+    border-radius: 30px; /* Чуть меньше скругление */
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Эффект при наведении на #button-title */
+#button-title:active {
+    transform: translateY(-1px); /* Уменьшено с -2px */
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* Тень чуть меньше */
+}
+
+/* Активное состояние */
+#button-title:active {
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Иконка в заголовке */
+#button-title i {
+    font-size: 1.5rem; /* Уменьшено с 1.3rem */
+    color: var(--accent-color);
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Версия приложения (changelogBtn) */
+#changelogBtn {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: #ffffff;
+    background: var(--accent-color);
+    padding: 2px 8px; /* Уменьшено с 4px 10px */
+    border-radius: 10px; /* Чуть меньше скругление */
+    opacity: 0.6;
+    transition: opacity 0.3s ease, transform 0.2s ease, background 0.3s ease;
+    cursor: pointer;
+}
+
+/* Наведение на версию */
+#changelogBtn:active {
+    opacity: 1;
+    transform: scale(1.05);
+    background: var(--col-default);
+}
+
+/* Активное состояние версии */
+#changelogBtn:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+}
+
+/* Тёмная тема */
+@media (prefers-color-scheme: dark) {
+    header {
+        background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
+        border-bottom: 1px solid rgba(68, 68, 68, 0.5);
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+    }
+
+    header h1 {
+        color: #f0f0f0;
+    }
+
+    #button-title:active {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    #button-title:active {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    #changelogBtn {
+        background: var(--col-default);
+        color: #ffffff;
+    }
+
+    #changelogBtn:active {
+        background: var(--accent-color);
+    }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+    header {
+        padding: 6px 10px; /* Ещё меньше */
+    }
+
+    header h1 {
+        font-size: 1.1rem; /* Уменьшено с 1.2rem */
+    }
+
+    #button-title {
+        padding: 3px 10px; /* Ещё компактнее */
+        gap: 5px;
+    }
+
+    #button-title i {
+        font-size: 1rem; /* Уменьшено с 1.1rem */
+    }
+
+    #changelogBtn {
+        font-size: 0.7rem; /* Уменьшено с 0.75rem */
+        padding: 2px 6px;
+    }
+}
+
+/* Анимация появления header */
+header {
+    animation: slideDown 0.4s ease-out forwards; /* Ускорена с 0.5s */
+}
+
+@keyframes slideDown {
+    0% {
+        transform: translateY(-15px); /* Уменьшено с -20px */
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Обновлённые стили для footer */
+footer {
+    padding: 10px 20px; /* Увеличенные отступы для воздушности */
+    background: linear-gradient(135deg, var(--card-bg), var(--bg-color)); /* Мягкий градиент */
+    border-top: 1px solid rgba(221, 221, 221, 0.3); /* Полупрозрачная граница сверху */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05); /* Лёгкая тень вверх */
+    text-align: center;
+    font-size: 0.9rem; /* Чуть больше для читаемости */
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Отступ между элементами */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Плавные переходы */
+    position: relative; /* Для возможных эффектов */
+}
+
+/* Иконка предупреждения */
+footer i {
+    font-size: 1.1rem; /* Чуть больше текста */
+    color: var(--col-yellow); /* Жёлтый для внимания */
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+footer:active i {
+    transform: scale(1.2); /* Лёгкое увеличение при наведении */
+    color: var(--col-yellow); /* Более яркий оттенок */
+}
+
+/* Текст внутри footer */
+footer span {
+    font-weight: 400; /* Лёгкий вес текста */
+    opacity: 0.85; /* Лёгкая полупрозрачность */
+}
+
+/* Ссылка в footer */
+/* Стили для ссылки как плашки */
+footer .original-link {
+    color: #ffffff; /* Белый текст для контраста */
+    text-decoration: none; /* Убираем подчёркивание */
+    font-weight: 500; /* Средний вес текста */
+    padding: 4px 10px; /* Компактная подушка */
+    border-radius: 12px; /* Скругление для вида плашки */
+    background: var(--accent-color); /* Фон по умолчанию — акцентный цвет */
+    display: inline-flex; /* Flex для центрирования текста */
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
+    opacity: 0.9;
+}
+
+/* Эффект при наведении */
+footer .original-link:active {
+    background: var(--col-default); /* Более насыщенный оттенок */
+    transform: translateY(-1px); /* Лёгкий подъём */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Усиленная тень */
+}
+
+/* Активное состояние */
+footer .original-link:active {
+    transform: translateY(0); /* Возврат при клике */
+    background: var(--col-default);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Тёмная тема */
+@media (prefers-color-scheme: dark) {
+    footer .original-link {
+        background: var(--col-default); /* Тёмный акцент для базового состояния */
+        color: #ffffff; /* Белый текст */
+        box-shadow: 0 2px 6px rgba(255, 255, 255, 0.05); /* Светлая тень */
+    }
+
+    footer .original-link:active {
+        background: var(--accent-color); /* Более светлый акцент при наведении */
+        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+    }
+
+    footer .original-link:active {
+        background: var(--accent-color);
+        box-shadow: 0 2px 6px rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+    footer .original-link {
+        padding: 3px 8px; /* Ещё компактнее */
+        font-size: 0.8rem; /* Уменьшенный текст */
+    }
+}
+
+/* Анимация появления footer */
+footer {
+    animation: slideUp 0.5s ease-out forwards;
+}
+
+@keyframes slideUp {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Эффект пульсации для иконки при загрузке страницы */
+footer i {
+    animation: pulseIcon 1.5s ease-in-out 2; /* Пульсация 2 раза */
+}
+
+@keyframes pulseIcon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
 }

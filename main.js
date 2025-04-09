@@ -1221,7 +1221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Выделение CAVOK и NSC зелёным цветом
         text = text.replace(/\b(CLR|CAVOK|NCD|NSW|NSC|GOOD|VMC|VFR)\b/g, '<span class="color-green">$1</span>');
-        text = text.replace(/\b(WS)\b/g, '<span class="color-purple">$1</span>');
+        text = text.replace(/\b(WS)\b/g, '<span class="color-purple-ws">$1</span>');
 
         // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
         text = text.replace(/\b(OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
@@ -1373,18 +1373,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (ratio >= 90) {
                     colorClass = 'color-purple';
                 }
-
-                //                let colorClass = '';
-                //                if (ratio < 40) {
-                //                    colorClass = 'color-green';
-                //                } else if (ratio >= 40 && ratio < 70) {
-                //                    colorClass = 'color-yellow';
-                //                } else if (ratio >= 70 && ratio < 90) {
-                //                    colorClass = 'color-red';
-                //                } else if (ratio >= 90) {
-                //                    colorClass = 'color-purple';
-                //                }
-                // Если попали в 35..40 => colorClass = "" (без цвета)
 
                 // Возвращаем HTML
                 return `<span class="wind-info ${colorClass}" data-wind="${fullMatch}" data-unit="${unit}" data-dir="${dir}" data-speed="${speedStr}" data-gust="${gustStr||''}">${fullMatch} <i class="fa-solid fa-wind"></i></span>`;

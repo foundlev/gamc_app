@@ -23,6 +23,7 @@
     --col-pink: #b22222;
     /* .color-red */
     --col-purple: rgb(180, 0, 180);
+    --col-purple-ws: rgb(180, 0, 180);
     /* .color-purple */
     --col-darkred: #5C0000;
     /* .color-darkred */
@@ -602,6 +603,14 @@ footer {
     white-space: nowrap;
 }
 
+.color-purple-ws {
+    background-color: rgb(180, 0, 180);
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
 .color-darkred {
     background-color: #5C0000;
     color: white;
@@ -714,7 +723,7 @@ footer {
 .tempo-line .color-green {
     position: relative;
     color: black;
-    text-shadow: 0px 0px 5px white;
+    text-shadow: 0 0 5px white;
     padding: 2px 4px;
     border-radius: 3px;
     background: none;
@@ -739,7 +748,7 @@ footer {
 .tempo-line .color-yellow {
     position: relative;
     color: black;
-    text-shadow: 0px 0px 5px white;
+    text-shadow: 0 0 5px white;
     padding: 2px 4px;
     border-radius: 3px;
     background: none;
@@ -764,7 +773,7 @@ footer {
 .tempo-line .color-red {
     position: relative;
     color: black;
-    text-shadow: 0px 0px 5px white;
+    text-shadow: 0 0 5px white;
     padding: 2px 4px;
     border-radius: 3px;
     background: none;
@@ -786,10 +795,35 @@ footer {
     z-index: -1;
 }
 
+.tempo-line .color-purple-ws {
+    position: relative;
+    color: black;
+    text-shadow: 0 0 5px white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: none;
+}
+
+.tempo-line .color-purple-ws::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(45deg,
+            rgba(180, 0, 180, 0.5) 0,
+            rgba(180, 0, 180, 0.5) 5px,
+            rgba(0, 0, 0, 0) 5px,
+            rgba(0, 0, 0, 0) 10px);
+    border-radius: 3px;
+    z-index: -1;
+}
+
 .tempo-line .color-purple {
     position: relative;
     color: black;
-    text-shadow: 0px 0px 5px white;
+    text-shadow: 0 0 5px white;
     padding: 2px 4px;
     border-radius: 3px;
     background: none;
@@ -814,7 +848,7 @@ footer {
 .tempo-line .color-darkred {
     position: relative;
     color: black;
-    text-shadow: 0px 0px 5px white;
+    text-shadow: 0 0 5px white;
     padding: 2px 4px;
     border-radius: 3px;
     background: none;
@@ -839,6 +873,14 @@ footer {
 #windInfoContent {
     text-align: left;
     line-height: 1.3em;
+}
+
+.color-description.color-purple-ws {
+    color: white;
+}
+
+.tempo-line .color-description.color-purple-ws {
+    color: black;
 }
 
 .color-description.color-purple {
@@ -963,32 +1005,37 @@ footer {
 
     .color-green {
         background-color: rgb(2, 102, 2);
-        text-shadow: 0px 0px 5px black;
+        text-shadow: 0 0 5px black;
     }
 
     .color-yellow {
         background-color: #c88200;
-        text-shadow: 0px 0px 5px black;
+        text-shadow: 0 0 5px black;
     }
 
     .color-red {
         background-color: #881818;
-        text-shadow: 0px 0px 5px black;
+        text-shadow: 0 0 5px black;
+    }
+
+    .color-purple-ws {
+        background-color: rgb(98, 0, 98);
+        text-shadow: 0 0 5px black;
     }
 
     .color-purple {
         background-color: rgb(98, 0, 98);
-        text-shadow: 0px 0px 5px black;
+        text-shadow: 0 0 5px black;
     }
 
     .color-darkred {
-        box-shadow: 0px 0px 3px red;
+        box-shadow: 0 0 3px red;
         background-color: black;
-        text-shadow: 0px 0px 5px black;
+        text-shadow: 0 0 5px black;
     }
 
     .color-description {
-        text-shadow: 0px 0px 5px black;
+        text-shadow: 0 0 5px black;
     }
 
     .tempo-line .color-green {
@@ -1001,7 +1048,7 @@ footer {
         color: white;
         padding: 2px 4px;
         border-radius: 3px;
-        text-shadow: 0px 0px 3px black;
+        text-shadow: 0 0 3px black;
     }
 
     .tempo-line .color-green::before {
@@ -1017,7 +1064,7 @@ footer {
         color: white;
         padding: 2px 4px;
         border-radius: 3px;
-        text-shadow: 0px 0px 3px black;
+        text-shadow: 0 0 3px black;
     }
 
     .tempo-line .color-yellow::before {
@@ -1034,10 +1081,27 @@ footer {
         color: white;
         padding: 2px 4px;
         border-radius: 3px;
-        text-shadow: 0px 0px 3px black;
+        text-shadow: 0 0 3px black;
     }
 
     .tempo-line .color-red::before {
+        background-image: none;
+    }
+
+    .tempo-line .color-purple-ws {
+        background: none;
+        background-image: repeating-linear-gradient(45deg,
+                rgb(98, 0, 98) 0,
+                rgb(98, 0, 98) 5px,
+                transparent 5px,
+                transparent 15px);
+        color: white;
+        padding: 2px 4px;
+        border-radius: 3px;
+        text-shadow: 0 0 3px black;
+    }
+
+    .tempo-line .color-purple-ws::before {
         background-image: none;
     }
 
@@ -1051,7 +1115,7 @@ footer {
         color: white;
         padding: 2px 4px;
         border-radius: 3px;
-        text-shadow: 0px 0px 3px black;
+        text-shadow: 0 0 3px black;
     }
 
     .tempo-line .color-purple::before {
@@ -1069,11 +1133,15 @@ footer {
         padding: 2px 4px;
         border-radius: 3px;
         box-shadow: none;
-        text-shadow: 0px 0px 3px black;
+        text-shadow: 0 0 3px black;
     }
 
     .tempo-line .color-darkred::before {
         background-image: none;
+    }
+
+    .tempo-line .color-description.color-purple-ws {
+        color: white;
     }
 
     .tempo-line .color-description.color-purple {

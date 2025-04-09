@@ -166,53 +166,6 @@ function showNotamModal() {
             `;
         });
 
-        // Дальше html вставляете в notamContent.innerHTML = html;
-
-        // let html = '';
-        //
-        // notamsForIcao.forEach(n => {
-        //     const cat = getCategoryAppearance(n.ai_category);
-        //     html += `
-        //         <div class="notam-item">
-        //             <div class="notam-header">
-        //                 <div class="notam-id-badge">
-        //                     <i class="fas fa-file-alt notam-doc-icon"></i>
-        //                     <span class="notam-id">${n.raw_id}</span>
-        //                 </div>
-        //                 <div class="notam-category" data-category="${n.ai_category}" style="background: ${cat.background}; color: ${cat.color};">
-        //                     <i class="${cat.icon}" style="color: ${cat.color};"></i>
-        //                     ${n.ai_category}
-        //                 </div>
-        //             </div>
-        //
-        //             <div class="notam-short-info">
-        //                 <i class="fa-solid fa-circle-info"></i>
-        //                 ${n.ai_short_interpretation}
-        //             </div>
-        //
-        //             ${n.ai_interpretation ? `
-        //             <div class="notam-interpretation">
-        //                 ${n.ai_interpretation}
-        //             </div>
-        //             ` : ''}
-        //
-        //             <div class="notam-raw">${n.text.replace(/\n/g, '<br>')}</div>
-        //
-        //             <div class="notam-meta">
-        //                 <span class="notam-period">
-        //                     <i class="fas fa-calendar-alt"></i>
-        //                     ${formatUTCDate(n.startdate)} -
-        //                     ${n.PERM ? 'Постоянный' : formatUTCDate(n.enddate)}
-        //                 </span>
-        //                 <span>
-        //                     <i class="fas fa-clock"></i>
-        //                     Выпущен: ${formatUTCDate(n.issuedate)}
-        //                 </span>
-        //             </div>
-        //         </div>
-        //     `;
-        // });
-
         notamContent.innerHTML = html;
     }
 
@@ -543,3 +496,9 @@ function updateSelectedPlacard() {
         }
     });
 }
+
+document.getElementById('btnUrlToGamc').addEventListener('click', () => {
+    if (offlineMode) return;
+    // Открываем в новой вкладке http://meteoinfo.gamc.ru
+    window.open('http://meteoinfo.gamc.ru', '_blank');
+});

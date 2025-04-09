@@ -117,14 +117,19 @@
         <div class="time-badge-container remove-bottom-gap" id="timeBadgeContainer"></div>
 
         <!-- Основной контейнер для данных -->
-        <div class="response-container" id="responseContainer">Здесь будет отображаться погода...</div>
+        <div class="response-container" id="responseContainer" style="padding: 10px;">
+            <div class="placeholder">
+                <i class="fa-solid fa-cloud-sun fa-2x"></i>
+                <p>Введите ICAO код аэродрома, чтобы увидеть погоду</p>
+            </div>
+        </div>
     </main>
 
     <footer>
         <i class="fa-solid fa-triangle-exclamation"></i>
         Источник:
         <a class="original-link" href="http://meteoinfo.gamc.ru" target="_blank" rel="noopener noreferrer">
-            meteoinfo.gamc.ru</a> Перепроверяйте данные.
+            meteoinfo.gamc.ru</a>Перепроверяйте данные.
     </footer>
 
 

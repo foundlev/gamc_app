@@ -1,7 +1,11 @@
-// Функция форматирования даты
+// Функция форматирования даты с добавлением относительного времени
 function formatChangelogDate(dateStr) {
     const date = new Date(dateStr);
-    return date.toLocaleString('ru-RU', {
+    const now = new Date(); // Текущая дата и время
+    const diffMs = now - date; // Разница в миллисекундах
+
+    // Форматированная дата
+    const formattedDate = date.toLocaleString('ru-RU', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
@@ -9,6 +13,23 @@ function formatChangelogDate(dateStr) {
         minute: '2-digit',
         timeZone: 'UTC'
     }) + ' UTC';
+
+    // Расчёт относительного времени
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    let relativeTime = '';
+    if (diffDays >= 1) {
+        relativeTime = `${diffDays} дн назад`;
+    } else if (diffHours >= 1) {
+        relativeTime = `${diffHours} ч назад`;
+    } else {
+        relativeTime = `${diffMinutes} мин назад`;
+    }
+
+    return { formattedDate, relativeTime };
 }
 
 async function getCommits() {
@@ -29,9 +50,7 @@ async function getCommits() {
         ));
         return newCommitInfo;
     }
-
 }
-
 
 async function downloadCommitsList() {
     const apiUrl = 'https://api.github.com/repos/foundlev/gamc_app/commits?sha=main&per_page=100';
@@ -47,11 +66,10 @@ async function downloadCommitsList() {
             return;
         }
         const data = await response.json();
-        let newCommits = []
+        let newCommits = [];
 
         for (const item of data) {
             const message = item.commit.message;
-            // Пропускаем коммиты с пустым сообщением или коротким сообщением (< 50 символов)
             if (!message || message.length < 50) continue;
             const date = item.commit.committer.date || 'Нет даты';
 
@@ -75,9 +93,13 @@ async function showChangelogModal() {
     const changelogData = await getCommits();
 
     changelogData.forEach(entry => {
+        const { formattedDate, relativeTime } = formatChangelogDate(entry.date);
         html += `
             <div class="changelog-item">
-                <div class="changelog-date">${formatChangelogDate(entry.date)}</div>
+                <div class="changelog-date">
+                    ${formattedDate}
+                    <span class="relative-time">${relativeTime}</span>
+                </div>
                 <div class="changelog-message">${entry.message}</div>
             </div>
         `;

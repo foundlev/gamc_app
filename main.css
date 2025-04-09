@@ -2,6 +2,7 @@
     --bg-color: #ffffff;
     --text-color: #333333;
     --accent-color: #0077ff;
+    --accent-color-light: #0077ff;
     --border-color: #dddddd;
     --card-bg: #f9f9f9;
     --map-bg: #F8F9FA;
@@ -258,7 +259,7 @@ button:active {
 .response-container {
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    padding: 10px 40px 10px 10px;
+    padding: 10px;
     background-color: var(--card-bg);
     overflow: auto;
     min-height: 100px;
@@ -896,6 +897,7 @@ footer {
         --bg-color: #121212;
         --text-color: #eeeeee;
         --accent-color: #1E6FB7;
+        --accent-color-light: #008deb;
         --border-color: #444444;
         --card-bg: #1e1e1e;
 
@@ -2540,24 +2542,9 @@ input::-webkit-inner-spin-button {
 
 .loading-text {
   font-family: monospace;
-  color: var(--accent-color);
+  color: var(--accent-color-light);
   text-align: center;
   position: relative;
-}
-
-.loading-text::after {
-  content: '⠋';
-  animation: typing 1s infinite;
-  position: absolute;
-  margin-left: 5px;
-}
-
-@keyframes typing {
-  0% { content: '⠋'; }
-  25% { content: '⠙'; }
-  50% { content: '⠹'; }
-  75% { content: '⠸'; }
-  100% { content: '⠼'; }
 }
 
 /* Стили для кнопки копирования */
@@ -2741,7 +2728,7 @@ input::-webkit-inner-spin-button {
 .ai-explanation-modal {
     max-width: 700px;
     width: 90%;
-    max-height: 90vh;
+    max-height: 80vh;
     padding: 25px;
     text-align: left;
     background: linear-gradient(135deg, #ffffff, #f7f9fc);
@@ -2768,7 +2755,7 @@ input::-webkit-inner-spin-button {
 }
 
 .ai-explanation-content {
-    max-height: 70vh; /* Limit height to allow scrolling */
+    max-height: 60vh; /* Limit height to allow scrolling */
     overflow-y: auto; /* Enable vertical scrolling */
     padding-right: 10px; /* Space for scrollbar */
     margin-bottom: 20px;
@@ -3237,10 +3224,10 @@ header h1 {
     display: inline-flex;
     align-items: center;
     gap: 8px; /* Уменьшено с 10px */
-    padding: 4px 12px; /* Уменьшено с 8px 16px */
     border-radius: 30px; /* Чуть меньше скругление */
     cursor: pointer;
     transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+    margin-right: 3px;
 }
 
 /* Эффект при наведении на #button-title */
@@ -3265,7 +3252,7 @@ header h1 {
 
 /* Версия приложения (changelogBtn) */
 #changelogBtn {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     font-weight: 400;
     color: #ffffff;
     background: var(--accent-color);
@@ -3274,6 +3261,7 @@ header h1 {
     opacity: 0.6;
     transition: opacity 0.3s ease, transform 0.2s ease, background 0.3s ease;
     cursor: pointer;
+    font-family: monospace;
 }
 
 /* Наведение на версию */
@@ -3660,4 +3648,114 @@ button:active {
 
 .modal-close-btn, .clear-icao-btn {
     box-shadow: none;
+}
+
+.changelog-date {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Расстояние между датой и относительным временем */
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.relative-time {
+    font-size: 0.85rem;
+    color: var(--col-default); /* Более мягкий цвет для относительного времени */
+    background: rgba(221, 221, 221, 0.2); /* Лёгкий фон */
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .relative-time {
+        background: rgba(68, 68, 68, 0.3);
+        color: var(--accent-color-light);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .changelog-date {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    .relative-time {
+        font-size: 0.8rem;
+    }
+}
+
+.placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-color);
+    opacity: 0.7;
+    text-align: center;
+    padding: 20px;
+}
+
+.placeholder i {
+    margin-bottom: 10px;
+    color: var(--accent-color-light);
+}
+
+.placeholder p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 20px;
+}
+
+.weather-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    color: var(--text-color);
+}
+
+.weather-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.weather-icons i {
+    font-size: 1.5rem;
+    color: var(--accent-color-light);
+    opacity: 0;
+    animation: fadeCycle 2s infinite;
+}
+
+.weather-icons i:nth-child(1) { animation-delay: 0s; }
+.weather-icons i:nth-child(2) { animation-delay: 0.5s; }
+.weather-icons i:nth-child(3) { animation-delay: 1s; }
+
+.loading-text {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+@keyframes fadeCycle {
+    0% { opacity: 0; }
+    33% { opacity: 1; }
+    66% { opacity: 0.5; }
+    100% { opacity: 0; }
+}
+
+@media (max-width: 480px) {
+    .weather-icons i {
+        font-size: 1.2rem;
+    }
+    .loading-text {
+        font-size: 0.9rem;
+    }
 }

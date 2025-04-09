@@ -739,7 +739,13 @@ document.addEventListener('DOMContentLoaded', () => {
         hideAirportInfo();
 
         if (!silent) {
-            responseContainer.textContent = 'Здесь будет отображаться погода...';
+            responseContainer.innerHTML = `
+                <div class="placeholder">
+                    <i class="fa-solid fa-cloud-sun fa-2x"></i>
+                    <p>Введите ICAO код аэродрома, чтобы увидеть погоду</p>
+                </div>
+            `;
+            responseContainer.style.padding = '10px';
             timeBadgeContainer.innerHTML = '';
             removeTimeBadgeContainerBottomGap();
         }
@@ -758,13 +764,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = `https://myapihelper.na4u.ru/gamc_app/api.php?password=${encodeURIComponent(password)}&icao=${encodeURIComponent(icao)}&gamcUid=${encodeURIComponent(gamcUid)}`;
 
         if (silent) {
-            responseContainer.textContent = 'Здесь будет отображаться погода...';
+            responseContainer.innerHTML = `
+                <div class="placeholder">
+                    <i class="fa-solid fa-cloud-sun fa-2x"></i>
+                    <p>Введите ICAO код аэродрома, чтобы увидеть погоду</p>
+                </div>
+            `;
+            responseContainer.style.padding = '10px';
             state.worstRunwayFrictionCode = null;
         } else {
             // Заменяем текст на анимацию загрузки
             responseContainer.innerHTML = `
               <div class="loading-container">
-                <div class="loading-text">Загрузка метеоданных</div>
+                <div class="weather-loader">
+                  <div class="weather-icons">
+                    <i class="fa-solid fa-cloud"></i>
+                    <i class="fa-solid fa-sun"></i>
+                    <i class="fa-solid fa-cloud-rain"></i>
+                  </div>
+                  <span class="loading-text">Получаем данные о погоде...</span>
+                </div>
               </div>
             `;
             state.worstRunwayFrictionCode = null;
@@ -1063,8 +1082,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!silent) {
                 if (getAiAccess()) {
                     responseContainer.innerHTML = '<div id="aiIcon" onclick="showAIExplanationModal()"><i class="fa-solid fa-wand-magic-sparkles"></i></i></div>' + finalText;
+                    responseContainer.style.padding = '10px 40px 10px 10px';
                 } else {
                     responseContainer.innerHTML = finalText;
+                    responseContainer.style.padding = '10px';
                 }
                 showAirportInfo(icao);
             }

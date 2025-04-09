@@ -88,19 +88,32 @@ async function downloadCommitsList() {
 // Функция отображения модального окна
 async function showChangelogModal() {
     const changelogContent = document.getElementById('changelogContent');
-    let html = '';
+    changelogContent.innerHTML = ''; // Очищаем содержимое перед вставкой
 
     const changelogData = await getCommits();
+    if (!changelogData || !Array.isArray(changelogData)) {
+        changelogContent.innerHTML = '<p>Нет данных для отображения</p>';
+        document.getElementById('changelogModalBackdrop').classList.add('show');
+        return;
+    }
 
+    let html = '';
     changelogData.forEach(entry => {
         const { formattedDate, relativeTime } = formatChangelogDate(entry.date);
+        // Экранируем message, чтобы избежать проблем с HTML-символами
+        const safeMessage = entry.message
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
         html += `
             <div class="changelog-item">
                 <div class="changelog-date">
                     ${formattedDate}
                     <span class="relative-time">${relativeTime}</span>
                 </div>
-                <div class="changelog-message">${entry.message}</div>
+                <div class="changelog-message">${safeMessage}</div>
             </div>
         `;
     });

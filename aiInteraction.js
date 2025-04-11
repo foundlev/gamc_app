@@ -313,10 +313,10 @@ function showConfirmationModal() {
     confirmModalBackdrop.classList.add('show');
 }
 
-// Добавляем обработчик события для иконки ИИ (внутри #aiCheckBtn)
-document.addEventListener('DOMContentLoaded', () => {
-    const aiIcon = document.getElementById('aiCheckBtn');
-    if (aiIcon) {
-        aiIcon.addEventListener('click', showAIExplanationModal);
-    }
-});
+// // Добавляем обработчик события для иконки ИИ (внутри #aiCheckBtn)
+// document.addEventListener('DOMContentLoaded', () => {
+//     const aiIcon = document.getElementById('aiCheckBtn');
+//     if (aiIcon) {
+//         aiIcon.addEventListener('click', showAIExplanationModal);
+//     }
+// });

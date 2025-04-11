@@ -144,3 +144,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Открытие модального окна
+document.getElementById('aiCheckBtn').addEventListener('click', () => {
+    document.getElementById('windDirectionModalBackdrop').classList.add('show');
+});
+
+// Закрытие модального окна
+document.getElementById('closeWindDirectionModalBtn').addEventListener('click', () => {
+    document.getElementById('windDirectionModalBackdrop').classList.remove('show');
+});
+
+// Расчет направления
+document.getElementById('calculateWindBtn').addEventListener('click', () => {
+    const depIcao = document.getElementById('windDepIcao').value.toUpperCase();
+    const arrIcao = document.getElementById('windArrIcao').value.toUpperCase();
+    const windType = document.getElementById('windTypeSelect').value;
+
+    if(!airportInfoDb[depIcao] || !airportInfoDb[arrIcao]) {
+        showResultModal('Ошибка', 'Один из аэропортов не найден');
+        return;
+    }
+
+    const dep = airportInfoDb[depIcao];
+    const arr = airportInfoDb[arrIcao];
+
+    const course = calculateBearing(
+        dep.latitude,
+        dep.longitude,
+        arr.latitude,
+        arr.longitude
+    );
+
+    // Используем склонение аэропорта вылета
+    const declination = dep.declination || 0; // если склонение не указано, принимаем 0
+    // Вычисляем магнитный курс: истинный курс минус склонение, приводим в диапазон 0–359
+    const magneticCourse = (course - declination + 360) % 360;
+
+    let resultDirection = windType === 'HW' ?
+        formatCourse(magneticCourse) :
+        formatCourse((magneticCourse + 180) % 360);
+
+    document.getElementById('windDirectionValue').textContent =
+        `${resultDirection}/-`;
+});
+
+// Форматирование курса в 3 цифры
+function formatCourse(degrees) {
+    return String(Math.round(degrees)).padStart(3, '0');
+}
+
+// Расчет азимута (формула Хаверсина)
+function calculateBearing(lat1, lon1, lat2, lon2) {
+    const φ1 = lat1 * Math.PI/180;
+    const φ2 = lat2 * Math.PI/180;
+    const Δλ = (lon2 - lon1) * Math.PI/180;
+
+    const y = Math.sin(Δλ) * Math.cos(φ2);
+    const x = Math.cos(φ1)*Math.sin(φ2) -
+              Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+
+    let θ = Math.atan2(y, x);
+    return (θ*180/Math.PI + 360) % 360;
+}

@@ -20,7 +20,7 @@
     <header>
         <h1>
             <span id="button-title"><i class="fa-solid fa-plane-circle-check"></i> Weather App</span>
-            <span style="opacity: 0.5;" id="changelogBtn">v1.81</span>
+            <span style="opacity: 0.5;" id="changelogBtn">v1.82</span>
         </h1>
     </header>
 
@@ -572,6 +572,54 @@
             </div>
         </div>
     </div>
+
+    <!-- Модальное окно для расчета ветра -->
+<div class="modal-backdrop" id="windDirectionModalBackdrop">
+    <div class="modal wind-direction-modal">
+        <button class="modal-close-btn" id="closeWindDirectionModalBtn">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2><i class="fa-solid fa-wind"></i> Расчет ветра</h2>
+
+        <div class="wind-input-group">
+            <div class="airport-input">
+                <label>Аэропорт вылета:</label>
+                <input type="text" id="windDepIcao" placeholder="ICAO" maxlength="4"
+                   pattern="[A-Z]*"
+                   style="text-transform: uppercase;"/>
+                <ul id="windDepSuggestions" class="icao-suggestions"></ul>
+            </div>
+
+            <div class="airport-input">
+                <label>Аэропорт назначения:</label>
+                <input type="text" id="windArrIcao" placeholder="ICAO" maxlength="4"
+                   pattern="[A-Z]*"
+                   style="text-transform: uppercase;"/>
+                <ul id="windArrSuggestions" class="icao-suggestions"></ul>
+            </div>
+
+            <div class="wind-type-select">
+                <label>Тип ветра:</label>
+                <select id="windTypeSelect">
+                    <option value="HW">Встречный (Headwind)</option>
+                    <option value="TL">Попутный (Tailwind)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="wind-result-box" id="windResultContainer">
+            <i class="fa-solid fa-compass"></i>
+            <div class="wind-direction">
+                <span id="windDirectionValue">—/—</span>
+                <small>Направление ветра</small>
+            </div>
+        </div>
+
+        <div class="modal-button-group">
+            <button id="calculateWindBtn"><i class="fa-solid fa-calculator"></i> Рассчитать</button>
+        </div>
+    </div>
+</div>
 
     <script src="main.js"></script>
     <script src="extra.js"></script>

@@ -1080,13 +1080,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Выводим как HTML (чтобы теги <b>, <u> работали)
             if (!silent) {
-                if (getAiAccess()) {
-                    responseContainer.innerHTML = '<div id="aiIcon" onclick="showAIExplanationModal()"><i class="fa-solid fa-wand-magic-sparkles"></i></i></div>' + finalText;
-                    responseContainer.style.padding = '10px 40px 10px 10px';
-                } else {
-                    responseContainer.innerHTML = finalText;
-                    responseContainer.style.padding = '10px';
-                }
+                responseContainer.innerHTML = finalText;
+                // if (getAiAccess()) {
+                //     responseContainer.innerHTML = '<div id="aiIcon" onclick="showAIExplanationModal()"><i class="fa-solid fa-wand-magic-sparkles"></i></i></div>' + finalText;
+                //     responseContainer.style.padding = '10px 40px 10px 10px';
+                // } else {
+                //     responseContainer.innerHTML = finalText;
+                //     responseContainer.style.padding = '10px';
+                // }
                 showAirportInfo(icao);
             }
 

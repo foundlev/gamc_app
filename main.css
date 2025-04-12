@@ -519,6 +519,7 @@ footer {
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s;
+    width: 100%;
 }
 
 .modal-close-btn {
@@ -3803,8 +3804,8 @@ button:active {
     padding: 20px;
     background: var(--card-bg);
     border-radius: 10px;
-    border: 2px solid var(--accent-color);
     margin: 15px 0;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 .wind-result-box i {
@@ -3865,4 +3866,217 @@ select {
     -moz-appearance: none;
     appearance: none;
     background-color: var(--bg-color);
+}
+
+/* Fuel Calculation Styles */
+.fuel-calc-group {
+    margin: 20px 0;
+    border-top: 2px solid var(--border-color);
+    padding-top: 20px;
+}
+
+.fuel-input label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.fuel-input input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.holding-time-result {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    margin-top: 15px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.holding-time-result i {
+    font-size: 1.5rem;
+    color: var(--col-yellow);
+}
+
+.time-result span {
+    font-size: 1.4rem;
+    font-weight: bold;
+    font-family: monospace;
+    color: var(--text-color);
+}
+
+.time-result small {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    color: var(--text-color);
+}
+
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+    .fuel-input input {
+        background: #2a2a2a;
+    }
+
+    .holding-time-result {
+        border: 1px solid var(--border-color);
+    }
+}
+
+/* Компактные стили */
+.dual-input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.airport-input.compact label,
+.fuel-input.compact label {
+    font-size: 0.85rem;
+    margin-bottom: 3px;
+    display: block;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+.airport-input.compact input,
+.fuel-input.compact input {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    height: 38px;
+}
+
+.wind-type-select.compact select {
+    width: 100%;
+    padding: 8px;
+    font-size: 0.9rem;
+}
+
+.results-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.wind-result-box.compact {
+    padding: 12px;
+}
+
+.wind-result-box.compact i {
+    font-size: 1.5rem;
+}
+
+.wind-result-box.compact #windDirectionValue {
+    font-size: 1.4rem;
+}
+
+.holding-time-result.compact {
+    padding: 12px;
+}
+
+.holding-time-result.compact i {
+    font-size: 1.3rem;
+}
+
+#holdingTimeValue {
+    font-size: 1.3rem;
+}
+
+.modal-button-group.compact {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .dual-input-row {
+        grid-template-columns: 1fr;
+    }
+
+    .results-container {
+        grid-template-columns: 1fr;
+    }
+
+    .wind-result-box.compact,
+    .holding-time-result.compact {
+        text-align: center;
+        flex-direction: column;
+    }
+}
+
+/* Темная тема корректировки */
+@media (prefers-color-scheme: dark) {
+    .airport-input.compact input,
+    .fuel-input.compact input {
+        background: #2a2a2a;
+        border-color: #444;
+    }
+}
+
+.results-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.result-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    height: 50%; /* Фиксированная высота */
+    min-height: 70px; /* Минимальная высота */
+}
+
+.result-box i {
+    font-size: 1.5rem;
+    color: var(--accent-color);
+    flex-shrink: 0;
+}
+
+.result-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.result-content span {
+    font-size: 1.4rem;
+    font-weight: bold;
+    font-family: monospace;
+    line-height: 1.2;
+}
+
+.result-content small {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 3px;
+}
+
+/* Выравнивание иконок по вертикали */
+.result-box {
+    align-items: center;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .result-box {
+        border-color: #444;
+    }
 }

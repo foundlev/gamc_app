@@ -187,6 +187,27 @@ document.getElementById('calculateWindBtn').addEventListener('click', () => {
 
     document.getElementById('windDirectionValue').textContent =
         `${resultDirection}/-`;
+
+
+    // Расчет времени ожидания
+    const finalReserve = parseInt(document.getElementById('finalReserve').value);
+    const remf = parseInt(document.getElementById('remf').value);
+
+    if(finalReserve > 0 && remf > 0) {
+        const diff = Math.abs(finalReserve - remf);
+        const holdingMinutes = Math.round(diff / 2600 * 60);
+        document.getElementById('holdingTimeValue').textContent =
+            `${holdingMinutes} мин`;
+    } else {
+        document.getElementById('holdingTimeValue').textContent = '—';
+    }
+});
+
+// Валидация ввода топлива
+document.querySelectorAll('.fuel-input input').forEach(input => {
+    input.addEventListener('input', () => {
+        input.value = input.value.replace(/[^0-9]/g, '');
+    });
 });
 
 // Форматирование курса в 3 цифры

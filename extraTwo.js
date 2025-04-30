@@ -262,7 +262,7 @@ function updateFavouriteIcaos() {
     // Вместо historyContainer.children берём только кнопки
     const buttons = historyContainer.querySelectorAll('button');
     for (let btn of buttons) {
-        btn.classList.remove('nearby');
+        btn.classList.remove('fav');
         if (tempRoute.favourites.includes(btn.textContent.trim())) {
             btn.classList.add('fav');
         }

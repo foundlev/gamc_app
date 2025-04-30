@@ -20,7 +20,7 @@
     <header>
         <h1>
             <span id="button-title"><i class="fa-solid fa-plane-circle-check"></i> Weather App</span>
-            <span style="opacity: 0.5;" id="changelogBtn">v1.83</span>
+            <span style="opacity: 0.5;" id="changelogBtn">v1.84</span>
         </h1>
     </header>
 
@@ -114,7 +114,10 @@
         </div>
 
         <!-- Плашки с временем -->
-        <div class="time-badge-container remove-bottom-gap" id="timeBadgeContainer"></div>
+        <div class="upper-badge-container" id="upperBadgeContainer">
+            <div class="time-badge-container remove-bottom-gap" id="timeBadgeContainer"></div>
+            <div class="time-badge-container remove-bottom-gap" id="favBadgeContainer"></div>
+        </div>
 
         <!-- Основной контейнер для данных -->
         <div class="response-container" id="responseContainer" style="padding: 10px;">
@@ -409,6 +412,8 @@
             <div class="modal-tabs">
                 <button class="tab-button active" data-target="systemsTab">Системы захода</button>
                 <button class="tab-button" data-target="atisTab">ATIS</button>
+                <button class="tab-button" data-target="sidTab">SID</button>
+                <button class="tab-button" data-target="starTab">STAR</button>
             </div>
 
             <div id="systemsTab" class="tab-content active">

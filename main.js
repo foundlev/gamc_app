@@ -394,6 +394,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const responseContainer = document.getElementById('responseContainer');
     const historyContainer = document.getElementById('historyContainer');
     const timeBadgeContainer = document.getElementById('timeBadgeContainer');
+    const favBadgeContainer = document.getElementById('favBadgeContainer');
+    const upperBadgeContainer = document.getElementById('upperBadgeContainer');
 
     const refreshAllBtn = document.getElementById('refreshAllBtn');
     const batchRefreshModalBackdrop = document.getElementById('batchRefreshModalBackdrop');
@@ -448,12 +450,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function addTimeBadgeContainerBottomGap() {
         if (timeBadgeContainer.classList.contains('remove-bottom-gap')) {
             timeBadgeContainer.classList.remove('remove-bottom-gap');
+            favBadgeContainer.classList.remove('remove-bottom-gap');
         }
     }
 
     function removeTimeBadgeContainerBottomGap() {
         if (!timeBadgeContainer.classList.contains('remove-bottom-gap')) {
             timeBadgeContainer.classList.add('remove-bottom-gap');
+            favBadgeContainer.classList.add('remove-bottom-gap');
         }
     }
 
@@ -653,7 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
         warning.innerHTML = `
             <i class="fa-solid fa-triangle-exclamation"></i>Нет подключения. Данные взяты из сохраненных.
         `;
-        timeBadgeContainer.insertAdjacentElement('afterend', warning);
+        upperBadgeContainer.insertAdjacentElement('afterend', warning);
         addTimeBadgeContainerBottomGap();
     }
 
@@ -663,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
         warning.innerHTML = `
             <i class="fa-solid fa-ban"></i>Нет подключения. Нет сохраненных данных.
         `;
-        timeBadgeContainer.insertAdjacentElement('afterend', warning);
+        upperBadgeContainer.insertAdjacentElement('afterend', warning);
         addTimeBadgeContainerBottomGap();
     }
 
@@ -747,6 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             responseContainer.style.padding = '10px';
             timeBadgeContainer.innerHTML = '';
+            favBadgeContainer.innerHTML = '';
             removeTimeBadgeContainerBottomGap();
         }
 
@@ -789,6 +794,7 @@ document.addEventListener('DOMContentLoaded', () => {
             state.worstRunwayFrictionCode = null;
         }
         timeBadgeContainer.innerHTML = '';
+        favBadgeContainer.innerHTML = '';
         removeTimeBadgeContainerBottomGap();
 
         let toShowOfflineWarning = false;
@@ -901,7 +907,11 @@ document.addEventListener('DOMContentLoaded', () => {
             finalText = finalText.trimEnd(); // убираем последний \n\n
 
             // ========= Формируем плашки с временем в новом порядке =======
+            const upperBadgeContainer = document.createElement('div');
+            upperBadgeContainer.className = 'time-badge-container';
+
             timeBadgeContainer.innerHTML = '';
+            favBadgeContainer.innerHTML = '';
             removeTimeBadgeContainerBottomGap();
 
             const nowUTC = new Date();
@@ -1052,6 +1062,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!silent) {
                     timeBadgeContainer.appendChild(atisBadge);
                 }
+            }
+
+            if (!silent && routeSelect.value === 'temp') {
+                const favBadge = document.createElement('div');
+                favBadge.className = 'time-badge';
+                favBadge.id = 'favIcoBtn';
+                favBadge.classList.add('badge-fav');
+                favBadge.classList.add('content-clickable');
+                favBadge.onclick = changeFavourite;
+                favBadge.innerHTML = `<i class="fa-regular fa-star"></i>`;
+                favBadgeContainer.appendChild(favBadge);
+
+                updateFavouriteIcaos();
             }
 
             finalText = insertLineBreaks(finalText);
@@ -2052,8 +2075,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Функция для обновления внешнего вида кнопки в зависимости от состояния
     function updateOfflineButton() {
         if (offlineMode) {
-            updateCurrentGPS();
-
             offlineToggleBtn.classList.add('offline');
             offlineToggleBtn.classList.remove('online');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-plane"></i>';
@@ -2061,8 +2082,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('loadGamcUidBtn').disabled = true;
             document.getElementById('exportGamcUidBtn').disabled = true;
         } else {
-            resetGpsPositionBadge();
-
             offlineToggleBtn.classList.add('online');
             offlineToggleBtn.classList.remove('offline');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-signal"></i>';
@@ -2135,8 +2154,13 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('canShowAirportInfo', JSON.stringify(canShowAirportInfo)); // Сохранить в localStorage
     });
 
-    useGpsPositionCheckbox.addEventListener('change', () => {
-        useGpsPosition = useGpsPositionCheckbox.checked; // Обновить переменную
+    function changeUseGps(checkboxMode=true) {
+        if (checkboxMode) {
+            useGpsPosition = useGpsPositionCheckbox.checked;
+        } else {
+            useGpsPosition = !useGpsPosition;
+            useGpsPositionCheckbox.checked = useGpsPosition;
+        }
         localStorage.setItem('useGpsPosition', JSON.stringify(useGpsPosition));
 
         if (useGpsPosition) {
@@ -2152,7 +2176,12 @@ document.addEventListener('DOMContentLoaded', () => {
             gpsBadgeEl.classList.remove('gps-error', 'gps-success', 'gps-outdate');
             gpsBadgeEl.classList.add('gps-error');
         }
-    });
+    }
+
+    useGpsPositionCheckbox.addEventListener('change', changeUseGps);
+    document.getElementById('gpsBadge').addEventListener('click', () => {
+        changeUseGps(false);
+    })
 
     function showAddRouteModal() {
         addRouteModalBackdrop.classList.add('show');
@@ -2490,6 +2519,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateHistoryBtnNotam();
         updateSelectedPlacard();
+        updateFavouriteIcaos();
     }
 
     function updateBadgesTimeAndColors() {

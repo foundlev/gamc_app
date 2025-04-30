@@ -140,21 +140,22 @@ if (routeSelect) {
 }
 
 function resetGpsPositionBadge() {
-    if (!useGpsPosition) return;
     const gpsTextEl = document.getElementById('currentGPS');
     const gpsBadgeEl = document.getElementById('gpsBadge');
 
-    gpsTextEl.textContent = "-";
+    gpsTextEl.textContent = "Откл.";
     gpsBadgeEl.classList.remove('gps-success', 'gps-outdate');
     gpsBadgeEl.classList.add('gps-error');
 }
 
 function updateCurrentGPS() {
-    if (!offlineMode) return;
-    if (!useGpsPosition) return;
-
     const gpsTextEl = document.getElementById('currentGPS');
     const gpsBadgeEl = document.getElementById('gpsBadge');
+
+    if (!useGpsPosition) {
+        resetGpsPositionBadge();
+        return;
+    }
 
     if (
         window.currentGpsPosition &&

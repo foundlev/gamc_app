@@ -217,14 +217,79 @@ function formatCourse(degrees) {
 
 // Расчет азимута (формула Хаверсина)
 function calculateBearing(lat1, lon1, lat2, lon2) {
-    const φ1 = lat1 * Math.PI/180;
-    const φ2 = lat2 * Math.PI/180;
-    const Δλ = (lon2 - lon1) * Math.PI/180;
+    const fi1 = lat1 * Math.PI/180;
+    const fi2 = lat2 * Math.PI/180;
+    const deltaA = (lon2 - lon1) * Math.PI/180;
 
-    const y = Math.sin(Δλ) * Math.cos(φ2);
-    const x = Math.cos(φ1)*Math.sin(φ2) -
-              Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+    const y = Math.sin(deltaA) * Math.cos(fi2);
+    const x = Math.cos(fi1)*Math.sin(fi2) -
+              Math.sin(fi1)*Math.cos(fi2)*Math.cos(deltaA);
 
-    let θ = Math.atan2(y, x);
-    return (θ*180/Math.PI + 360) % 360;
+    let te = Math.atan2(y, x);
+    return (te*180/Math.PI + 360) % 360;
+}
+
+function updateFavouriteIcaos() {
+    const routeSelect = document.getElementById('routeSelect');
+
+    if (routeSelect.value !== 'temp') {
+        return;
+    }
+
+    const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+    if (!tempRoute.favourites) {
+        tempRoute.favourites = [];
+    }
+
+    const favIcoBtn = document.getElementById('favIcoBtn');
+    if (favIcoBtn) {
+        if (tempRoute.favourites.includes(nowIcao)) {
+            favIcoBtn.classList.remove('badge-fav');
+            favIcoBtn.classList.add('badge-fav-added');
+            favIcoBtn.innerHTML = `<i class="fa-solid fa-star"></i>`;
+        } else {
+            favIcoBtn.classList.remove('badge-fav-added');
+            favIcoBtn.classList.add('badge-fav');
+            favIcoBtn.innerHTML = `<i class="fa-regular fa-star"></i>`;
+        }
+    }
+
+    const historyContainer = document.getElementById('historyContainer');
+    if (!historyContainer) {
+        return;
+    }
+
+    // Вместо historyContainer.children берём только кнопки
+    const buttons = historyContainer.querySelectorAll('button');
+    for (let btn of buttons) {
+        btn.classList.remove('nearby');
+        if (tempRoute.favourites.includes(btn.textContent.trim())) {
+            btn.classList.add('fav');
+        }
+    }
+}
+
+function changeFavourite(){
+    const routeSelect = document.getElementById('routeSelect');
+
+    if (!nowIcao || routeSelect.value !== 'temp') {
+        return;
+    }
+
+    const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+    if (!tempRoute.favourites) {
+        tempRoute.favourites = [];
+    }
+
+    // Входит ли nowIcao в tempRoute.favourites.
+    if (tempRoute.favourites.includes(nowIcao)) {
+        // Убираем nowIcao из tempRoute.favourites.
+        tempRoute.favourites = tempRoute.favourites.filter(icao => icao !== nowIcao);
+    } else {
+        // Включаем nowIcao в tempRoute.favourites.
+        tempRoute.favourites.push(nowIcao);
+    }
+    localStorage.setItem('tempRoute', JSON.stringify(tempRoute));
+
+    updateFavouriteIcaos();
 }

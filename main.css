@@ -41,6 +41,8 @@
     --col-temporary: #d35400;
     --col-crane: #2c3e50;
     --col-airspace: #7f8c8d;
+
+    --star-color: #FFA500;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -70,12 +72,13 @@
         --col-temporary: #e67e22;
         --col-crane: #34495e;
         --col-airspace: #95a5a6;
+
+        --star-color: #C88200;
     }
 }
 
 /* Общие стили для всех плашек */
 .time-badge {
-    display: inline-block;
     background-color: var(--accent-color);
     color: var(--badge-text-color);
     border-radius: 4px;
@@ -84,6 +87,10 @@
     /* Сразу скрыт, анимируем при рендере */
     opacity: 0;
     animation: badgeFadeIn 0.4s ease forwards;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 
 /* Состояния плашек */
@@ -101,6 +108,28 @@
 
 .badge-default {
     background-color: var(--accent-color);
+}
+
+.time-badge.badge-fav {
+    background-color: var(--bg-color);
+    color: var(--border-color);
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    padding: 2px 2px;
+}
+
+.time-badge.badge-fav-added {
+    background-color: var(--bg-color);
+    color: var(--star-color);
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    padding: 2px 2px;
 }
 
 body {
@@ -224,6 +253,11 @@ button:active {
     display: flex;
     gap: 5px;
     flex-wrap: wrap;
+}
+
+.upper-badge-container {
+    display: flex;
+    justify-content: space-between;
 }
 
 /* Анимация появления плашек */
@@ -2046,7 +2080,7 @@ button[hidden] {
 
 .history button.has-maintenance {
     /*border: 1px solid var(--badge-green-bg);*/
-    box-shadow: 0 0 0 1.3px var(--text-color);
+    /*box-shadow: 0 0 0 1.3px var(--text-color);*/
 }
 
 /* Темная тема */
@@ -2980,13 +3014,30 @@ input::-webkit-inner-spin-button {
     }
 }
 
-.history button.nearby {
+/*.history button.nearby {*/
+/*    position: relative;*/
+/*}*/
+
+/*.history button.nearby::after {*/
+/*    content: '\f111'; !* Маленький круг из Font Awesome *!*/
+/*    font-family: "Font Awesome 6 Free", serif;*/
+/*    font-weight: 900;*/
+/*    position: absolute;*/
+/*    top: 2px;*/
+/*    right: 2px;*/
+/*    font-size: 6px;*/
+/*    color: white; !* Спокойный синий *!*/
+/*    text-shadow: rgba(0, 0, 0, 0.5) 0 0 2px;*/
+/*}*/
+
+
+.history button.fav {
     position: relative;
 }
 
-.history button.nearby::after {
-    content: '\f111'; /* Маленький круг из Font Awesome */
-    font-family: "Font Awesome 6 Free";
+.history button.fav::after {
+    content: '\f005'; /* Маленький круг из Font Awesome */
+    font-family: "Font Awesome 6 Free", serif;
     font-weight: 900;
     position: absolute;
     top: 2px;
@@ -3000,18 +3051,19 @@ input::-webkit-inner-spin-button {
     position: relative;
     padding-bottom: 5px; /* Отступ для полосы */
     font-weight: 700; /* Жирный текст */
+    box-shadow: 0 0 0 1.3px var(--text-color);
 }
 
-.history button.selected::after {
-    content: '';
-    position: absolute;
-    bottom: 2px;
-    left: 4px;
-    right: 4px;
-    height: 2px;
-    background-color: white; /* Спокойный синий */
-    border-radius: 4px;
-}
+/*.history button.selected::after {*/
+/*    content: '';*/
+/*    position: absolute;*/
+/*    bottom: 2px;*/
+/*    left: 4px;*/
+/*    right: 4px;*/
+/*    height: 2px;*/
+/*    background-color: white; !* Спокойный синий *!*/
+/*    border-radius: 4px;*/
+/*}*/
 
 #gpsBadge {
     margin-left: 5px;

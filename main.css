@@ -1913,7 +1913,8 @@ button[hidden] {
 }
 
 .notam-raw {
-    font-family: 'Courier New', monospace;
+    font-family: monospace;
+    line-height: 1.2rem;
     font-size: 0.8rem;
     white-space: pre-wrap;
     background: var(--bg-color);
@@ -2049,7 +2050,6 @@ button[hidden] {
 }
 
 .notam-raw {
-    font-family: 'Courier New', monospace;
     font-size: 0.8rem;
     white-space: pre-wrap;
     background: var(--bg-color);

@@ -20,7 +20,7 @@
     <header>
         <h1>
             <span id="button-title"><i class="fa-solid fa-plane-circle-check"></i> Weather App</span>
-            <span style="opacity: 0.5;" id="changelogBtn">v1.88</span>
+            <span style="opacity: 0.5;" id="changelogBtn">v1.89</span>
         </h1>
     </header>
 
@@ -661,6 +661,14 @@
     <script src="aiInteraction.js"></script>
     <script src="wakeLock.js"></script>
     <script src="gpsUpdater.js"></script>
+
+
+    <script>
+        navigator.serviceWorker
+            .register("./service-worker.js")
+            .then(() => console.log("Service Worker зарегистрирован"))
+            .catch(error => console.error("Ошибка регистрации Service Worker:", error));
+    </script>
 
 </body>
 

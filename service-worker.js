@@ -46,6 +46,15 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const { request } = event;
 
+  // Не кэшировать запросы к API
+  if (request.url.startsWith('https://myapihelper.na4u.ru/gamc_app/api.php')) {
+      event.respondWith(
+          fetch(request)
+              .catch(() => new Response('Ошибка сети', { status: 500 }))
+      );
+      return;
+  }
+
   /* 1. Для переходов по страницам всегда отдаём index.html */
   if (request.mode === 'navigate') {
     event.respondWith(

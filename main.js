@@ -9,40 +9,47 @@ let useGpsPosition = JSON.parse(localStorage.getItem('useGpsPosition')) || false
 const maintenance = {
     "B737": {
         "icao": [
-            "UAAA", "UBBB", "UDYZ", "UEEE",
-            "UHWW", "UIII", "ULAA", "ULLI", "ULMM", "UMKK", "UMMS", "UNBG", "UNKL", "UNNT", "UNOO",
-            "URMG", "URML", "URMM", "URSS", "URWW", "USII", "USPP", "USRR", "USSS", "USTR", "UTTT",
-            "UUYY", "UWGG", "UWKD", "UWOO", "UWUU", "UWWW", "HECA", "HEGN", "HESH", "LTAI", "LTFM",
-            "OMAA", "OMDB", "OMDW", "VTBS", "ZJSY"
+            'URSS', 'UNKL', 'UWOO', 'USPP', 'UWUU', 'UWKD', 'UMKK', 'UWGG', 'URMM', 'USSS', 'URML', 'URWW', 'UNBG',
+            'UNNT', 'UIII', 'ULAA', 'LTAI', 'UDYZ', 'LTFM', 'ULMM', 'UNOO', 'UUYY', 'URMG', 'OMDW', 'UAAA', 'OMDB',
+            'OMAA', 'ULLI', 'USTR', 'UWWW', 'USRR', 'UEEE', 'VTBS', 'HECA', 'HESH', 'HEGN', 'UMMS', 'LTBS', 'UTTT',
+            'UTSS', 'UAFO', 'URWA', 'UHHH', 'URMT', 'UHWW', 'UCFM', 'UBBB', 'VTSP', 'ZJSY'
         ],
-        "notam": "AFL 9EMIH/24 (29 NOV 24)"
+        "notam": "AFL 9EMIH/24 (11 JUN 25)"
     },
     "A320N,A321N": {
-        "icao": ['UAAA', 'UDYZ', 'ULAA', 'ULLI', 'ULMM', 'UMKK', 'UNKL', 'UNNT', 'UNOO', 'URMG', 'URML',
-            'URMM', 'URSS', 'USSS', 'UTSS', 'UTTT', 'UUYY', 'UWKD', 'UWOO', 'HECA', 'HEGN', 'HESH', 'LTAI',
-            'LTFM', 'OMAA', 'OMDB', 'OMDW'],
-        "notam": "AFL 9EMII/24 (29 NOV 24)"
+        "icao": [
+            'URSS', 'UNKL', 'UMKK', 'URMM', 'USSS', 'URML', 'ULAA', 'UDYZ', 'LTFM', 'UNOO', 'UUYY', 'URMG',
+            'OMDW', 'UAAA', 'OMDB', 'OMAA', 'HESH', 'HEGN', 'UTTT', 'ZJSY', 'UNNT', 'UWOO', 'USRR', 'LTAI', 'VTBS',
+            'VIDP', 'LTBS', 'VTSP', 'UTSS'
+        ],
+        "notam": "AFL 9EMII/24 (11 JUN 25)"
     },
     "A320,A320S,A321,A321S": {
-        "icao": ['UAAA', 'UAFM', 'UAFO', 'UBBB', 'UDYZ', 'UIII', 'ULAA', 'ULLI', 'ULMM', 'UMKK', 'UMMS',
-            'UNBG', 'UNKL', 'UNNT', 'UNOO', 'URMG', 'URML', 'URMM', 'URMT', 'URSS', 'URWW', 'USCC', 'USII',
-            'USPP', 'USSS', 'USTR', 'UTSS', 'UTTT', 'UUYY', 'UWGG', 'UWKD', 'UWOO', 'UWUU', 'UWWW', 'HECA',
-            'HEGN', 'HESH', 'LTAI', 'LTFM', 'OMAA', 'OMDB', 'OMDW', 'VTBS', 'VTSP'],
-        "notam": "AFL 9EMJ1/24 (29 NOV 24)"
+        "icao": [
+            'URSS', 'UNKL', 'USPP', 'UWUU', 'UWKD', 'UMKK', 'UWGG', 'URMM', 'USSS', 'URML', 'URWW', 'UNBG',
+            'UNNT', 'UIII', 'ULAA', 'LTAI', 'UDYZ', 'LTFM', 'ULMM', 'UNOO', 'UUYY', 'URMG', 'OMDW', 'UAAA', 'OMDB',
+            'OMAA', 'ULLI', 'USTR', 'UWWW', 'USCC', 'HECA', 'HESH', 'HEGN', 'UMMS', 'UCFM', 'LTBS', 'UTTT', 'URWA',
+            'VIDP', 'UBBB', 'UWSG', 'UWOO', 'USRR', 'URMT', 'UHSS', 'UHWW', 'VTBS', 'VTSP', 'UAFO', 'UTSS'
+        ],
+        "notam": "AFL 9EMJ1/24 (11 JUN 25)"
     },
     "B777": {
-        "icao": ['UHHH', 'UHPP', 'UHSS', 'UHWW', 'ULLI', 'UNNT', 'URSS', 'HECA', 'HEGN', 'HESH', 'LTAI',
-            'LTFM', 'VCBI', 'VIDP', 'VTBS', 'VTSP', 'ZJSY', 'ZSPD'],
-        "notam": "AFL 9EMIC/24 (29 NOV 24)"
+        "icao": [
+            'URSS', 'UHHH', 'UHWW', 'UHPP', 'LTAI', 'LTFM', 'ULLI', 'VIDP', 'VTSP', 'VTBS', 'HECA', 'HESH', 'HEGN',
+            'VCBI', 'UNNT', 'UHSS', 'OMAA', 'ZGGG', 'OMDW', 'OMDB', 'ZSPD', 'ZJSY'
+        ],
+        "notam": "AFL 9EMIC/24 (11 JUN 25)"
     },
     "A330": {
-        "icao": ['UAAA', 'UHHH', 'UHWW', 'ULLI', 'UMKK', 'UNKL', 'UNNT', 'URSS', 'USSS', 'HECA', 'HEGN',
-            'HESH', 'LTAI', 'LTFM', 'OMDW', 'VCBI', 'VIDP', 'VTBS', 'VTSP', 'ZJSY'],
-        "notam": "AFL 9EMIE/24 (29 NOV 24)"
+        "icao": [
+            'URSS', 'UNKL', 'UHHH', 'UHWW', 'UMKK', 'USSS', 'LTAI', 'LTFM', 'UAAA', 'ULLI', 'VTSP', 'VTBS', 'HECA',
+            'HESH', 'HEGN', 'VCBI', 'UWKD', 'UNNT', 'UWUU', 'OMAA', 'OMDW', 'OMDB', 'ZJSY'
+        ],
+        "notam": "AFL 9EMIE/24 (11 JUN 25)"
     },
     "A350": {
-        "icao": ['UHHH', 'UHWW', 'UMKK', 'URSS', 'LTBA', 'VCBI', 'VTBS', 'ZJSY'],
-        "notam": "AFL 9JDJ5/24 (29 NOV 24)"
+        "icao": ['URSS', 'UHHH', 'UHWW', 'UHSS', 'VTBS', 'VCBI', 'HEGN', 'HESH', 'ZJSY'],
+        "notam": "AFL 9JDJ5/24 (11 JUN 25)"
     }
 }
 

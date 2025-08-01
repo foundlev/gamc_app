@@ -20,7 +20,7 @@
     <header>
         <h1>
             <span id="button-title"><i class="fa-solid fa-plane-circle-check"></i> Weather App</span>
-            <span style="opacity: 0.5;" id="changelogBtn">v1.91</span>
+            <span style="opacity: 0.5;" id="changelogBtn">v1.92</span>
         </h1>
     </header>
 
@@ -286,11 +286,16 @@
             <div style="position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <label for="alternatesIcao">
-                        <i class="fa-solid fa-location-dot"></i>Запасные (через пробел, максимум 30):
+                        <i class="fa-solid fa-location-dot"></i>Запасные (максимум 30):
                     </label>
-                    <button id="copyAlternatesBtn" class="icon-button" title="Скопировать запасные аэродромы">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
+                    <div>
+                        <button id="copyAlternatesBtn" class="icon-button" title="Скопировать запасные аэродромы">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                        <button id="deleteAlternatesBtn" class="icon-button" title="Удалить запасные аэродромы">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
                 <textarea id="alternatesIcao" rows="3" placeholder="XXXX XXXX ..."
                     style="width: 100%; resize: vertical; overflow-y: auto; resize: none;"></textarea>

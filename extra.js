@@ -462,6 +462,15 @@ document.getElementById('copyAlternatesBtn').addEventListener('click', function(
     }
 });
 
+// Удаление запасных аэродромов
+document.getElementById('deleteAlternatesBtn').addEventListener('click', function() {
+    document.getElementById('alternatesIcao').value = '';
+
+    // На 1 секунду меняем иконку на <i class="fa-solid fa-check"></i>
+    document.getElementById('deleteAlternatesBtn').innerHTML = '<i class="fa-solid fa-check"></i>';
+    setTimeout(() => document.getElementById('deleteAlternatesBtn').innerHTML = '<i class="fa-solid fa-trash"></i>', 1000);
+});
+
 // Функция показа уведомления (если уже существует в коде - не дублировать)
 function showResultModal(title, message) {
     if (window.showResultModal) { // Проверка на существование функции

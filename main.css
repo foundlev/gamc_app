@@ -30,6 +30,9 @@
     /* .color-darkred */
     --col-default: var(--accent-color);
 
+    --col-disabled: #808080;
+
+
     /* Новые переменные */
     --col-fire: #d32f2f;
     --col-special: #8e44ad;
@@ -49,6 +52,8 @@
     :root {
         /* Тёмная тема */
         --col-green: #249152;
+        --col-disabled: #606060;
+
         /* то, что было в .color-green при тёмной теме */
         --col-yellow: #c88200;
         --col-red: #881818;

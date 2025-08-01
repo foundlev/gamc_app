@@ -64,6 +64,14 @@ const airportsBz = ['GMAD', 'LEAL', 'OJAI', 'LTAC', 'EGLL', 'LTAI', 'LGAV', 'LEM
 // 37
 const airportsC = ['OJAQ', 'FIMP', 'UHMA', 'LFML', 'LFKJ', 'LTFE', 'LIME', 'MMMX', 'RKPK', 'LIRN', 'URKG', 'LFMN', 'LFLS', 'KJFK', 'LTBS', 'UHPP', 'LDDU', 'LYPG', 'UTDD', 'LGTS', 'LOWS', 'FSIA', 'LOWI', 'URSS', 'LGIR', 'LDSP', 'LKKV', 'ZBYN', 'VNKT', 'OIII', 'LGKR', 'LYTV', 'UTDK', 'LIMF', 'LJLJ', 'LFLB', 'LTCE']
 
+const runwayConditionCaptions = {
+    6: 'DRY',
+    5: 'GOOD',
+    4: 'GOOD/MEDIUM',
+    3: 'MEDIUM',
+    2: 'MEDIUM/POOR',
+    1: 'POOR'
+}
 const reportedBrakingActions = {
     takeoff: {
         dry: {
@@ -123,53 +131,65 @@ const coefficientBrakingActions = {
         takeoff: {
             0.5: {
                 kts: 34,
-                mps: 17.5
+                mps: 17.5,
+                code: 6
             },
             0.42: {
                 kts: 25,
-                mps: 12.9
+                mps: 12.9,
+                code: 5
             },
             0.4: {
                 kts: 22,
-                mps: 11.3
+                mps: 11.3,
+                code: 4
             },
             0.37: {
                 kts: 20,
-                mps: 10.3
+                mps: 10.3,
+                code: 3
             },
             0.35: {
                 kts: 15,
-                mps: 7.7
+                mps: 7.7,
+                code: 2
             },
             0.3: {
                 kts: 13,
-                mps: 6.7
+                mps: 6.7,
+                code: 1
             }
         },
         landing: {
             0.5: {
                 kts: 40,
-                mps: 20.6
+                mps: 20.6,
+                code: 6
             },
             0.42: {
                 kts: 40,
-                mps: 20.6
+                mps: 20.6,
+                code: 5
             },
             0.4: {
                 kts: 35,
-                mps: 18.0
+                mps: 18.0,
+                code: 4
             },
             0.37: {
                 kts: 25,
-                mps: 12.9
+                mps: 12.9,
+                code: 3
             },
             0.35: {
                 kts: 17,
-                mps: 8.7
+                mps: 8.7,
+                code: 2
             },
             0.3: {
                 kts: 15,
-                mps: 7.7
+                mps: 7.7,
+                code: 1
             }
         }
     },
@@ -177,53 +197,65 @@ const coefficientBrakingActions = {
         takeoff: {
             0.51: {
                 kts: 34,
-                mps: 17.5
+                mps: 17.5,
+                code: 6
             },
             0.4: {
                 kts: 25,
-                mps: 12.9
+                mps: 12.9,
+                code: 5
             },
             0.36: {
                 kts: 22,
-                mps: 11.3
+                mps: 11.3,
+                code: 4
             },
             0.3: {
                 kts: 20,
-                mps: 10.3
+                mps: 10.3,
+                code: 3
             },
             0.26: {
                 kts: 15,
-                mps: 7.7
+                mps: 7.7,
+                code: 2
             },
             0.17: {
                 kts: 13,
-                mps: 6.7
+                mps: 6.7,
+                code: 1
             }
         },
         landing: {
             0.51: {
                 kts: 40,
-                mps: 20.6
+                mps: 20.6,
+                code: 6
             },
             0.4: {
                 kts: 40,
-                mps: 20.6
+                mps: 20.6,
+                code: 5
             },
             0.36: {
                 kts: 35,
-                mps: 18.0
+                mps: 18.0,
+                code: 4
             },
             0.3: {
                 kts: 25,
-                mps: 12.9
+                mps: 12.9,
+                code: 3
             },
             0.26: {
                 kts: 17,
-                mps: 8.7
+                mps: 8.7,
+                code: 2
             },
             0.17: {
                 kts: 15,
-                mps: 7.7
+                mps: 7.7,
+                code: 1
             }
         }
     }
@@ -1208,10 +1240,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Обрабатываем metarColor / tafColor
         const metarColor = colObj.metarColor ?
             colObj.metarColor.replace('color-', '') :
-            'green';
+            'disabled';
         const tafColor = colObj.tafColor ?
             colObj.tafColor.replace('color-', '') :
-            'green';
+            'disabled';
 
         // Функция, которая делает градиент «пополам»
         setButtonColorSplit(btn, metarColor, tafColor);
@@ -1417,7 +1449,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 6) Выбираем цвет на основе рассчитанного ratio
                 let colorClass = '';
                 if (ratio < 40) {
-                    colorClass = 'color-green';
+                    if ((usedWind >= 10 && unit === "MPS") || (usedWind >= 20 && unit !== "MPS")) {
+                        colorClass = 'color-yellow';
+                    } else if ((usedWind >= 15 && unit === "MPS") || (usedWind >= 30 && unit !== "MPS")) {
+                        colorClass = 'color-red';
+                    } else if ((usedWind >= 20 && unit === "MPS") || (usedWind >= 40 && unit !== "MPS")) {
+                        colorClass = 'color-purple';
+                    } else {
+                        colorClass = 'color-green';
+                    }
                 } else if (ratio >= 40 && ratio < 70) {
                     colorClass = 'color-yellow';
                 } else if (ratio >= 70 && ratio < 90) {
@@ -1740,10 +1780,66 @@ document.addEventListener('DOMContentLoaded', () => {
             99: "ненадежное измерение"
         } [friction] || "нет данных";
 
+        let nConditionCodeTmp = '-';
+        let mConditionCodeTmp = '-';
+
+        function getOptOfferSelection(condition, depth) {
+            if (typeof condition !== 'number' || typeof depth !== 'number') return '-';
+
+            try {
+                switch (condition) {
+                    case 0:
+                        return 'DRY';
+                    case 1:
+                        return 'WET';
+                    case 2:
+                        return depth && depth <= 3 ? 'WET' : 'WET or MEDIUM';
+                    case 3:
+                        return 'GOOD';
+                    case 4:
+                        return depth ? (depth >= 2 ? `DRY SNOW (${depth} mm)` : 'GOOD') : 'MEDIUM';
+                    case 5:
+                        return depth && depth <= 3 ? 'GOOD' : 'MEDIUM';
+                    case 6:
+                        return depth ? (depth >= 2 ? `SLUSH (${depth} mm)` : 'GOOD') : 'MEDIUM-POOR';
+                    case 7:
+                        return 'POOR';
+                    case 8:
+                        return 'CMPCT SNOW';
+                    case 9:
+                        return 'PROHIBITED';
+                    default:
+                        return '-';
+                }
+            } catch (e) {
+                return '-';
+            }
+        }
+
         // Если frictionDesc === "Нет данных" и является числом от 10 до 90
         if (frictionDesc === "нет данных" && friction >= 10 && friction <= 90) {
             frictionDesc = `0.${friction}`;
+
+            for (const coef of Object.keys(coefficientBrakingActions.normative.takeoff)) {
+                const numCoef = parseFloat(coef);
+                if (numCoef > (friction / 100)) {
+                    continue;
+                }
+                nConditionCodeTmp = runwayConditionCaptions[coefficientBrakingActions.normative.takeoff[coef].code];
+                break;
+            }
+
+            for (const coef of Object.keys(coefficientBrakingActions.by_sft.takeoff)) {
+                const numCoef = parseFloat(coef);
+                if (numCoef > (friction / 100)) {
+                    continue;
+                }
+                mConditionCodeTmp = runwayConditionCaptions[coefficientBrakingActions.by_sft.takeoff[coef].code];
+                break;
+            }
         }
+
+        
 
         return `
             <strong class='strong-header'>Код:</strong> ${runway} / ${info}<br><br>
@@ -1751,7 +1847,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <strong>Условия:</strong> ${conditionDesc} (${condition || "-"})<br>
             <strong>Степень:</strong> ${coverageDesc} (${coverage || "-"})<br>
             <strong>Толщина:</strong> ${depthDesc} (${depth || "-"})<br>
-            <strong>Коэф. сцепления:</strong> ${frictionDesc} (${friction || "-"})
+            <strong>Коэф сцеп:</strong> ${frictionDesc} (${friction || "-"})<br><br>
+            <strong>Для OPT:</strong> ${nConditionCodeTmp} / ${mConditionCodeTmp} / ${getOptOfferSelection(condition, depth)}
         `;
     }
 
@@ -1878,7 +1975,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Если ветер VRB — можно вывести что-то одно
         if (windDirTrue === null) {
-            content += `Ветер переменный (VRB), сложно вычислить боковую/встречную.`;
+            content += `Ветер переменный (VRB).`;
             showWindInfoModal(content);
             return;
         }
@@ -2017,7 +2114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <br>
                 <i class="fa-solid fa-ruler-vertical"></i> LDA: ${rwyLength} м
                 <br>
-                Коэф. сцепления: <b>${frictionText}</b>
+                Коэф сцеп: <b>${frictionText}</b>
                 <br>
                 <i class="fa-solid fa-chevron-right"></i> HW: ${hwMain.toFixed(1)} ${unit}
             `;
@@ -3435,6 +3532,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function findWorstColor(classes) {
+        console.log(classes);
         // classes — это массив вроде ["color-green", "color-red"] и т. п.
         // Сортируем по убыванию плохости, берём первый
         for (let badColor of colorPriority) {

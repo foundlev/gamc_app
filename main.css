@@ -295,6 +295,10 @@ button:active {
     }
 }
 
+.code {
+    font-family: monospace, sans-serif;
+}
+
 .response-container {
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -393,7 +397,7 @@ footer {
 
 /* Светлая тема */
 .offline-warning {
-    background-color: #FFA500;
+    background-color: var(--badge-orange-bg);
     /* ярко-оранжевый */
     color: #FFFFFF;
     /* белый текст */
@@ -406,7 +410,7 @@ footer {
 }
 
 .offline-warning-no-info {
-    background-color: #FF4C4C;
+    background-color: var(--badge-red-bg);
     /* Ярко-красный фон */
     color: #FFFFFF;
     /* белый текст */
@@ -946,20 +950,6 @@ footer {
         --badge-red-bg: #881818;
         --badge-default-bg: #34495e;
         --badge-text-color: #ecf0f1;
-    }
-
-    .offline-warning {
-        background-color: #FF7F50;
-        /* кораллово-оранжевый */
-        color: #000000;
-        /* чёрный текст */
-    }
-
-    .offline-warning-no-info {
-        background-color: #c22f2f;
-        /* Темно-красный фон */
-        color: #FFFFFF;
-        /* Белый текст */
     }
 
     .modal {
@@ -1923,7 +1913,7 @@ button[hidden] {
 
 .notam-raw {
     font-family: monospace;
-    line-height: 1.2rem;
+    line-height: 1.5rem;
     font-size: 0.8rem;
     white-space: pre-wrap;
     background: var(--bg-color);
@@ -1951,6 +1941,14 @@ button[hidden] {
     align-items: center;
     gap: 5px;
     color: var(--col-pink);
+}
+
+.notam-schedule {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 8px;
+    opacity: 0.95;
 }
 
 /* Темная тема */
@@ -4136,5 +4134,85 @@ select {
 @media (prefers-color-scheme: dark) {
     .result-box {
         border-color: #444;
+    }
+}
+
+/* === No-Connection modal (redesign) === */
+.no-conn-modal {
+    max-width: 420px;
+    width: 92%;
+    padding: 24px 20px 20px;
+    background: linear-gradient(135deg, var(--bg-color), var(--card-bg));
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    text-align: center;
+}
+
+.no-conn-modal h2 {
+    margin: 8px 0 15px;
+    font-size: 1.25rem;
+    color: var(--text-color);
+}
+
+.no-conn-icon {
+    width: 64px;
+    height: 64px;
+    margin: 2px auto 8px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(ellipse at 30% 30%, #ff6b6b 0%, #ff4d4f 60%, #ff4040 100%);
+    box-shadow: 0 10px 24px rgba(255, 77, 79, 0.35), inset 0 2px 6px rgba(255,255,255,0.25);
+}
+.no-conn-icon i {
+    color: #fff;
+    font-size: 1.6rem;
+}
+
+.no-conn-lead {
+    margin: 10px 0 10px;
+    font-size: 0.98rem;
+    color: var(--text-color);
+}
+
+.no-conn-list {
+    text-align: left;
+    margin: 6px 0 14px;
+    padding-left: 18px;
+    color: var(--text-color);
+    line-height: 1.35em;
+}
+
+/* Кнопка как текущий переключатель offline, но широкая */
+.offline-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 11px 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    background-color: var(--badge-orange-bg); /* как #offlineToggleBtn.offline */
+    font-size: 1rem;
+    font-weight: 700;
+    box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06);
+    transition: transform .06s ease, filter .15s ease, opacity .15s ease;
+}
+.offline-toggle-btn:active {
+    transform: translateY(-1px);
+    opacity: .95;
+}
+
+/* Тёмная тема — чуть приглушим фон и сохраним контраст */
+@media (prefers-color-scheme: dark) {
+    .no-conn-modal {
+        background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+    }
+    .no-conn-icon {
+        background: radial-gradient(ellipse at 30% 30%, #d65b5b 0%, #c73a3c 60%, #b83232 100%);
+        box-shadow: 0 10px 24px rgba(200, 58, 60, 0.35), inset 0 2px 6px rgba(255,255,255,0.08);
     }
 }

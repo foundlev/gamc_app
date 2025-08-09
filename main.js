@@ -694,7 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const warning = document.createElement('div');
         warning.className = 'offline-warning';
         warning.innerHTML = `
-            <i class="fa-solid fa-triangle-exclamation"></i>Нет подключения. Данные взяты из сохраненных.
+            <i class="fa-solid fa-plane-up"></i>Включен авиарежим. Данные взяты из сохраненных.
         `;
         upperBadgeContainer.insertAdjacentElement('afterend', warning);
         addTimeBadgeContainerBottomGap();
@@ -751,6 +751,43 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(PASSWORD_KEY, pwd);
         hideModal();
     });
+
+    // === No-Connection modal (для METAR/TAF 500) ===
+    const noConnModalBackdrop = document.getElementById('noConnModalBackdrop');
+    const closeNoConnModalBtn = document.getElementById('closeNoConnModalBtn');
+    const openOfflineBtn = document.getElementById('openOfflineBtn');
+
+    function showNoConnModal(statusCode) {
+        responseContainer.innerHTML = `
+            <div class="placeholder">
+                <i class="fa-solid fa-cloud-sun fa-2x"></i>
+                <p>Введите ICAO код аэродрома, чтобы увидеть погоду</p>
+            </div>
+        `;
+
+        const el = document.getElementById('noConnStatus');
+        if (el && statusCode) el.textContent = statusCode;
+        if (noConnModalBackdrop) noConnModalBackdrop.classList.add('show');
+    }
+    function hideNoConnModal() {
+        if (noConnModalBackdrop) noConnModalBackdrop.classList.remove('show');
+    }
+    if (closeNoConnModalBtn) closeNoConnModalBtn.addEventListener('click', hideNoConnModal);
+    if (noConnModalBackdrop) {
+        noConnModalBackdrop.addEventListener('click', (e) => {
+            if (e.target === noConnModalBackdrop) hideNoConnModal();
+        });
+    }
+    if (openOfflineBtn) {
+        openOfflineBtn.addEventListener('click', () => {
+            // Включаем оффлайн и обновляем кнопки
+            offlineMode = true;
+            localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
+            if (typeof updateOfflineButton === 'function') updateOfflineButton();
+            if (typeof updateGpsButton === 'function') updateGpsButton();
+            hideNoConnModal();
+        });
+    }
 
     /* =========================
        ЗАПРОС ПОГОДЫ
@@ -858,6 +895,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 rawData = savedData[icao];
             } else {
                 const res = await fetch(url);
+                if (!res.ok) {
+                    // 500, 502, 404 — всё сюда
+                    showNoConnModal(res.status);
+                    return; // ничего не сохраняем и не трогаем плашки
+                }
                 rawData = await res.text();
                 rawData = rawData.replace(/<br>/g, ' ');
             }
@@ -1939,6 +1981,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return diffHeading <= diffHeadingOpp ? heading : headingOpp;
     }
 
+    function trueToMag(trueDirStr, declinationDeg) {
+        let trueDirDeg = parseInt(trueDirStr, 10);
+
+        // Если направление не определено (000) — вернём как есть
+        if (trueDirDeg === 0 && trueDirStr === "000") return "000";
+
+        // Перевод в магнитное направление
+        let mag = (trueDirDeg - declinationDeg) % 360;
+        if (mag < 0) mag += 360;
+
+        // Округление вверх до ближайших 10°
+        let rounded = Math.ceil(mag / 10) * 10;
+        if (rounded === 360) rounded = 0; // 360° → 000°
+
+        // Возвращаем с ведущими нулями
+        return String(rounded).padStart(3, "0");
+    }
+
     // Обработчик клика по .wind-info
     document.addEventListener('click', (e) => {
         const windTarget = e.target.closest('.wind-info');
@@ -2148,6 +2208,15 @@ document.addEventListener('DOMContentLoaded', () => {
             content += `<hr><p><b>Состояние ВПП:</b> ${worstCond.category.toUpperCase()}</p>`;
         } else {
             content += `<hr><p><b>Коэф сцеп:</b> ${worstCond.frictionValue.toFixed(2)} (тип: ${isRussianAirport(nowIcao) ? 'нормативный' : 'измеренный'})</p>`;
+        }
+
+        if (declination) {
+            const magWind = trueToMag(dirStr, declination);
+            let unitsOpt = '';
+            if (unit === 'MPS') {
+                unitsOpt = 'M';
+            }
+            content += `<hr><p><b>Ветер для OPT:</b> <span class="code">${magWind}/${parseInt(speedStr)}${unitsOpt}</span></p>`;
         }
 
         showWindInfoModal(content);
@@ -3290,6 +3359,7 @@ document.addEventListener('DOMContentLoaded', () => {
             batchRefreshCurrentIcao.textContent = '...';
             
             let completed = 0;
+            let totalNotamsLoaded = 0;
 
             for (let i = 0; i < total; i += batchNotamSize) {
                 const batch = aerodromes.slice(i, i + batchNotamSize);
@@ -3299,6 +3369,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Отправляем запросы асинхронно в рамках батча, обновляя progress по завершению каждого запроса
 
                 await getNotam(batch);
+                // Подсчёт NOTAMов для текущего батча из localStorage
+                try {
+                    const storeRaw = localStorage.getItem('notamData') || '{}';
+                    const store = JSON.parse(storeRaw);
+                    for (const icao of batch) {
+                        const arr = (store && store[icao] && Array.isArray(store[icao].notams)) ? store[icao].notams : [];
+                        totalNotamsLoaded += arr.length;
+                    }
+                } catch (_) {
+                    // игнорируем ошибки парсинга — счётчик просто не увеличится
+                }
                 completed += batch.length;
                 const percent = Math.round((completed / total) * 100);
                 batchRefreshProgress.style.width = percent + '%';
@@ -3308,14 +3389,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             batchRefreshProgress.style.width = '100%';
-            batchRefreshCurrentIcao.textContent = `Завершено обновление NOTAM`;
+            if (totalNotamsLoaded > 0) {
+                batchRefreshCurrentIcao.textContent = `Загружено NOTAM: ${totalNotamsLoaded}`;
+            } else {
+                batchRefreshCurrentIcao.textContent = `Нет активных NOTAM`;
+            }
         }
 
         updateHistoryBtnNotam();
 
         setTimeout(() => {
             hideBatchRefreshModal();
-        }, 1000);
+        }, 2000);
     }
 
     function showBatchRefreshModal() {

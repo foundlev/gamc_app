@@ -12,7 +12,43 @@ const notamModalBackdrop = document.getElementById('notamModalBackdrop');
 const closeNotamModalBtn = document.getElementById('closeNotamModalBtn');
 const notamContent = document.getElementById('notamContent');
 const notamModal = document.getElementById('notamModalWindow');
+
 const loadNotamBtn = document.getElementById('loadNotamBtn');
+
+let lastNotamIcao = null;
+const notamScrollPositions = Object.create(null);
+let suppressNotamScrollSave = false;
+
+function restoreNotamScroll(icao) {
+    const pos = (icao && notamScrollPositions[icao]) ? notamScrollPositions[icao] : 0;
+    if (typeof notamModal.scrollTop === 'number') {
+        notamModal.scrollTop = pos;
+        requestAnimationFrame(() => { notamModal.scrollTop = pos; });
+    }
+}
+
+if (notamModal) {
+    notamModal.addEventListener('scroll', () => {
+        if (nowIcao && !suppressNotamScrollSave) {
+            notamScrollPositions[nowIcao] = notamModal.scrollTop;
+        }
+    });
+}
+
+function resetNotamScroll() {
+    suppressNotamScrollSave = true;
+    // Сбрасываем прокрутку основного скролл-контейнера модалки
+    const targets = [notamModal, notamContent, notamModalBackdrop];
+    for (const el of targets) {
+        if (el) {
+            if (typeof el.scrollTop === 'number') el.scrollTop = 0;
+            if (typeof el.scrollLeft === 'number') el.scrollLeft = 0;
+            if (typeof el.scrollTo === 'function') el.scrollTo(0, 0);
+        }
+    }
+    // снимаем подавление на следующем кадре
+    requestAnimationFrame(() => { suppressNotamScrollSave = false; });
+}
 
 
 function getAirportPosition(icaoCode) {
@@ -71,6 +107,11 @@ function showNotamModal() {
         alert('Сначала выберите аэродром');
         return;
     }
+    const sameAirport = (nowIcao === lastNotamIcao);
+    if (!sameAirport) {
+        // новый аэродром — сбрасываем позицию
+        resetNotamScroll();
+    }
     // Фильтруем из initialNotams только нужные
     // смотрите, у вас ключи могут быть "icao" или "location", используйте одинаково
     let notamsForIcao = []
@@ -81,6 +122,11 @@ function showNotamModal() {
 
     if (notamsForIcao.length === 0) {
         notamContent.innerHTML = `Нет NOTAMов для <b>${nowIcao}</b>`;
+        if (sameAirport) {
+            restoreNotamScroll(nowIcao);
+        } else {
+            resetNotamScroll();
+        }
         notamModal.classList.toggle('download-mode', true);
         loadNotamBtn.style.display = 'block';
     } else {
@@ -103,6 +149,7 @@ function showNotamModal() {
             const endTime     = n.enddate || n.to   || null;
             const issuedTime  = n.issuedate || n.created || null;
             const isPerm      = !!n.PERM;
+            const schedule    = n.schedule || n.SCHEDULE || '';
 
             // Формируем HTML (учитывая, что какие-то блоки могут быть пустыми)
             html += `
@@ -142,8 +189,8 @@ function showNotamModal() {
                 <!-- Исходный текст (обязательно заменяем переносы строк) -->
                 <div class="notam-raw">${n.text.replace(/\n/g, '<br>')}</div>
         
-                <!-- Метаданные (даты, если есть) -->
-                ${(startTime || issuedTime) ? `
+                <!-- Метаданные (даты/расписание, если есть) -->
+                ${(startTime || issuedTime || schedule) ? `
                 <div class="notam-meta">
                     ${startTime ? `
                     <span class="notam-period">
@@ -152,7 +199,14 @@ function showNotamModal() {
                         ${isPerm ? 'Постоянный' : formatUTCDate(endTime)}
                     </span>
                     ` : ''}
-        
+                
+                    ${schedule ? `
+                    <span class="notam-schedule">
+                        <i class="fa-regular fa-calendar"></i>
+                        Расписание: ${schedule}
+                    </span>
+                    ` : ''}
+                
                     ${issuedTime ? `
                     <span>
                         <i class="fas fa-clock"></i>
@@ -167,9 +221,27 @@ function showNotamModal() {
         });
 
         notamContent.innerHTML = html;
+        if (sameAirport) {
+            restoreNotamScroll(nowIcao);
+        } else {
+            resetNotamScroll();
+        }
     }
 
     notamModalBackdrop.classList.add('show');
+    if (sameAirport) {
+        restoreNotamScroll(nowIcao);
+    } else {
+        resetNotamScroll();
+    }
+    requestAnimationFrame(() => {
+        if (sameAirport) restoreNotamScroll(nowIcao); else resetNotamScroll();
+    });
+    setTimeout(() => {
+        if (sameAirport) restoreNotamScroll(nowIcao); else resetNotamScroll();
+    }, 120);
+
+    lastNotamIcao = nowIcao;
 }
 
 function getCategoryAppearance(category) {
@@ -309,34 +381,28 @@ function getCategoryAppearance(category) {
 }
 
 function formatUTCDate(value) {
-    if (!value) return 'N/A';
+    if (!value && value !== 0) return 'N/A';
 
     let dateObj;
-
-    // Если value – это число (или строка с числом), считаем, что это секунды
     if (typeof value === 'number') {
-        // Предполагаем, что value – это Unix time в секундах
-        dateObj = new Date(value * 1000);
+        dateObj = new Date(value * 1000); // Unix sec → ms
     } else {
-        // Могут прийти секунды в виде строки, проверим
         const asNum = Number(value);
-        if (!isNaN(asNum) && asNum > 1000000000) {
-            // Например, 1741066920 – это точно Unix time (секунды),
-            // умножаем на 1000, чтобы получить миллисекунды
-            dateObj = new Date(asNum * 1000);
-        } else {
-            // Иначе пытаемся парсить как дату (например, '2025-03-06T10:00Z')
-            dateObj = new Date(value);
-        }
+        dateObj = (!isNaN(asNum) && asNum > 1000000000) ? new Date(asNum * 1000) : new Date(value);
     }
 
-    const utcHours = String(dateObj.getUTCHours()).padStart(2, '0');
-    const utcMinutes = String(dateObj.getUTCMinutes()).padStart(2, '0');
-    const utcDay = String(dateObj.getUTCDate()).padStart(2, '0');
-    const utcMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
-    const utcYear = String(dateObj.getUTCFullYear()).slice(-2);
+    const hh = String(dateObj.getUTCHours()).padStart(2, '0');
+    const mm = String(dateObj.getUTCMinutes()).padStart(2, '0');
 
-    return `${utcHours}:${utcMinutes} ${utcDay}.${utcMonth}.${utcYear}`;
+    // День без ведущего нуля + короткий англ. месяц + полный год, всё в UTC
+    const datePart = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'UTC',
+        day: 'numeric',        // 6 (без 0)
+        month: 'short',        // Aug
+        year: 'numeric'        // 2025
+    }).format(dateObj);
+
+    return `${hh}:${mm} ${datePart}`;
 }
 
 // Закрываем окно NOTAM

@@ -20,7 +20,7 @@
     <header>
         <h1>
             <span id="button-title"><i class="fa-solid fa-plane-circle-check"></i> Weather App</span>
-            <span style="opacity: 0.5;" id="changelogBtn">v1.93</span>
+            <span style="opacity: 0.5;" id="changelogBtn">v1.94</span>
         </h1>
     </header>
 
@@ -388,6 +388,27 @@
           <button id="resultOkBtn">Закрыть</button>
         </div>
       </div>
+    </div>
+
+    <!-- No-Connection Modal -->
+    <div id="noConnModalBackdrop" class="modal-backdrop">
+        <div class="modal no-conn-modal" role="dialog" aria-modal="true">
+            <button class="modal-close-btn" id="closeNoConnModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <h2>Нет подключения</h2>
+
+            <ul class="no-conn-list">
+                <li>Проверь интернет-соединение.</li>
+                <li>Если связи нет — включи режим <b>Оффлайн</b> и <b>повторно</b> запроси погоду, чтобы получить сохраненные данные.</li>
+            </ul>
+
+            <button id="openOfflineBtn" class="offline-toggle-btn">
+                <i class="fa-solid fa-plane"></i>
+                Включить оффлайн
+            </button>
+        </div>
     </div>
 
     <!-- Модальное окно для NOTAM -->

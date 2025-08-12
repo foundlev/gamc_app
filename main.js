@@ -898,7 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!res.ok) {
                     // 500, 502, 404 — всё сюда
                     showNoConnModal(res.status);
-                    return; // ничего не сохраняем и не трогаем плашки
+                    return;
                 }
                 rawData = await res.text();
                 rawData = rawData.replace(/<br>/g, ' ');
@@ -1116,6 +1116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const isNotamUpdated = hasNotamsForIcao(icao);
+            const notamCount = getNotamCountForIcao(icao);
 
             const notamsBadge = document.createElement('div');
             notamsBadge.className = 'time-badge';
@@ -1123,7 +1124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             notamsBadge.classList.add(isNotamUpdated ? 'badge-default' : 'badge-red');
             notamsBadge.classList.add('content-clickable');
             notamsBadge.onclick = showNotamModal;
-            notamsBadge.innerHTML = `<i class="fa-solid fa-file-alt"></i>`;
+            notamsBadge.innerHTML = `<i class="fa-solid fa-file-alt"></i>` + (isNotamUpdated ? `${notamCount}` : ``);
 
             if (!silent && (isNotamUpdated || !offlineMode)) {
                 timeBadgeContainer.appendChild(notamsBadge);
@@ -2805,7 +2806,8 @@ document.addEventListener('DOMContentLoaded', () => {
             airportCodesText = `(${icao})`;
         }
 
-        notamModalName.textContent = 'NOTAM ' + (name ? name : `Аэродром ${icao}`) + ' ' + airportCodesText;
+        const notamCount = getNotamCountForIcao(icao);
+        notamModalName.textContent = 'NOTAM ' + (name ? name : `Аэродром ${icao}`) + ' ' + airportCodesText + (notamCount > 0 && hasNotamsForIcao(icao) ? ` (${notamCount})` : '');
 
         container.style.display = 'flex';
     }
@@ -3617,7 +3619,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function findWorstColor(classes) {
-        console.log(classes);
         // classes — это массив вроде ["color-green", "color-red"] и т. п.
         // Сортируем по убыванию плохости, берём первый
         for (let badColor of colorPriority) {
@@ -3807,6 +3808,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const notamBtn = document.getElementById('notamBtn');
         if (notamBtn) {
             if (hasNotamsForIcao(nowIcao)) {
+                const notamCount = getNotamCountForIcao(nowIcao);
+                notamBtn.innerHTML = `<i class="fa-solid fa-file-alt"></i>${notamCount}`;
                 notamBtn.classList.toggle('badge-default', true);
                 notamBtn.classList.toggle('badge-red', false);
             } else {

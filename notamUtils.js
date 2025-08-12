@@ -20,7 +20,6 @@ async function getNotam(icaoList) {
 
         let savedNotam = JSON.parse(localStorage.getItem('notamData') || '{}');
         const newNotams = await response.json();
-        console.log('newNotams:', newNotams);
 
         // Проходимся по ключам newNotams = {"UUEE": {},...} и добавляем обновленное в savedNotam.
         for (const key in newNotams) {
@@ -28,7 +27,6 @@ async function getNotam(icaoList) {
                 savedNotam[key] = newNotams[key];
             }
         }
-        console.log('savedNotam:', savedNotam);
         localStorage.setItem('notamData', JSON.stringify(savedNotam));
 
         return true;

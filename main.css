@@ -1940,7 +1940,9 @@ button[hidden] {
     display: flex;
     align-items: center;
     gap: 5px;
-    color: var(--col-pink);
+    /*color: var(--col-pink);*/
+    font-weight: 600;
+    opacity: 0.9;
 }
 
 .notam-schedule {
@@ -1948,7 +1950,8 @@ button[hidden] {
     align-items: center;
     gap: 6px;
     margin-left: 8px;
-    opacity: 0.95;
+    opacity: 0.9;
+    font-weight: 600;
 }
 
 /* Темная тема */

@@ -74,6 +74,10 @@ function getNotamsForIcao(icao) {
     return [];
 }
 
+function getNotamCountForIcao(icao) {
+    return getNotamsForIcao(icao)?.length || 0;
+}
+
 function getIcaoListUpdatedNotams(ms=86400000) {
     const notamData = localStorage.getItem('notamData') || "{}";
     const parsed = notamData ? JSON.parse(notamData) : {};
@@ -83,7 +87,7 @@ function getIcaoListUpdatedNotams(ms=86400000) {
     // 3600000 - Час
 
     for (const key in parsed) {
-        if (parsed[key] && parsed[key].notams && parsed[key].updated && parsed[key].notams?.length !== 0) {
+        if (parsed[key]?.notams !== undefined && parsed[key].updated) {
             const updatedDate = new Date(parsed[key].updated * 1000);
             const now = Date.now();
 
@@ -115,20 +119,21 @@ function showNotamModal() {
     // Фильтруем из initialNotams только нужные
     // смотрите, у вас ключи могут быть "icao" или "location", используйте одинаково
     let notamsForIcao = []
-    if (hasNotamsForIcao(nowIcao)) {
+    const hasNotams = hasNotamsForIcao(nowIcao);
+    if (hasNotams) {
         notamsForIcao = getNotamsForIcao(nowIcao);
     }
     const loadNotamBtn = document.getElementById('loadNotamBtn');
 
     if (notamsForIcao.length === 0) {
-        notamContent.innerHTML = `Нет NOTAMов для <b>${nowIcao}</b>`;
+        notamContent.innerHTML = `Нет NOTAMов для <b>${nowIcao}</b>` + (hasNotams ? '<br><br>Проверьте другие источники, например, <b>SmartSky</b>.' : '');
         if (sameAirport) {
             restoreNotamScroll(nowIcao);
         } else {
             resetNotamScroll();
         }
         notamModal.classList.toggle('download-mode', true);
-        loadNotamBtn.style.display = 'block';
+        loadNotamBtn.style.display = hasNotams ? 'none' : 'block';
     } else {
         notamModal.classList.toggle('download-mode', false);
         loadNotamBtn.style.display = 'none';
@@ -203,7 +208,7 @@ function showNotamModal() {
                     ${schedule ? `
                     <span class="notam-schedule">
                         <i class="fa-regular fa-calendar"></i>
-                        Расписание: ${schedule}
+                        ${schedule}
                     </span>
                     ` : ''}
                 
@@ -381,7 +386,7 @@ function getCategoryAppearance(category) {
 }
 
 function formatUTCDate(value) {
-    if (!value && value !== 0) return 'N/A';
+    if (!value && value !== 0) return '...';
 
     let dateObj;
     if (typeof value === 'number') {
@@ -464,13 +469,11 @@ function getAircraftMaintainanceIcaos() {
 
 function updateMaintenanceBadge() {
     const badge = document.getElementById('showMaintenanceInfoModal');
-    console.log(badge);
     if (badge) {
         const selectedAircraft = getAircraftType();
         const maintenanceCodes = getAircraftMaintainanceIcaos();
 
         const isIncludesMaintenance = maintenanceCodes.includes(nowIcao);
-        console.log(isIncludesMaintenance);
 
         badge.classList.toggle('badge-green', isIncludesMaintenance);
         badge.classList.toggle('badge-red', !isIncludesMaintenance);

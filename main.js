@@ -3,263 +3,9 @@ let autoGoOffline = localStorage.getItem('autoGoOffline') !== null ?
     JSON.parse(localStorage.getItem('autoGoOffline')) :
     true;
 let doHighlight = JSON.parse(localStorage.getItem('doHighlight')) || false;
+let doMarkBagde = JSON.parse(localStorage.getItem('doMarkBagde')) || false;
 let canShowAirportInfo = JSON.parse(localStorage.getItem('canShowAirportInfo')) || false;
-let useGpsPosition = JSON.parse(localStorage.getItem('useGpsPosition')) || false;
-
-const maintenance = {
-    "B737": {
-        "icao": [
-            'URSS', 'UNKL', 'UWOO', 'USPP', 'UWUU', 'UWKD', 'UMKK', 'UWGG', 'URMM', 'USSS', 'URML', 'URWW', 'UNBG',
-            'UNNT', 'UIII', 'ULAA', 'LTAI', 'UDYZ', 'LTFM', 'ULMM', 'UNOO', 'UUYY', 'URMG', 'OMDW', 'UAAA', 'OMDB',
-            'OMAA', 'ULLI', 'USTR', 'UWWW', 'USRR', 'UEEE', 'VTBS', 'HECA', 'HESH', 'HEGN', 'UMMS', 'LTBS', 'UTTT',
-            'UTSS', 'UAFO', 'URWA', 'UHHH', 'URMT', 'UHWW', 'UCFM', 'UBBB', 'VTSP', 'ZJSY'
-        ],
-        "notam": "AFL 9EMIH/24 (11 JUN 25)"
-    },
-    "A320N,A321N": {
-        "icao": [
-            'URSS', 'UNKL', 'UMKK', 'URMM', 'USSS', 'URML', 'ULAA', 'UDYZ', 'LTFM', 'UNOO', 'UUYY', 'URMG',
-            'OMDW', 'UAAA', 'OMDB', 'OMAA', 'HESH', 'HEGN', 'UTTT', 'ZJSY', 'UNNT', 'UWOO', 'USRR', 'LTAI', 'VTBS',
-            'VIDP', 'LTBS', 'VTSP', 'UTSS'
-        ],
-        "notam": "AFL 9EMII/24 (11 JUN 25)"
-    },
-    "A320,A320S,A321,A321S": {
-        "icao": [
-            'URSS', 'UNKL', 'USPP', 'UWUU', 'UWKD', 'UMKK', 'UWGG', 'URMM', 'USSS', 'URML', 'URWW', 'UNBG',
-            'UNNT', 'UIII', 'ULAA', 'LTAI', 'UDYZ', 'LTFM', 'ULMM', 'UNOO', 'UUYY', 'URMG', 'OMDW', 'UAAA', 'OMDB',
-            'OMAA', 'ULLI', 'USTR', 'UWWW', 'USCC', 'HECA', 'HESH', 'HEGN', 'UMMS', 'UCFM', 'LTBS', 'UTTT', 'URWA',
-            'VIDP', 'UBBB', 'UWSG', 'UWOO', 'USRR', 'URMT', 'UHSS', 'UHWW', 'VTBS', 'VTSP', 'UAFO', 'UTSS'
-        ],
-        "notam": "AFL 9EMJ1/24 (11 JUN 25)"
-    },
-    "B777": {
-        "icao": [
-            'URSS', 'UHHH', 'UHWW', 'UHPP', 'LTAI', 'LTFM', 'ULLI', 'VIDP', 'VTSP', 'VTBS', 'HECA', 'HESH', 'HEGN',
-            'VCBI', 'UNNT', 'UHSS', 'OMAA', 'ZGGG', 'OMDW', 'OMDB', 'ZSPD', 'ZJSY'
-        ],
-        "notam": "AFL 9EMIC/24 (11 JUN 25)"
-    },
-    "A330": {
-        "icao": [
-            'URSS', 'UNKL', 'UHHH', 'UHWW', 'UMKK', 'USSS', 'LTAI', 'LTFM', 'UAAA', 'ULLI', 'VTSP', 'VTBS', 'HECA',
-            'HESH', 'HEGN', 'VCBI', 'UWKD', 'UNNT', 'UWUU', 'OMAA', 'OMDW', 'OMDB', 'ZJSY'
-        ],
-        "notam": "AFL 9EMIE/24 (11 JUN 25)"
-    },
-    "A350": {
-        "icao": ['URSS', 'UHHH', 'UHWW', 'UHSS', 'VTBS', 'VCBI', 'HEGN', 'HESH', 'ZJSY'],
-        "notam": "AFL 9JDJ5/24 (11 JUN 25)"
-    }
-}
-
-let nowIcao = null;
-let showSecondMenu = JSON.parse(localStorage.getItem('showSecondMenu')) || false;
-let icaoKeys = null;
-
-// 35
-const airportsB = ['VVCR', 'EPKK', 'LTAF', 'ZPPP', 'LTDB', 'ZLLL', 'LCLK', 'UAAA', 'KLAS', 'LFLL', 'KLAX', 'FMMI', 'UHMM', 'USCM', 'VAAH', 'LEBL', 'KMIA', 'VMMC', 'LEMG', 'RPLL', 'SBBR', 'OOMS', 'LEVC', 'URML', 'MUVR', 'URMM', 'LIPX', 'HKMO', 'UHWW', 'DTMB', 'URMO', 'CYUL', 'EGKK', 'VABB', 'VHHH', 'GCLP', 'URMN', 'URMG', 'UTFN', 'ZGGG', 'UOOO', 'UACC', 'VVDN', 'HTDA', 'KONT', 'WADD', 'KMCO', 'KDTW', 'RJBB', 'CYOW', 'HTZA', 'LTBJ', 'LFPG', 'LFPO', 'UCFL', 'ULMK', 'ZBAA', 'OPPS', 'RJTT', 'UNTT', 'VTSP', 'CYYZ', 'LTCG', 'SBRF', 'DTTA', 'LIRF', 'ZMCK', 'LIPR', 'UIUU', 'SBGL', 'VTBU', 'URRP', 'UTFF', 'GVAC', 'KPHL', 'SBSV', 'EDDF', 'UTSS', 'VVNB', 'KSAN', 'ZSHC', 'ZJSY', 'UTDL', 'SBGR', 'KSFO', 'RKSI', 'RKPC', 'ZLXY', 'VOMM', 'URMS', 'UIAA', 'LBSF', 'ZUUU', 'KTPA', 'ZYTX', 'UUEE', 'DTNH', 'GCTS', 'UTST']
-// 98
-const airportsBz = ['GMAD', 'LEAL', 'OJAI', 'LTAC', 'EGLL', 'LTAI', 'LGAV', 'LEMD', 'OLBA', 'UCFM', 'UHBB', 'LIMC', 'LOWW', 'ULMM', 'UNBG', 'UTSA', 'UBBG', 'LLOV', 'UDYZ', 'LSGG', 'UCFO', 'LEPA', 'UIII', 'LCPH', 'BIKF', 'LBPD', 'BIRK', 'HEGN', 'LSZH', 'LTBA', 'HESH', 'UGTB', 'OIIE', 'LLBG', 'UHSS']
-// 37
-const airportsC = ['OJAQ', 'FIMP', 'UHMA', 'LFML', 'LFKJ', 'LTFE', 'LIME', 'MMMX', 'RKPK', 'LIRN', 'URKG', 'LFMN', 'LFLS', 'KJFK', 'LTBS', 'UHPP', 'LDDU', 'LYPG', 'UTDD', 'LGTS', 'LOWS', 'FSIA', 'LOWI', 'URSS', 'LGIR', 'LDSP', 'LKKV', 'ZBYN', 'VNKT', 'OIII', 'LGKR', 'LYTV', 'UTDK', 'LIMF', 'LJLJ', 'LFLB', 'LTCE']
-
-const runwayConditionCaptions = {
-    6: 'DRY',
-    5: 'GOOD',
-    4: 'GOOD/MEDIUM',
-    3: 'MEDIUM',
-    2: 'MEDIUM/POOR',
-    1: 'POOR'
-}
-const reportedBrakingActions = {
-    takeoff: {
-        dry: {
-            kts: 34,
-            mps: 17.5
-        },
-        good: {
-            kts: 25,
-            mps: 12.9
-        },
-        good_to_medium: {
-            kts: 22,
-            mps: 11.3
-        },
-        medium: {
-            kts: 20,
-            mps: 10.3
-        },
-        medium_to_poor: {
-            kts: 15,
-            mps: 7.7
-        },
-        poor: {
-            kts: 13,
-            mps: 6.7
-        }
-    },
-    landing: {
-        dry: {
-            kts: 40,
-            mps: 20.6
-        },
-        good: {
-            kts: 40,
-            mps: 20.6
-        },
-        good_to_medium: {
-            kts: 35,
-            mps: 18.0
-        },
-        medium: {
-            kts: 25,
-            mps: 12.9
-        },
-        medium_to_poor: {
-            kts: 17,
-            mps: 8.7
-        },
-        poor: {
-            kts: 15,
-            mps: 7.7
-        }
-    }
-};
-const coefficientBrakingActions = {
-    normative: {
-        takeoff: {
-            0.5: {
-                kts: 34,
-                mps: 17.5,
-                code: 6
-            },
-            0.42: {
-                kts: 25,
-                mps: 12.9,
-                code: 5
-            },
-            0.4: {
-                kts: 22,
-                mps: 11.3,
-                code: 4
-            },
-            0.37: {
-                kts: 20,
-                mps: 10.3,
-                code: 3
-            },
-            0.35: {
-                kts: 15,
-                mps: 7.7,
-                code: 2
-            },
-            0.3: {
-                kts: 13,
-                mps: 6.7,
-                code: 1
-            }
-        },
-        landing: {
-            0.5: {
-                kts: 40,
-                mps: 20.6,
-                code: 6
-            },
-            0.42: {
-                kts: 40,
-                mps: 20.6,
-                code: 5
-            },
-            0.4: {
-                kts: 35,
-                mps: 18.0,
-                code: 4
-            },
-            0.37: {
-                kts: 25,
-                mps: 12.9,
-                code: 3
-            },
-            0.35: {
-                kts: 17,
-                mps: 8.7,
-                code: 2
-            },
-            0.3: {
-                kts: 15,
-                mps: 7.7,
-                code: 1
-            }
-        }
-    },
-    by_sft: {
-        takeoff: {
-            0.51: {
-                kts: 34,
-                mps: 17.5,
-                code: 6
-            },
-            0.4: {
-                kts: 25,
-                mps: 12.9,
-                code: 5
-            },
-            0.36: {
-                kts: 22,
-                mps: 11.3,
-                code: 4
-            },
-            0.3: {
-                kts: 20,
-                mps: 10.3,
-                code: 3
-            },
-            0.26: {
-                kts: 15,
-                mps: 7.7,
-                code: 2
-            },
-            0.17: {
-                kts: 13,
-                mps: 6.7,
-                code: 1
-            }
-        },
-        landing: {
-            0.51: {
-                kts: 40,
-                mps: 20.6,
-                code: 6
-            },
-            0.4: {
-                kts: 40,
-                mps: 20.6,
-                code: 5
-            },
-            0.36: {
-                kts: 35,
-                mps: 18.0,
-                code: 4
-            },
-            0.3: {
-                kts: 25,
-                mps: 12.9,
-                code: 3
-            },
-            0.26: {
-                kts: 17,
-                mps: 8.7,
-                code: 2
-            },
-            0.17: {
-                kts: 15,
-                mps: 7.7,
-                code: 1
-            }
-        }
-    }
-};
+let useGpsPosition = false;  // JSON.parse(localStorage.getItem('useGpsPosition')) || false;
 
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
@@ -298,6 +44,28 @@ const colorPriority = [
     "color-yellow",
     "color-green"
 ];
+
+function generateUID() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    let uid = '';
+    for (let i = 0; i < 6; i++) {
+        uid += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return uid;
+}
+
+function getGamcUID() {
+    let gamcUid = localStorage.getItem('gamcUid');
+    if (!gamcUid) {
+        gamcUid = generateUID();
+        localStorage.setItem('gamcUid', gamcUid);
+    }
+    return gamcUid;
+}
+
+function isTechUID() {
+    return getGamcUID() === 'LEV737';
+}
 
 function formatNumber(num) {
     return String(num).padStart(3, '0');
@@ -477,15 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderHistory();
 
-    function getGamcUID() {
-        let gamcUid = localStorage.getItem('gamcUid');
-        if (!gamcUid) {
-            gamcUid = generateUID();
-            localStorage.setItem('gamcUid', gamcUid);
-        }
-        return gamcUid;
-    }
-
     function addTimeBadgeContainerBottomGap() {
         if (timeBadgeContainer.classList.contains('remove-bottom-gap')) {
             timeBadgeContainer.classList.remove('remove-bottom-gap');
@@ -498,15 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
             timeBadgeContainer.classList.add('remove-bottom-gap');
             favBadgeContainer.classList.add('remove-bottom-gap');
         }
-    }
-
-    function generateUID() {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-        let uid = '';
-        for (let i = 0; i < 6; i++) {
-            uid += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return uid;
     }
 
     /* =========================
@@ -529,6 +279,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const editRouteBtn = document.getElementById('editRouteBtn');
+    const reverseRouteBtn = document.getElementById('reverseRouteBtn');
+
     editRouteBtn.addEventListener('click', () => {
 
         if (routeSelect.value === 'temp') {
@@ -547,8 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 alternatesIcaoInput.value = '';
             }
             // Разрешаем редактирование вылета и назначения
-            departureIcaoInput.disabled = true;
-            arrivalIcaoInput.disabled = true;
+            departureIcaoInput.disabled = false;
+            arrivalIcaoInput.disabled = false;
             // Меняем заголовок модального окна для ясности
             const modalTitle = addRouteModalBackdrop.querySelector('h2');
             modalTitle.textContent = 'Редактировать маршрут';
@@ -596,6 +348,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 6) Открываем модалку
         addRouteModalBackdrop.classList.add('show');
+    });
+
+    // ЗАМЕНИ содержимое обработчика на этот вариант:
+    reverseRouteBtn.addEventListener('click', () => {
+        const selected = routeSelect.value;
+
+        // Берём объект текущего маршрута
+        let routeObj = null;
+        if (selected === 'temp') {
+            routeObj = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+            if (!routeObj || !routeObj.departure || !routeObj.arrival) return;
+        } else {
+            const idx = parseInt(selected, 10);
+            if (isNaN(idx) || !savedRoutes[idx]) return;
+            routeObj = { ...savedRoutes[idx] }; // копия, чтобы не мутировать по ссылке
+        }
+
+        // Меняем местами DEP/ARR
+        [routeObj.departure, routeObj.arrival] = [routeObj.arrival, routeObj.departure];
+
+        // Реверсим порядок запасных для отображения
+        if (Array.isArray(routeObj.alternates)) {
+            routeObj.alternates = [...routeObj.alternates].reverse();
+        }
+
+        // Сохраняем
+        if (selected === 'temp') {
+            localStorage.setItem('tempRoute', JSON.stringify(routeObj));
+        } else {
+            const idx = parseInt(selected, 10);
+            savedRoutes[idx] = routeObj;
+            localStorage.setItem('savedRoutes', JSON.stringify(savedRoutes));
+            // Обновляем подписи в выпадающем списке, НЕ меняя выбранный пункт
+            renderRoutesInSelect(selected);
+        }
+
+        // Перерисовываем текущий выбранный маршрут (без прыжка на "Недавние")
+        renderSelectedRoute();
     });
 
     function updateFetchBtn() {
@@ -889,6 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        let lang;
         try {
             let rawData;
             if (offlineMode && toShowOfflineWarning) {
@@ -1039,7 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Делаем плашку
                     const badge = document.createElement('div');
                     badge.className = 'time-badge';
-                    badge.textContent = `${t} ${hh}:${String(mm).padStart(2,'0')}`;
+                    badge.textContent = `${t} ${hh}:${String(mm).padStart(2, '0')}`;
                     badge.dataset.msgDate = msgDate.toISOString();
 
                     // Добавляем классы в зависимости от условий
@@ -1130,33 +921,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 timeBadgeContainer.appendChild(notamsBadge);
             }
 
-            const atisFrq = getAtisFrequencyByIcao(icao);
+            const atifLangSelected = localStorage.getItem('atisLangSelect') || 'en';
+            const atisFrqInfo = getAtisFrequencyByIcao(icao, 'arrival', atifLangSelected);
 
-            if (atisFrq) {
+            if (atisFrqInfo) {
                 const atisBadge = document.createElement('div');
                 atisBadge.className = 'time-badge';
                 atisBadge.id = 'atisFrqBtn';
                 atisBadge.classList.add('badge-default');
                 atisBadge.classList.add('content-clickable');
-                atisBadge.onclick = showLandingSystemModal;
-                atisBadge.innerHTML = `<i class="fa-solid fa-tower-cell"></i> ${atisFrq}`;
+                atisBadge.onclick = changeLangAtis;
+                atisBadge.innerHTML = `<i class="fa-solid fa-tower-cell"></i> ${atisFrqInfo.frq}` +
+                    (atisFrqInfo.lang ? ` ${atisFrqInfo.lang.toUpperCase()}` : '');
 
                 if (!silent) {
                     timeBadgeContainer.appendChild(atisBadge);
                 }
-            }
-
-            if (!silent && routeSelect.value === 'temp') {
-                const favBadge = document.createElement('div');
-                favBadge.className = 'time-badge';
-                favBadge.id = 'favIcoBtn';
-                favBadge.classList.add('badge-fav');
-                favBadge.classList.add('content-clickable');
-                favBadge.onclick = changeFavourite;
-                favBadge.innerHTML = `<i class="fa-regular fa-star"></i>`;
-                favBadgeContainer.appendChild(favBadge);
-
-                updateFavouriteIcaos();
             }
 
             finalText = insertLineBreaks(finalText);
@@ -1571,11 +1351,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const maintenanceCodes = getAircraftMaintainanceIcaos();
 
         // Обновляем кнопки
-        historyBtns.forEach(btn => {
-            const i = btn.textContent.trim();
-            const hasMaintenance = maintenanceCodes.includes(i);
-            btn.classList.toggle('has-maintenance', hasMaintenance);
-        });
+        if (doMarkBagde) {
+            historyBtns.forEach(btn => {
+                const i = btn.textContent.trim();
+                const hasMaintenance = maintenanceCodes.includes(i);
+                btn.classList.toggle('has-maintenance', hasMaintenance);
+            });
+        }
     }
 
     function renderHistory() {
@@ -2304,10 +2086,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const doHighlightCheckbox = document.getElementById('doHighlightCheckbox');
     const showAirportInfoCheckbox = document.getElementById('showAirportInfoCheckbox');
     const useGpsPositionCheckbox = document.getElementById('useGpsPositionCheckbox');
+    const doMarkBagdeCheckbox = document.getElementById('doMarkBagdeCheckbox');
 
     // Установить состояние чекбокса при загрузке
     autoOfflineCheckbox.checked = autoGoOffline; // Установить состояние
     doHighlightCheckbox.checked = doHighlight; // Установить состояние
+    doMarkBagdeCheckbox.checked = doMarkBagde;
     showAirportInfoCheckbox.checked = canShowAirportInfo;
     useGpsPositionCheckbox.checked = useGpsPosition;
 
@@ -2321,6 +2105,11 @@ document.addEventListener('DOMContentLoaded', () => {
     doHighlightCheckbox.addEventListener('change', () => {
         doHighlight = doHighlightCheckbox.checked; // Обновить переменную
         localStorage.setItem('doHighlight', JSON.stringify(doHighlight)); // Сохранить в localStorage
+    });
+
+    doMarkBagdeCheckbox.addEventListener('change', () => {
+        doMarkBagde = doMarkBagdeCheckbox.checked; // Обновить переменную
+        localStorage.setItem('doMarkBagde', JSON.stringify(doMarkBagde)); // Сохранить в localStorage
     });
 
     showAirportInfoCheckbox.addEventListener('change', () => {
@@ -2522,10 +2311,10 @@ document.addEventListener('DOMContentLoaded', () => {
         routeSelect.appendChild(recentOption);
 
         // Добавляем опцию "Временный"
-        let tempOption = document.createElement('option');
-        tempOption.value = 'temp';
-        tempOption.innerHTML = 'Временный 🛰';
-        routeSelect.appendChild(tempOption);
+        // let tempOption = document.createElement('option');
+        // tempOption.value = 'temp';
+        // tempOption.innerHTML = 'Временный 🛰';
+        // routeSelect.appendChild(tempOption);
 
         // 2) Для каждого сохранённого маршрута
         savedRoutes.forEach((route, index) => {
@@ -2556,6 +2345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSelectedRoute() {
         const selectedValue = routeSelect.value;
         const editBtn = document.getElementById('editRouteBtn');
+        const reverseBtn = document.getElementById('reverseRouteBtn');
         const showMapBtn = document.getElementById('showMapBtn');
         showMapBtn.style.display = 'none';
 
@@ -2563,28 +2353,30 @@ document.addEventListener('DOMContentLoaded', () => {
             // Показываем "Недавние"
             renderHistory();
             editBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+            reverseBtn.hidden = true;
             return;
         }
 
-        if (selectedValue === 'temp') {
-            showMapBtn.style.display = 'block';
-            // Попытка получить временный маршрут из localStorage (например, под ключом 'tempRoute')
-            const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
-            if (tempRoute.departure && tempRoute.arrival) {
-                // Функция renderRouteAerodromes уже используется для отображения маршрута
-                renderRouteAerodromes([tempRoute.departure, ...tempRoute.alternates, tempRoute.arrival]);
-                importedRouteCoords = tempRoute.coords;
-            } else {
-                historyContainer.innerHTML = '<p>Временный маршрут не задан.</p>';
-            }
-            editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
-            return;
-        }
+        // if (selectedValue === 'temp') {
+        //     showMapBtn.style.display = 'block';
+        //     // Попытка получить временный маршрут из localStorage (например, под ключом 'tempRoute')
+        //     const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+        //     if (tempRoute.departure && tempRoute.arrival) {
+        //         // Функция renderRouteAerodromes уже используется для отображения маршрута
+        //         renderRouteAerodromes([tempRoute.departure, ...tempRoute.alternates, tempRoute.arrival]);
+        //         importedRouteCoords = tempRoute.coords;
+        //     } else {
+        //         historyContainer.innerHTML = '<p>Временный маршрут не задан.</p>';
+        //     }
+        //     editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+        //     return;
+        // }
 
         if (selectedValue === 'add') {
             // Показываем модалку
             showAddRouteModal();
             editBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+            reverseBtn.hidden = true;
             routeSelect.value = 'recent';
             return;
         }
@@ -2601,11 +2393,13 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRouteAerodromes(routeAerodromes);
 
         editBtn.innerHTML = (routeSelect.value === 'recent' || routeSelect.value === 'add') ? '<i class="fa-solid fa-plus"></i>' : '<i class="fa-solid fa-pen"></i>';
+        reverseBtn.hidden = (routeSelect.value === 'recent' || routeSelect.value === 'add');
     }
 
     routeSelect.addEventListener('change', renderSelectedRoute);
 
     const aircraftSelect = document.getElementById('aircraftTypeSelect');
+    const atisLangSelect = document.getElementById('atisLangSelect');
 
     // Добавим в обработчик загрузки страницы
     function updateAircraftTypeBadge() {
@@ -2627,6 +2421,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Обновим обработчик изменения селекта
     aircraftSelect.addEventListener('change', function() {
         localStorage.setItem('aircraftType', this.value);
+        updateMaintenanceBadge();
+        updateAircraftTypeBadge();
+        renderSelectedRoute();
+    });
+
+    // Обновим обработчик изменения селекта
+    atisLangSelect.addEventListener('change', function() {
+        localStorage.setItem('atisLangSelect', this.value);
         updateMaintenanceBadge();
         updateAircraftTypeBadge();
         renderSelectedRoute();
@@ -2693,7 +2495,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateHistoryBtnNotam();
         updateSelectedPlacard();
-        updateFavouriteIcaos();
     }
 
     function updateBadgesTimeAndColors() {

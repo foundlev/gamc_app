@@ -115,28 +115,6 @@
     background-color: var(--accent-color);
 }
 
-.time-badge.badge-fav {
-    background-color: var(--bg-color);
-    color: var(--border-color);
-    box-shadow: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    padding: 2px 2px;
-}
-
-.time-badge.badge-fav-added {
-    background-color: var(--bg-color);
-    color: var(--star-color);
-    box-shadow: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    padding: 2px 2px;
-}
-
 body {
     margin: 0;
     padding: 0;
@@ -456,6 +434,11 @@ footer {
 #aiCheckBtn:disabled,
 .modal input:disabled,
 #refreshAIExplanationBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -1293,7 +1276,7 @@ footer {
 .custom-checkbox input[type="checkbox"]:checked+span::before {
     content: "\f00c";
     /* Галочка из Font Awesome */
-    font-family: "Font Awesome 6 Free";
+    font: var(--fa-font-solid);
     font-weight: 900;
     display: flex;
     align-items: center;
@@ -1312,7 +1295,7 @@ footer {
     display: flex;
 }
 
-#editRouteBtn, #showMapBtn {
+#editRouteBtn, #showMapBtn, #reverseRouteBtn {
     margin-right: 5px;
 }
 
@@ -1528,7 +1511,11 @@ footer {
 }
 
 button[hidden] {
-    display: none;
+    display: none !important;
+}
+
+[hidden] {
+    display: none !important;
 }
 
 /* Стили для списка подсказок */
@@ -2088,11 +2075,6 @@ button[hidden] {
     gap: 5px;
 }
 
-.history button.has-maintenance {
-    /*border: 1px solid var(--badge-green-bg);*/
-    /*box-shadow: 0 0 0 1.3px var(--text-color);*/
-}
-
 /* Темная тема */
 @media (prefers-color-scheme: dark) {
     .notam-interpretation {
@@ -2362,6 +2344,43 @@ input::-webkit-inner-spin-button {
 }
 
 #aircraftTypeSelect:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.2);
+}
+
+/* Стилизация выпадающего списка */
+#atisLangSelect {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-size: 0.95rem;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    #atisLangSelect {
+        background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23fff" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+    }
+}
+
+#atisLangSelect:active {
+    border-color: var(--accent-color);
+}
+
+#atisLangSelect:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.2);
 }
@@ -3038,20 +3057,23 @@ input::-webkit-inner-spin-button {
 /*}*/
 
 
-.history button.fav {
+.history button.has-maintenance {
     position: relative;
 }
 
-.history button.fav::after {
-    content: '\f005'; /* Маленький круг из Font Awesome */
-    font-family: "Font Awesome 6 Free", serif;
-    font-weight: 900;
+.history button.has-maintenance::after {
+    content: "\f0ad";
+    font: var(--fa-font-solid);
     position: absolute;
-    top: 2px;
-    right: 2px;
-    font-size: 6px;
-    color: white; /* Спокойный синий */
-    text-shadow: rgba(0, 0, 0, 0.5) 0 0 2px;
+    top: 3px;
+    right: 3px;
+    font-size: 7px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: rgba(0,0,0,.5) 0 0 2px;
+    transform: scaleX(-1);
+    transform-origin: center;
+    pointer-events: none;
 }
 
 .history button.selected {
@@ -3166,7 +3188,7 @@ input::-webkit-inner-spin-button {
 
 .changelog-date::before {
     content: '\f017'; /* Иконка часов из Font Awesome */
-    font-family: "Font Awesome 6 Free";
+    font: var(--fa-font-solid);
     font-weight: 900;
     font-size: 0.9rem;
     opacity: 0.7;

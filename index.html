@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <title>Weather Helper</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">-->
+    <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
@@ -20,7 +21,7 @@
     <header>
         <h1>
             <span id="button-title"><i class="fa-solid fa-plane-circle-check"></i> Weather App</span>
-            <span style="opacity: 0.5;" id="changelogBtn">v1.95</span>
+            <span style="opacity: 0.5;" id="changelogBtn">v1.97</span>
         </h1>
     </header>
 
@@ -59,7 +60,7 @@
             <button id="zoomOutBtn"><i class="fas fa-search-minus"></i></button>
             <button id="restrBtn" hidden><i class="fa-solid fa-ruler-combined"></i></button>
             <button id="gpsBtn" disabled hidden><i class="fa-solid fa-satellite-dish"></i></button>
-            <button id="systemsInfoBtn" disabled hidden onclick="showLandingSystemModal()"><i class="fa-solid fa-plane-arrival"></i></button>
+            <button id="systemsInfoBtn" disabled hidden onclick="showLandingSystemModal()"><i class="fa-solid fa-tower-cell"></i></button>
             <button id="refreshAllBtn" hidden><i class="fa-solid fa-retweet"></i></button>
             <button id="aiCheckBtn"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
             <button id="settingsBtn"><i class="fa-solid fa-gear"></i></button>
@@ -73,14 +74,17 @@
                     <i class="fa-solid fa-plane"></i>
                     <span id="selectedAircraftType">B737</span>
                 </div>
-                <div class="aircraft-type-badge gps-error" id="gpsBadge">
+                <div class="aircraft-type-badge gps-error" id="gpsBadge" hidden>
                     <i class="fa-solid fa-location-arrow"></i>
                     <span id="currentGPS">-</span>
                 </div>
             </div>
             <div class="route-dropdown">
-                <button id="showMapBtn" style="display: none;">
+                <button id="showMapBtn" style="display: none;" hidden>
                     <i class="fa-solid fa-map-location"></i>
+                </button>
+                <button id="reverseRouteBtn" hidden>
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
                 </button>
                 <button id="editRouteBtn">
                     <i class="fa-solid fa-plus"></i>
@@ -234,8 +238,16 @@
                         <option value="A350">A350</option>
                     </select>
                 </div>
+                <div class="setting-row">
+                    <label for="atisLangSelect">Язык частоты АТИС:</label>
+                    <select id="atisLangSelect">
+                        <option selected value="EN">EN</option>
+                        <option value="RU">RU</option>
+                        <option value="EN">中文</option>
+                    </select>
+                </div>
                 <div class="modal-checkbox-group">
-                    <label class="custom-checkbox">
+                    <label class="custom-checkbox" hidden>
                         <input type="checkbox" id="useGpsPositionCheckbox">
                         <span>Использовать GPS (выделять ближайшие аэродромы и метку на карте)</span>
                     </label>
@@ -245,7 +257,11 @@
                     </label>
                     <label class="custom-checkbox">
                         <input type="checkbox" id="doHighlightCheckbox">
-                        <span>Выделение и расшифровка кода</span>
+                        <span>Выделение и расшифровка метеокода</span>
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="doMarkBagdeCheckbox">
+                        <span>Выделять плашки аэродромов с техобслуживанием ВС</span>
                     </label>
                     <label class="custom-checkbox">
                         <input type="checkbox" id="autoOfflineCheckbox">
@@ -435,14 +451,7 @@
             </button>
             <h2 id="landingSystemsModalCaption">Системы захода на посадку</h2>
 
-            <div class="modal-tabs">
-                <button class="tab-button active" data-target="systemsTab">Системы захода</button>
-                <button class="tab-button" data-target="atisTab">ATIS</button>
-                <button class="tab-button" data-target="sidTab">SID</button>
-                <button class="tab-button" data-target="starTab">STAR</button>
-            </div>
-
-            <div id="systemsTab" class="tab-content active">
+            <div id="systemsTab" class="tab-content">
                 <!-- Список существующих систем -->
                 <div id="landingSystemsList" class="landing-systems-list" style="margin-bottom: 15px;"></div>
 
@@ -475,24 +484,34 @@
                 </div>
             </div>
 
-            <div id="atisTab" class="tab-content">
+            <div id="atisTab" class="tab-content active">
                 <div class="atis-row">
                     <label><b>DEP</b></label>
                     <label>|</label>
                     <label>ENG:</label>
-                    <input type="number" id="atisDep1" maxlength="7" placeholder="0.000">
+                    <input type="number" id="atisDep1" maxlength="7" placeholder="0.000" readonly>
                     <label>RUS:</label>
-                    <input type="number" id="atisDep2" maxlength="7" placeholder="0.000">
+                    <input type="number" id="atisDep2" maxlength="7" placeholder="0.000" readonly>
                 </div>
                 <div class="atis-row">
                     <label><b>ARR</b></label>
                     <label>|</label>
                     <label>ENG:</label>
-                    <input type="number" id="atisArr1" maxlength="7" placeholder="0.000">
+                    <input type="number" id="atisArr1" maxlength="7" placeholder="0.000" readonly>
                     <label>RUS:</label>
-                    <input type="number" id="atisArr2" maxlength="7" placeholder="0.000">
+                    <input type="number" id="atisArr2" maxlength="7" placeholder="0.000" readonly>
                 </div>
-                <button id="saveAtisBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить ATIS</button>
+                <div style="justify-content: center; display: flex; gap: 10px; width: 60%; align-self: center; margin: 0 auto;">
+                    <button id="editAtisBtn" style="flex: 1;" hidden="">
+                        <i class="fa-solid fa-marker" style="margin-right: 5px;"></i>
+                        Редактировать
+                    </button>
+                    <button id="saveAtisBtn" style="flex: 1;" disabled hidden="">
+                        <i class="fa-solid fa-floppy-disk" style="margin-right: 5px;"></i>
+                        Сохранить
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -676,6 +695,7 @@
         </div>
     </div>
 
+    <script src="appdata.js"></script>
     <script src="main.js"></script>
     <script src="extra.js"></script>
     <script src="extraTwo.js"></script>

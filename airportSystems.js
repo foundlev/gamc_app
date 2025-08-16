@@ -1,5 +1,8 @@
 // Файл: landingSystems.js
 
+const saveAtisBtn = document.getElementById('saveAtisBtn');
+const editAtisBtn = document.getElementById('editAtisBtn');
+
 // Получаем данные систем из localStorage
 function getLandingSystems() {
     const ls = localStorage.getItem('landingSystems');
@@ -143,6 +146,24 @@ function renderLandingSystemsList() {
     });
 }
 
+
+function changeLangAtis() {
+    const atisFrqBtn = document.getElementById('atisFrqBtn');
+    let newLang = null;
+
+    if (atisFrqBtn.textContent.includes('EN')) {
+        newLang = 'ru';
+    } else if (atisFrqBtn.textContent.includes('RU')) {
+        newLang = 'en';
+    } else {
+        return;
+    }
+
+    const newFrqInfo = getAtisFrequencyByIcao(nowIcao, 'arrival', newLang);
+    atisFrqBtn.innerHTML = `<i class="fa-solid fa-tower-cell"></i> ${newFrqInfo.frq}` +
+                    (newFrqInfo.lang ? ` ${newFrqInfo.lang.toUpperCase()}` : '');
+}
+
 // Функция открытия модального окна систем захода
 function showLandingSystemModal() {
     // Запускаем валидацию формы
@@ -155,7 +176,22 @@ function showLandingSystemModal() {
     const backdrop = document.getElementById('landingSystemsModalBackdrop');
 
     const landingSystemsModalCaption = document.getElementById('landingSystemsModalCaption');
-    landingSystemsModalCaption.textContent = `Информация аэродрома ${nowIcao}`;
+    landingSystemsModalCaption.textContent = `ATIS аэродрома ${nowIcao}`;
+
+    const uid = getGamcUID();
+    if (isTechUID()) {
+        editAtisBtn.hidden = false;
+        saveAtisBtn.hidden = false;
+
+        editAtisBtn.disabled = false;
+
+        document.getElementById('atisDep1').readOnly = true;
+        document.getElementById('atisDep2').readOnly = true;
+        document.getElementById('atisArr1').readOnly = true;
+        document.getElementById('atisArr2').readOnly = true;
+
+        saveAtisBtn.disabled = true;
+    }
 
     // Заполняем select ВПП данными из текущего аэродрома
     const runwaySelect = document.getElementById('systemRunwaySelect');
@@ -245,21 +281,6 @@ function validateLandingSystemForm() {
     }
 }
 
-document.querySelectorAll('.tab-button').forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Удаляем активный класс у всех кнопок
-        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-        // Добавляем активный класс к нажатой кнопке
-        btn.classList.add('active');
-
-        // Скрываем все вкладки
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        // Показываем ту вкладку, target которой указана в data-target кнопки
-        const targetId = btn.getAttribute('data-target');
-        document.getElementById(targetId).classList.add('active');
-    });
-});
-
 function getAtisFrequencies() {
     const data = localStorage.getItem('atisFrequencies');
     return data ? JSON.parse(data) : {};
@@ -269,24 +290,72 @@ function saveAtisFrequencies(data) {
     localStorage.setItem('atisFrequencies', JSON.stringify(data));
 }
 
-function getAtisFrequencyByIcao(icao) {
+function getAtisFrequencyByIcao(icao, direction='arrival', lang='en') {
+    if (!lang) return;
+
     const frq = getAtisFrequencies();
-    const currentFrq = frq[icao];
+    const currentFrq = frq[icao] || atisFrequenciesDict[icao];
+    lang = lang.toLowerCase();
 
     if (!currentFrq) return;
 
-    if (currentFrq.arrival[0]) {
-        return currentFrq.arrival[0];
-    } else if (currentFrq.arrival[1]) {
-        return currentFrq.arrival[1];
-    } else if (currentFrq.departure[0]) {
-        return currentFrq.departure[0];
-    } else if (currentFrq.departure[0]) {
-        return currentFrq.departure[0];
+    let frqLang = {
+        departure: {
+            en: null,
+            ru: null,
+            common: null
+        },
+        arrival: {
+            en: null,
+            ru: null,
+            common: null
+        }
+    };
+
+    if (currentFrq.arrival[0] && currentFrq.arrival[1]) {
+        frqLang.arrival.en = currentFrq.arrival[0];
+        frqLang.arrival.ru = currentFrq.arrival[1];
+    } else if (currentFrq.arrival[0] || currentFrq.arrival[1]) {
+        frqLang.arrival.common = currentFrq.arrival[0] || currentFrq.arrival[1];
     }
+
+    if (currentFrq.departure[0] && currentFrq.departure[1]) {
+        frqLang.departure.en = currentFrq.departure[0];
+        frqLang.departure.ru = currentFrq.departure[1];
+    } else if (currentFrq.departure[0] || currentFrq.departure[1]) {
+        frqLang.departure.common = currentFrq.departure[0] || currentFrq.departure[1];
+    }
+
+    const oppositeDirection = {
+        'arrival': 'departure',
+        'departure': 'arrival'
+    }
+
+    let result = {
+        'frq': null,
+        'lang': null
+    }
+    if (frqLang.departure.common || frqLang.arrival.common) {
+        result.frq = frqLang.arrival.common || frqLang.departure.common;
+    } else {
+        result.frq = frqLang[direction][lang] || frqLang[oppositeDirection[direction]][lang] || null;
+        result.lang = lang;
+    }
+    return result;
 }
 
-document.getElementById('saveAtisBtn').onclick = () => {
+editAtisBtn.onclick = () => {
+    editAtisBtn.disabled = true;
+
+    document.getElementById('atisDep1').readOnly = false;
+    document.getElementById('atisDep2').readOnly = false;
+    document.getElementById('atisArr1').readOnly = false;
+    document.getElementById('atisArr2').readOnly = false;
+
+    saveAtisBtn.disabled = false;
+};
+
+saveAtisBtn.onclick = () => {
     const currentIcao = nowIcao ? nowIcao.toUpperCase() : '';
     let atisData = getAtisFrequencies();
     if (!atisData[currentIcao]) {
@@ -320,11 +389,13 @@ document.getElementById('saveAtisBtn').onclick = () => {
 function loadAtisFrequenciesForModal() {
     const currentIcao = nowIcao ? nowIcao.toUpperCase() : '';
     const atisData = getAtisFrequencies();
-    if (atisData[currentIcao]) {
-        document.getElementById('atisDep1').value = atisData[currentIcao].departure[0] || '';
-        document.getElementById('atisDep2').value = atisData[currentIcao].departure[1] || '';
-        document.getElementById('atisArr1').value = atisData[currentIcao].arrival[0] || '';
-        document.getElementById('atisArr2').value = atisData[currentIcao].arrival[1] || '';
+    const currentFrq = atisData[currentIcao] || atisFrequenciesDict[currentIcao];
+
+    if (currentFrq) {
+        document.getElementById('atisDep1').value = currentFrq.departure[0] || '';
+        document.getElementById('atisDep2').value = currentFrq.departure[1] || '';
+        document.getElementById('atisArr1').value = currentFrq.arrival[0] || '';
+        document.getElementById('atisArr2').value = currentFrq.arrival[1] || '';
     } else {
         document.getElementById('atisDep1').value = '';
         document.getElementById('atisDep2').value = '';

@@ -1,18 +1,51 @@
 let importedRouteCoords = null;
+const ALT_DEBUG = true;                // включить/выключить подробные логи по запасным
+let altDebugLog = [];                  // сюда пишем логи
 
 // Функция перевода градусов в радианы
 function toRadians(deg) {
     return deg * Math.PI / 180;
 }
 
+// Минимальная разница долгот с учётом 180°/−180° (0..360 wrap)
+function lonDeltaDeg(a, b) {
+    a = Number(a); b = Number(b);
+    if (!isFinite(a) || !isFinite(b)) return Infinity;
+    let d = Math.abs(a - b);
+    return d > 180 ? 360 - d : d;
+}
+
 // Haversine функция (расстояние в морских милях)
 function haversine(lat1, lon1, lat2, lon2) {
-    const R = 3440.065;
+    lat1 = Number(lat1); lon1 = Number(lon1);
+    lat2 = Number(lat2); lon2 = Number(lon2);
+    if (!isFinite(lat1) || !isFinite(lon1) || !isFinite(lat2) || !isFinite(lon2)) return Infinity;
+
+    const R = 3440.065; // NM
     const dLat = toRadians(lat2 - lat1);
     const dLon = toRadians(lon2 - lon1);
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.asin(Math.sqrt(a));
+    const a = Math.sin(dLat / 2) ** 2
+            + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.asin(Math.min(1, Math.max(0, Math.sqrt(a))));
     return R * c;
+}
+
+// Возвращает ближайший аэропорт к координате (в пределах max_nm)
+// Если ничего близко нет — вернёт null
+function nearestAirport(lat, lon, airports, max_nm = 80) {
+    let best = null;
+    let bestDist = Infinity;
+    for (const apt of airports) {
+        const aLat = apt.latitude;
+        const aLon = apt.longitude;
+        if (typeof aLat !== 'number' || typeof aLon !== 'number') continue;
+        const d = haversine(lat, lon, aLat, aLon);
+        if (d < bestDist) {
+            bestDist = d;
+            best = apt;
+        }
+    }
+    return (bestDist <= max_nm) ? best : null;
 }
 
 // Интерполяция между двумя точками по заданной доле
@@ -52,145 +85,187 @@ function findAlternateAirportsByRoute(routeInfo, airports, max_alternates = 30, 
     const departure_icao = routeInfo.route.departure;
     const destination_icao = routeInfo.route.destination;
     const coords = routeInfo.coordinates;
+    console.info('[SimpleCover v1.0] start', { step_nm, max_alternates });
 
     const densePoints = generateIntermediatePoints(coords, step_nm);
     if (densePoints.length < 2) {
         throw new Error("Маршрут пустой или состоит из одной точки");
     }
 
-    // Вычисляем общую длину маршрута по плотному списку точек
-    let routeDistance = 0;
-    for (let i = 0; i < densePoints.length - 1; i++) {
-        routeDistance += haversine(
-            densePoints[i][0], densePoints[i][1],
-            densePoints[i + 1][0], densePoints[i + 1][1]
-        );
-    }
+    // === ПРОСТОЙ РЕЖИМ: покрытие маршрута радиусом от аэродромов ===
+    const RADIUS_NM = 200;     // радиус покрытия точки маршрута
+    const LAT_PRE = 4;         // предфильтр по широте для ускорения (≈ 240 NM)
+    const LON_PRE = 6;         // предфильтр по долготе для ускорения (с учётом даталайна)
 
-    let requiredCount = Math.ceil(routeDistance / 90);
-    if (requiredCount > max_alternates) requiredCount = max_alternates;
-
-    // Фильтруем кандидатов: исключаем аэродромы вылета/назначения и оставляем с ВПП ≥ 2400 м
-    const filteredCandidates = airports.filter(apt => {
-        if (apt.icao && (apt.icao === departure_icao || apt.icao === destination_icao)) {
-            return false;
-        }
+    // 1) Кандидаты: исключаем DEP/ARR и оставляем аэродромы с ВПП ≥ 2400 м
+    const usableAirports = airports.filter(apt => {
+        if (apt.icao && (apt.icao === departure_icao || apt.icao === destination_icao)) return false;
         const runways = apt.runways || {};
         return Object.values(runways).some(rwy => rwy.xlda >= 2400);
     });
 
-    // Функция для получения интервалов покрытия для каждого кандидата
-    function getCandidateIntervals(max_radius) {
-        let intervals = [];
-        for (let apt of filteredCandidates) {
-            const distances = densePoints.map(p => haversine(apt.latitude, apt.longitude, p[0], p[1]));
-            const minDist = Math.min(...distances);
-            if (minDist <= max_radius) {
-                const idxList = distances
-                    .map((d, idx) => d <= max_radius ? idx : null)
-                    .filter(idx => idx !== null);
-                intervals.push({ apt, start: Math.min(...idxList), end: Math.max(...idxList) });
-            }
+    // 2) Для каждого аэродрома посчитаем, какие плотные точки он покрывает в радиусе RADIUS_NM
+    const airportCoverage = new Map(); // code -> Set(indices)
+    const aptByCode = new Map();
+    for (const apt of usableAirports) {
+        const code = apt.icao || apt.iata || '';
+        if (!code) continue;
+        aptByCode.set(code, apt);
+        const cover = new Set();
+
+        for (let i = 0; i < densePoints.length; i++) {
+            const plat = densePoints[i][0];
+            const plon = densePoints[i][1];
+            // Быстрый предчек для ускорения: если далеко по широте/долготе — пропускаем
+            if (Math.abs(plat - apt.latitude) > LAT_PRE) continue;
+            if (lonDeltaDeg(plon, apt.longitude) > LON_PRE) continue;
+
+            const d = haversine(plat, plon, apt.latitude, apt.longitude);
+            if (d <= RADIUS_NM) cover.add(i);
         }
-        return intervals;
+        if (cover.size > 0) airportCoverage.set(code, cover);
     }
 
-    const intervals180 = getCandidateIntervals(180);
-    const intervals300 = getCandidateIntervals(300);
+    // 3) Множество точек, которые вообще можно покрыть
+    const toCover = new Set();
+    for (const set of airportCoverage.values()) for (const idx of set) toCover.add(idx);
 
-    // Функция приоритета кандидата: сначала по end, затем по длине ВПП
-    function candidatePriority(iv) {
-        const runways = iv.apt.runways || {};
-        const maxLen = Math.max(...Object.values(runways).map(r => r.xlda || 0));
-        return { end: iv.end, maxLen: maxLen };
+    // 4) Жадный выбор минимального набора аэродромов
+    const selectedCodes = [];
+    while (toCover.size > 0 && selectedCodes.length < max_alternates) {
+        let bestCode = null;
+        let bestGain = 0;
+        for (const [code, set] of airportCoverage.entries()) {
+            if (selectedCodes.includes(code)) continue;
+            let gain = 0;
+            for (const idx of set) if (toCover.has(idx)) gain++;
+            if (gain > bestGain) { bestGain = gain; bestCode = code; }
+        }
+        if (!bestCode || bestGain === 0) break; // больше нечем покрывать
+        selectedCodes.push(bestCode);
+        for (const idx of airportCoverage.get(bestCode)) toCover.delete(idx);
     }
 
-    // Жадный алгоритм покрытия маршрута интервалами кандидатов
-    function coverageGreedy(intervals, nPoints, usedIndices = null) {
-        let usedSet = usedIndices ? new Set(usedIndices) : new Set(Array.from({ length: nPoints }, (_, i) => i));
-        let intervalsSorted = intervals.sort((a, b) => a.start - b.start);
-        let selected = [];
-        const needed = Array.from(usedSet).sort((a, b) => a - b);
-        let i = 0;
-        while (i < needed.length) {
-            const idx = needed[i];
-            const possible = intervalsSorted.filter(iv => iv.start <= idx && idx <= iv.end);
-            if (possible.length === 0) {
-                i++;
-                continue;
-            }
-            let bestIV = possible[0];
-            let bestPriority = candidatePriority(bestIV);
-            for (let iv of possible) {
-                const pr = candidatePriority(iv);
-                if (pr.end > bestPriority.end || (pr.end === bestPriority.end && pr.maxLen > bestPriority.maxLen)) {
-                    bestIV = iv;
-                    bestPriority = pr;
-                }
-            }
-            selected.push(bestIV);
-            const endCover = bestIV.end;
-            while (i < needed.length && needed[i] <= endCover) {
-                i++;
-            }
+    // 5) Сформируем finalIntervals в формате, совместимом с логикой ниже
+    let finalIntervals = [];
+    for (const code of selectedCodes) {
+        const apt = aptByCode.get(code);
+        if (!apt) continue;
+        const coveredSet = airportCoverage.get(code) || new Set();
+
+        // ближайшая к аэропорту плотная точка (для логов)
+        let bestIdx = -1, bestD = Infinity;
+        const candidatesIdx = coveredSet.size ? coveredSet : new Set(Array.from({length: densePoints.length}, (_, i) => i));
+        for (const i of candidatesIdx) {
+            const p = densePoints[i];
+            const d = haversine(p[0], p[1], apt.latitude, apt.longitude);
+            if (d < bestD) { bestD = d; bestIdx = i; }
         }
-        return selected;
+        const sorted = Array.from(coveredSet).sort((a,b)=>a-b);
+        const start = sorted.length ? sorted[0] : bestIdx;
+        const end   = sorted.length ? sorted[sorted.length-1] : bestIdx;
+
+        finalIntervals.push({
+            apt,
+            start,
+            end,
+            nearestIdx: bestIdx,
+            nearestDistNm: Number(bestD.toFixed(1)),
+            nearestPoint: { lat: densePoints[bestIdx][0], lon: densePoints[bestIdx][1] }
+        });
     }
 
-    const nPoints = densePoints.length;
-    const coverage180 = coverageGreedy(intervals180, nPoints);
-    let covered180 = new Set();
-    coverage180.forEach(iv => {
-        for (let i = iv.start; i <= iv.end; i++) {
-            covered180.add(i);
-        }
+    // Жёсткий финальный фильтр по геометрии и дистанции
+    const DEG_LAT_LIMIT = 2;   // ≤ 2° по широте
+    const DEG_LON_LIMIT = 3;   // ≤ 3° по долготе (с учётом даталайна)
+    const DIST_LIMIT_NM = 200; // ≤ 200 NM фактическая дистанция
+
+    finalIntervals = finalIntervals.filter(iv => {
+        const a = iv.apt; const p = iv.nearestPoint;
+        if (!a || !p || !isFinite(a.latitude) || !isFinite(a.longitude)) return false;
+        if (!isFinite(p.lat) || !isFinite(p.lon)) return false;
+        const dLat = Math.abs(p.lat - a.latitude);
+        const dLon = lonDeltaDeg(p.lon, a.longitude);
+        if (dLat > DEG_LAT_LIMIT || dLon > DEG_LON_LIMIT) return false;
+        if (!isFinite(iv.nearestDistNm) || iv.nearestDistNm > DIST_LIMIT_NM) return false;
+        return true;
     });
 
-    const uncovered = Array.from(Array(nPoints).keys()).filter(i => !covered180.has(i));
-    const coverage300 = coverageGreedy(intervals300, nPoints, uncovered);
+    // === ЛОГИРОВАНИЕ ДЛЯ ОТЛАДКИ ПОИСКА ЗАПАСНЫХ ===
+    if (ALT_DEBUG) {
+        altDebugLog = [];
 
-    const allIntervals = coverage180.concat(coverage300);
-    let selectedIcaos = new Set();
-    let finalIntervals = [];
-    for (let iv of allIntervals) {
-        const icao = iv.apt.icao || iv.apt.iata || "";
-        if (!selectedIcaos.has(icao)) {
-            selectedIcaos.add(icao);
-            finalIntervals.push(iv);
-        }
-    }
-
-    if (finalIntervals.length < requiredCount) {
-        let extra300 = intervals300.slice();
-        extra300.sort((a, b) => {
-            const aRunways = a.apt.runways || {};
-            const bRunways = b.apt.runways || {};
-            const aMax = Math.max(...Object.values(aRunways).map(r => r.xlda || 0));
-            const bMax = Math.max(...Object.values(bRunways).map(r => r.xlda || 0));
-            return bMax - aMax;
-        });
-        for (let iv of extra300) {
-            const icao = iv.apt.icao || iv.apt.iata || "";
-            if (!selectedIcaos.has(icao)) {
-                finalIntervals.push(iv);
-                selectedIcaos.add(icao);
-                if (finalIntervals.length >= requiredCount) break;
+        // ближайшая исходная (не «плотная») точка GPX к заданным координатам
+        function nearestOriginalPoint(lat, lon) {
+            if (!Array.isArray(coords) || coords.length === 0) return null;
+            let bestIdx = -1;
+            let bestDist = Infinity;
+            for (let i = 0; i < coords.length; i++) {
+                const d = haversine(lat, lon, coords[i].lat, coords[i].lon);
+                if (d < bestDist) { bestDist = d; bestIdx = i; }
             }
+            const pt = coords[bestIdx];
+            return {
+                index: bestIdx,
+                name: pt.name || '',
+                lat: pt.lat,
+                lon: pt.lon,
+                distNm: Number(bestDist.toFixed(1))
+            };
         }
-    }
 
+        for (const iv of finalIntervals) {
+            const apt = iv.apt || {};
+            const aptCode = apt.icao || apt.iata || '';
+            const aptName = apt.name || '';
+            const aptLat = apt.latitude;
+            const aptLon = apt.longitude;
+
+            const pDense = iv.nearestPoint || null;
+            const nearestOrig = pDense ? nearestOriginalPoint(pDense.lat, pDense.lon) : null;
+            const sanityNm = pDense ? Number(haversine(aptLat, aptLon, pDense.lat, pDense.lon).toFixed(1)) : null;
+
+            altDebugLog.push({
+                APT: aptCode,
+                Name: aptName,
+                'APT lat': Number(aptLat?.toFixed?.(6) ?? aptLat),
+                'APT lon': Number(aptLon?.toFixed?.(6) ?? aptLon),
+                'Triggered dense idx': iv.nearestIdx,
+                'Dense lat': pDense ? Number(pDense.lat.toFixed(6)) : null,
+                'Dense lon': pDense ? Number(pDense.lon.toFixed(6)) : null,
+                'dLatDeg': pDense ? Number(Math.abs(pDense.lat - aptLat).toFixed(3)) : null,
+                'dLonDeg': pDense ? Number(lonDeltaDeg(pDense.lon, aptLon).toFixed(3)) : null,
+                'Dist to dense (NM)': iv.nearestDistNm,
+                'Sanity dist (NM)': sanityNm,
+                'Nearest GPX idx': nearestOrig ? nearestOrig.index : null,
+                'Nearest GPX name': nearestOrig ? nearestOrig.name : '',
+                'Nearest GPX lat': nearestOrig ? Number(nearestOrig.lat.toFixed(6)) : null,
+                'Nearest GPX lon': nearestOrig ? Number(nearestOrig.lon.toFixed(6)) : null,
+                'Dist to GPX (NM)': nearestOrig ? nearestOrig.distNm : null,
+                start: iv.start,
+                end: iv.end
+            });
+        }
+
+        console.info('[SimpleCover v1.0] debug', {
+            RADIUS_NM,
+            entries: finalIntervals.length,
+            densePoints: densePoints.length
+        });
+        try { console.table(altDebugLog); } catch (e) { console.log(altDebugLog); }
+        window.altDebugLog = altDebugLog;
+    }
+    // === /ЛОГИРОВАНИЕ ===
+
+    // Сбор результата в формате {airports: [...], route: routeInfo}
     let finalAirports = finalIntervals.map(iv => iv.apt);
-    // Удаляем дубликаты
     let uniqueMap = {};
     finalAirports.forEach(apt => {
         const code = apt.icao || apt.iata || "";
         uniqueMap[code] = apt;
     });
     const result = Object.values(uniqueMap);
-    return {
-        airports: result,
-        route: routeInfo
-    };
+    return { airports: result, route: routeInfo };
 }
 
 
@@ -212,62 +287,81 @@ function gpxImport() {
                     return;
                 }
 
-                // Извлечение информации о маршруте из элемента <rte><name>
+                // 1) Пытаемся вытащить коды маршрута из <rte><name> или <trk><name>
+                // Поддерживаем шаблон "UUEE - UUWW" и "UUEE–UUWW" (с длинным тире)
+                const nameRegex = /([A-Z]{4})\s*[-–]\s*([A-Z]{4})/i;
+
+                let routeDeparture = "";
+                let routeDestination = "";
+
+                // Сначала пробуем <rte><name>
                 const rteElements = xmlDoc.getElementsByTagNameNS("*", "rte");
-                let routeInfo = null;
                 if (rteElements.length > 0) {
                     const rteNameElements = rteElements[0].getElementsByTagNameNS("*", "name");
                     if (rteNameElements.length > 0) {
-                        let routeName = rteNameElements[0].textContent.trim();
-                        // Ожидаемый формат: "CODE1 - CODE2"
-                        let parts = routeName.split("-");
-                        if (parts.length === 2) {
-                            let departure = parts[0].trim();
-                            let destination = parts[1].trim();
-                            if (departure.length === 4 && destination.length === 4) {
-                                routeInfo = { departure, destination };
+                        const routeName = rteNameElements[0].textContent.trim();
+                        const m = routeName.match(nameRegex);
+                        if (m) {
+                            routeDeparture = m[1].toUpperCase();
+                            routeDestination = m[2].toUpperCase();
+                        }
+                    }
+                }
+
+                // Если из <rte> не получилось — пробуем <trk><name>
+                if (!routeDeparture || !routeDestination) {
+                    const trkElements = xmlDoc.getElementsByTagNameNS("*", "trk");
+                    if (trkElements.length > 0) {
+                        const trkNameElements = trkElements[0].getElementsByTagNameNS("*", "name");
+                        if (trkNameElements.length > 0) {
+                            const trkName = trkNameElements[0].textContent.trim();
+                            const m2 = trkName.match(nameRegex);
+                            if (m2) {
+                                routeDeparture = m2[1].toUpperCase();
+                                routeDestination = m2[2].toUpperCase();
                             }
                         }
                     }
                 }
 
-                // Поиск элементов с координатами
+                // 2) Собираем координаты из wpt / trkpt / rtept
                 const wptElements = xmlDoc.getElementsByTagNameNS("*", "wpt");
                 const trkptElements = xmlDoc.getElementsByTagNameNS("*", "trkpt");
                 const rteptElements = xmlDoc.getElementsByTagNameNS("*", "rtept");
 
                 const coords = [];
 
-                // Для каждого элемента получаем lat, lon и название точки (если есть)
-                for (let i = 0; i < wptElements.length; i++) {
-                    const lat = wptElements[i].getAttribute("lat");
-                    const lon = wptElements[i].getAttribute("lon");
-                    const nameElements = wptElements[i].getElementsByTagNameNS("*", "name");
+                const pushPt = (el) => {
+                    const lat = el.getAttribute("lat");
+                    const lon = el.getAttribute("lon");
+                    if (!lat || !lon) return;
+                    const nameElements = el.getElementsByTagNameNS("*", "name");
                     const pointName = nameElements.length > 0 ? nameElements[0].textContent.trim() : "";
-                    if (lat && lon) {
-                        coords.push({ lat: parseFloat(lat), lon: parseFloat(lon), name: pointName });
-                    }
+                    coords.push({ lat: parseFloat(lat), lon: parseFloat(lon), name: pointName });
+                };
+
+                for (let i = 0; i < wptElements.length; i++) pushPt(wptElements[i]);
+                for (let i = 0; i < trkptElements.length; i++) pushPt(trkptElements[i]);
+                for (let i = 0; i < rteptElements.length; i++) pushPt(rteptElements[i]);
+
+                // 3) Если коды не определены из name — пробуем определить по ближайшим аэропортам
+                // Берём первую и последнюю координаты трека
+                if ((!routeDeparture || !routeDestination) && coords.length >= 2 && Array.isArray(window.airportsList)) {
+                    const first = coords[0];
+                    const last = coords[coords.length - 1];
+
+                    const depApt = nearestAirport(first.lat, first.lon, airportsList, 120); // до 120 NM от начала
+                    const arrApt = nearestAirport(last.lat, last.lon, airportsList, 120);  // до 120 NM от конца
+
+                    if (!routeDeparture && depApt && depApt.icao) routeDeparture = depApt.icao;
+                    if (!routeDestination && arrApt && arrApt.icao) routeDestination = arrApt.icao;
                 }
 
-                for (let i = 0; i < trkptElements.length; i++) {
-                    const lat = trkptElements[i].getAttribute("lat");
-                    const lon = trkptElements[i].getAttribute("lon");
-                    const nameElements = trkptElements[i].getElementsByTagNameNS("*", "name");
-                    const pointName = nameElements.length > 0 ? nameElements[0].textContent.trim() : "";
-                    if (lat && lon) {
-                        coords.push({ lat: parseFloat(lat), lon: parseFloat(lon), name: pointName });
-                    }
-                }
-
-                for (let i = 0; i < rteptElements.length; i++) {
-                    const lat = rteptElements[i].getAttribute("lat");
-                    const lon = rteptElements[i].getAttribute("lon");
-                    const nameElements = rteptElements[i].getElementsByTagNameNS("*", "name");
-                    const pointName = nameElements.length > 0 ? nameElements[0].textContent.trim() : "";
-                    if (lat && lon) {
-                        coords.push({ lat: parseFloat(lat), lon: parseFloat(lon), name: pointName });
-                    }
-                }
+                // Гарантируем, что route-объект всегда есть
+                const routeInfo = {
+                    departure: routeDeparture || "",
+                    destination: routeDestination || ""
+                };
 
                 resolve({
                     route: routeInfo,

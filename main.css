@@ -4241,3 +4241,101 @@ select {
         box-shadow: 0 10px 24px rgba(200, 58, 60, 0.35), inset 0 2px 6px rgba(255,255,255,0.08);
     }
 }
+
+/* Подсветка активного пункта в поиске */
+#searchResults li.active {
+    background: var(--card-bg);
+    outline: 2px solid var(--accent-color);
+}
+#searchResults li:hover {
+    background: var(--card-bg);
+    opacity: 0.9;
+}
+
+/* ===== Search modal improved styles ===== */
+.modal-backdrop .search-modal {}
+
+/* Поле поиска */
+#searchInput{
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    outline: none;
+}
+#searchInput:focus{
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 22%, transparent);
+    border-color: color-mix(in oklab, var(--brand) 55%, var(--line));
+}
+
+/* Панель подсказок */
+.search-suggestions{
+    margin-top: 8px;
+    padding: 0;
+    list-style: none;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    max-height: 62vh;
+    overflow: auto;
+}
+
+/* Скролл внутри результатов */
+.search-suggestions::-webkit-scrollbar{ width: 10px; height:10px; }
+.search-suggestions::-webkit-scrollbar-thumb{
+    background: color-mix(in oklab, var(--text-color) 12%, transparent);
+    border-radius: 10px;
+}
+.search-suggestions::-webkit-scrollbar-track{ background: transparent; }
+
+/* Элемент списка */
+.search-item {
+    padding: 12px 14px;
+    border: 1.5px solid var(--badge-default-bg);
+    border-radius: 12px;
+    cursor: pointer;
+    display: block;
+    margin: 5px;
+}
+
+.search-item.is-active{
+    outline: 2px solid var(--accent);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 35%, transparent);
+}
+
+/* Двухстрочная типографика */
+.search-item__code{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 1.05rem;
+    letter-spacing: .3px;
+}
+.search-item__name{
+    opacity: .8;
+    font-size: .92rem;
+    margin-top: 2px;
+}
+
+/* Маленькие бейджи (например пометка IATA) */
+.badge{
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 2px 8px; border-radius: 999px;
+    border: 1px solid var(--line);
+    font-size: .78rem; line-height: 1.2;
+}
+
+/* Заголовок секции (например «Недавние») */
+.search-item--header{
+    padding: 10px 14px;
+    font-size: .86rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    opacity: .7;
+    border-top: 0;
+    cursor: default;
+}
+
+/* Подсветка совпадения (если используешь .hl) */
+.search-item mark, .search-item .hl{
+    background: transparent;
+    color: var(--accent);
+    font-weight: 600;
+}

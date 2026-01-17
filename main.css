@@ -6,7 +6,6 @@
     --border-color: #dddddd;
     --card-bg: #f9f9f9;
     --map-bg: #F8F9FA;
-    --gps-point-color: rgb(255, 103, 255);
 
     /* Светлая тема */
     --badge-green-bg: #27ae60;
@@ -65,7 +64,6 @@
         /* например */
 
         --map-bg: #2C3E50;
-        --gps-point-color: rgb(225,72,225);
 
         --col-fire: #aa3e34;
         --col-special: #8c51a5;
@@ -427,11 +425,10 @@ footer {
 #airportSettingsBtn:disabled,
 #refreshAllBtn:disabled,
 #editRouteBtn:disabled,
-#gpsBtn:disabled,
 #loadGamcUidBtn:disabled,
 #exportGamcUidBtn:disabled,
 #systemsInfoBtn:disabled,
-#aiCheckBtn:disabled,
+#settingsBtn:disabled,
 .modal input:disabled,
 #refreshAIExplanationBtn:disabled {
     cursor: not-allowed;
@@ -1350,6 +1347,89 @@ footer {
     transition: border-color 0.2s, background-color 0.2s, color 0.2s;
 }
 
+.custom-route-select {
+    width: 100%;
+    position: relative;
+}
+
+.route-select-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: border-color 0.2s;
+    min-width: 120px;
+}
+
+.route-select-display:hover {
+    border-color: var(--accent-color);
+}
+
+.route-search-container {
+    margin-bottom: 15px;
+}
+
+#routeSearchInput {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.route-search-results {
+    max-height: 400px;
+    overflow-y: auto;
+    border-top: 1px solid var(--border-color);
+}
+
+.route-search-item {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.route-search-item:last-child {
+    border-bottom: none;
+}
+
+.route-search-item:hover {
+    background-color: rgba(0, 119, 255, 0.1);
+}
+
+.route-search-item.active {
+    background-color: rgba(0, 119, 255, 0.2);
+    border-left: 3px solid var(--accent-color);
+}
+
+.route-item-title {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.route-item-details {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.route-item-special {
+    font-style: italic;
+    color: var(--text-color);
+    opacity: 0.6;
+}
+
 /* При наведении - слегка меняем цвет рамки */
 #routeSelect:active {
     border-color: var(--accent-color);
@@ -1506,9 +1586,6 @@ footer {
     opacity: 0.85;
 }
 
-#switchMenuBtn {
-    flex: 0.5;
-}
 
 button[hidden] {
     display: none !important;
@@ -2250,6 +2327,24 @@ input::-webkit-inner-spin-button {
     color: var(--accent-color);
 }
 
+.zoom-controls-row {
+    display: flex;
+    gap: 10px;
+    width: 80%;
+}
+
+#resetZoomBtn {
+    flex: 6;
+}
+
+.zoom-btn {
+    flex: 1;
+}
+
+#settingsModalBackdrop .modal .modal-button.zoom-btn i {
+    margin-right: 0;
+}
+
 .password-block {
     display: flex;
     gap: 10px;
@@ -2776,269 +2871,7 @@ input::-webkit-inner-spin-button {
     position: relative;
 }
 
-#aiIcon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
-    color: var(--accent-color); /* или другой нужный цвет */
-    cursor: pointer;
-}
 
-/* AI Explanation Modal Styles */
-.ai-explanation-modal {
-    max-width: 700px;
-    width: 90%;
-    max-height: 80vh;
-    padding: 25px;
-    text-align: left;
-    background: linear-gradient(135deg, #ffffff, #f7f9fc);
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-    color: var(--text-color);
-    animation: modalPop 0.4s ease-out;
-}
-
-#aiExplanationModalBackdrop {
-    z-index: 0;
-}
-
-.ai-explanation-modal h2 {
-    margin: 0 0 20px;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--accent-color);
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.ai-explanation-content {
-    max-height: 60vh; /* Limit height to allow scrolling */
-    overflow-y: auto; /* Enable vertical scrolling */
-    padding-right: 10px; /* Space for scrollbar */
-    margin-bottom: 20px;
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-
-.ai-explanation-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.ai-explanation-content::-webkit-scrollbar-track {
-    background: var(--card-bg);
-    border-radius: 4px;
-}
-
-.ai-explanation-content::-webkit-scrollbar-thumb {
-    background: var(--accent-color);
-    border-radius: 4px;
-}
-
-.ai-explanation-content::-webkit-scrollbar-thumb:active {
-    background: var(--col-default);
-}
-
-.weather-section {
-    margin-bottom: 20px;
-    padding: 15px;
-    background: var(--card-bg);
-    border-radius: 8px;
-    border-left: 4px solid var(--accent-color);
-    transition: transform 0.2s ease;
-}
-
-.weather-section:active {
-    transform: translateX(5px);
-}
-
-.weather-section h3 {
-    margin: 0 0 10px;
-    font-size: 1.2rem;
-    color: var(--text-color);
-}
-
-.weather-section p {
-    margin: 5px 0;
-}
-
-.weather-section p strong {
-    color: var(--accent-color);
-}
-
-.ai-explanation-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-}
-
-.ai-explanation-footer span {
-    font-size: 0.9rem;
-    color: var(--text-color);
-    opacity: 0.8;
-}
-
-.ai-explanation-footer button {
-    background-color: var(--accent-color);
-    color: #ffffff;
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s, transform 0.2s;
-}
-
-.ai-explanation-footer button:active {
-    background-color: var(--col-default);
-}
-
-.ai-explanation-footer button:active {
-    transform: translateY(-2px);
-}
-
-/* Dark Theme */
-@media (prefers-color-scheme: dark) {
-    .ai-explanation-modal {
-        background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
-        border: 1px solid #444444;
-        color: #f0f0f0;
-    }
-
-    .ai-explanation-modal h2 {
-        color: #ffffff;
-    }
-
-    .weather-section {
-        background: #2a2a2a;
-        border-left-color: var(--col-default);
-    }
-
-    .weather-section h3 {
-        color: #ffffff;
-    }
-
-    .ai-explanation-footer {
-        border-top-color: #444444;
-    }
-
-    .ai-explanation-content::-webkit-scrollbar-track {
-        background: #2a2a2a;
-    }
-
-    .ai-explanation-content::-webkit-scrollbar-thumb {
-        background: var(--col-default);
-    }
-
-    .ai-explanation-content::-webkit-scrollbar-thumb:active {
-        background: var(--accent-color);
-    }
-}
-
-/* Loading Overlay */
-.loading-overlay {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    z-index: 10;
-    border-radius: 12px;
-}
-
-.loading-overlay p {
-    margin-top: 15px;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-color);
-}
-
-.neuro-loader {
-    position: relative;
-    width: 50px;
-    height: 50px;
-    border: 3px solid var(--accent-color);
-    border-top: 3px solid transparent;
-    border-radius: 50%;
-    animation: spin 1.5s linear infinite;
-}
-
-.neuro-loader::before {
-    content: '\f303'; /* Иконка карандаша из Font Awesome */
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.2rem;
-    color: var(--accent-color);
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* No Data Message */
-.no-data-message {
-    text-align: center;
-    font-size: 1rem;
-    color: var(--text-color);
-    opacity: 0.8;
-    padding: 20px;
-}
-
-/* Тёмная тема */
-@media (prefers-color-scheme: dark) {
-    .loading-overlay {
-        background: rgba(30, 30, 30, 0.95);
-    }
-
-    .loading-overlay p {
-        color: #f0f0f0;
-    }
-
-    .neuro-loader {
-        border-color: var(--col-default);
-        border-top-color: transparent;
-    }
-
-    .neuro-loader::before {
-        color: var(--col-default);
-    }
-
-    .no-data-message {
-        color: #f0f0f0;
-    }
-}
-
-.ai-explanation-footer .outdated {
-    background-color: rgba(255, 0, 0, 0.1);
-    color: #d32f2f;
-    padding: 4px 8px;
-    border-radius: 4px;
-}
-
-/* Тёмная тема */
-@media (prefers-color-scheme: dark) {
-    .ai-explanation-footer .outdated {
-        background-color: rgba(255, 0, 0, 0.2);
-        color: #ef5350;
-    }
-}
 
 /*.history button.nearby {*/
 /*    position: relative;*/
@@ -3094,22 +2927,7 @@ input::-webkit-inner-spin-button {
 /*    border-radius: 4px;*/
 /*}*/
 
-#gpsBadge {
-    margin-left: 5px;
-}
 
-.gps-success {
-    background-color: var(--badge-green-bg);
-}
-
-.gps-outdate {
-    background-color: var(--badge-orange-bg);
-    opacity: 0.5;
-}
-
-.gps-error {
-    opacity: 0.5;
-}
 
 /* Стили для модального окна changelog */
 .changelog-modal {

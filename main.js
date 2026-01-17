@@ -5,7 +5,6 @@ let autoGoOffline = localStorage.getItem('autoGoOffline') !== null ?
 let doHighlight = JSON.parse(localStorage.getItem('doHighlight')) || false;
 let doMarkBagde = JSON.parse(localStorage.getItem('doMarkBagde')) || false;
 let canShowAirportInfo = JSON.parse(localStorage.getItem('canShowAirportInfo')) || false;
-let useGpsPosition = false;  // JSON.parse(localStorage.getItem('useGpsPosition')) || false;
 
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
@@ -193,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Селекторы
     const icaoInput = document.getElementById('icao');
     const fetchBtn = document.getElementById('fetchBtn');
-    const gpsBtn = document.getElementById('gpsBtn');
     const systemsInfoBtn = document.getElementById('systemsInfoBtn');
     const restrBtn = document.getElementById('restrBtn');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
@@ -226,6 +224,134 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Селект для выбора маршрута
     const routeSelect = document.getElementById('routeSelect');
+    const routeSelectContainer = document.getElementById('routeSelectContainer');
+    const routeSelectLabel = document.getElementById('routeSelectLabel');
+    const routeSearchModal = document.getElementById('routeSearchModalBackdrop');
+    const closeRouteSearchModalBtn = document.getElementById('closeRouteSearchModalBtn');
+    const routeSearchInput = document.getElementById('routeSearchInput');
+    const routeSearchResults = document.getElementById('routeSearchResults');
+
+    function openRouteSearchModal() {
+        routeSearchModal.classList.add('show');
+        routeSearchInput.value = '';
+        renderRouteSearchResults();
+        setTimeout(() => routeSearchInput.focus(), 100);
+    }
+
+    function hideRouteSearchModal() {
+        routeSearchModal.classList.remove('show');
+    }
+
+    routeSelectContainer.addEventListener('click', openRouteSearchModal);
+    closeRouteSearchModalBtn.addEventListener('click', hideRouteSearchModal);
+
+    routeSearchInput.addEventListener('input', () => {
+        renderRouteSearchResults(routeSearchInput.value);
+    });
+
+    function transliterate(text) {
+        const rus = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя".split("");
+        const eng = ["a", "b", "v", "g", "d", "e", "yo", "zh", "z", "i", "y", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "kh", "ts", "ch", "sh", "shch", "", "y", "", "e", "yu", "ya"];
+        let result = text.toLowerCase();
+        for (let i = 0; i < rus.length; i++) {
+            result = result.split(rus[i]).join(eng[i]);
+        }
+        return result;
+    }
+
+    function renderRouteSearchResults(filter = '') {
+        routeSearchResults.innerHTML = '';
+        const searchStr = filter.toLowerCase();
+        const transStr = transliterate(searchStr);
+
+        let resultsFound = false;
+
+        // 1. Недавние
+        if ('недавние'.includes(searchStr) || 'recent'.includes(searchStr)) {
+            const div = document.createElement('div');
+            div.className = 'route-search-item';
+            if (routeSelect.value === 'recent') div.classList.add('active');
+            div.innerHTML = `<div class="route-item-title">Недавние</div>
+                             <div class="route-item-special">Последние просмотренные ICAO</div>`;
+            div.onclick = () => {
+                selectRouteOption('recent');
+                hideRouteSearchModal();
+            };
+            routeSearchResults.appendChild(div);
+            resultsFound = true;
+        }
+
+        // 2. Сохраненные маршруты
+        savedRoutes.forEach((route, index) => {
+            const depName = airportInfoDb[route.departure]?.geo?.[0] || '';
+            const arrName = airportInfoDb[route.arrival]?.geo?.[0] || '';
+            const routeStr = `${route.departure} ${route.arrival} ${depName} ${arrName}`.toLowerCase();
+
+            if (routeStr.includes(searchStr) || (transStr && routeStr.includes(transStr))) {
+                const div = document.createElement('div');
+                div.className = 'route-search-item';
+                if (routeSelect.value == index) div.classList.add('active');
+                div.innerHTML = `<div class="route-item-title">${route.departure} - ${route.arrival}</div>
+                                 <div class="route-item-details">${depName} → ${arrName}</div>`;
+                div.onclick = () => {
+                    selectRouteOption(index);
+                    hideRouteSearchModal();
+                };
+                routeSearchResults.appendChild(div);
+                resultsFound = true;
+            }
+        });
+
+        // 3. Добавить маршрут
+        if ('добавить маршрут'.includes(searchStr) || 'add route'.includes(searchStr) || (transStr && 'add route'.includes(transStr))) {
+            const div = document.createElement('div');
+            div.className = 'route-search-item';
+            div.innerHTML = `<div class="route-item-title">Добавить маршрут...</div>
+                             <div class="route-item-special">Создать новый список аэродромов</div>`;
+            div.onclick = () => {
+                selectRouteOption('add');
+                hideRouteSearchModal();
+            };
+            routeSearchResults.appendChild(div);
+            resultsFound = true;
+        }
+
+        if (!resultsFound) {
+            const div = document.createElement('div');
+            div.style.padding = '20px';
+            div.style.textAlign = 'center';
+            div.style.opacity = '0.5';
+            div.textContent = 'Ничего не найдено';
+            routeSearchResults.appendChild(div);
+        }
+    }
+
+    function selectRouteOption(value) {
+        routeSelect.value = value;
+        // Для 'add' мы не вызываем change, так как renderSelectedRoute сам сбросит в 'recent'
+        if (value !== 'add') {
+            routeSelect.dispatchEvent(new Event('change'));
+        } else {
+            // Если 'add', просто вызываем renderSelectedRoute, чтобы показалась модалка
+            renderSelectedRoute();
+        }
+        updateRouteSelectLabel();
+    }
+
+    function updateRouteSelectLabel() {
+        const val = routeSelect.value;
+        if (val === 'recent') {
+            routeSelectLabel.textContent = 'Недавние';
+        } else if (val === 'add') {
+            routeSelectLabel.textContent = 'Добавить маршрут...';
+        } else {
+            const idx = parseInt(val, 10);
+            const route = savedRoutes[idx];
+            if (route) {
+                routeSelectLabel.textContent = `${route.departure} - ${route.arrival}`;
+            }
+        }
+    }
 
     // Модальное окно для добавления маршрута
     const addRouteModalBackdrop = document.getElementById('addRouteModalBackdrop');
@@ -237,8 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const arrivalIcaoInput = document.getElementById('arrivalIcao');
     const alternatesIcaoInput = document.getElementById('alternatesIcao');
 
-    const savedPassword = localStorage.getItem(PASSWORD_KEY);
-    if (!savedPassword) {
+    if (!localStorage.getItem(PASSWORD_KEY)) {
         showModal();
     } else {
         hideModal();
@@ -574,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
             offlineMode = true;
             localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
             if (typeof updateOfflineButton === 'function') updateOfflineButton();
-            if (typeof updateGpsButton === 'function') updateGpsButton();
+            if (typeof updateSystemsButton === 'function') updateSystemsButton();
             hideNoConnModal();
         });
     }
@@ -679,7 +804,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        let lang;
         try {
             let rawData;
             if (offlineMode && toShowOfflineWarning) {
@@ -779,9 +903,6 @@ document.addEventListener('DOMContentLoaded', () => {
             finalText = finalText.trimEnd(); // убираем последний \n\n
 
             // ========= Формируем плашки с временем в новом порядке =======
-            const upperBadgeContainer = document.createElement('div');
-            upperBadgeContainer.className = 'time-badge-container';
-
             timeBadgeContainer.innerHTML = '';
             favBadgeContainer.innerHTML = '';
             removeTimeBadgeContainerBottomGap();
@@ -966,13 +1087,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Выводим как HTML (чтобы теги <b>, <u> работали)
             if (!silent) {
                 responseContainer.innerHTML = finalText;
-                // if (getAiAccess()) {
-                //     responseContainer.innerHTML = '<div id="aiIcon" onclick="showAIExplanationModal()"><i class="fa-solid fa-wand-magic-sparkles"></i></i></div>' + finalText;
-                //     responseContainer.style.padding = '10px 40px 10px 10px';
-                // } else {
-                //     responseContainer.innerHTML = finalText;
-                //     responseContainer.style.padding = '10px';
-                // }
                 showAirportInfo(icao);
             }
 
@@ -1026,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyIcaoButtonColors(icao, buttonInHistory);
             }
 
-            updateGpsButton(silent);
+            updateSystemsButton(silent);
         } catch (err) {
             responseContainer.textContent = 'Ошибка при запросе: ' + err;
         }
@@ -1310,7 +1424,7 @@ document.addEventListener('DOMContentLoaded', () => {
         icaoInput.value = icao;
         getWeather(icao, false);
         updateFetchBtn();
-        updateGpsButton();
+        updateSystemsButton();
 
         // --- добавляешь это ---
         const suggestionsContainer = document.getElementById('icaoSuggestions');
@@ -2055,15 +2169,13 @@ document.addEventListener('DOMContentLoaded', () => {
         offlineMode = !offlineMode;
         localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
         updateOfflineButton();
-        updateGpsButton();
+        updateSystemsButton();
     });
 
-    function updateGpsButton(forceDisable=false) {
+    function updateSystemsButton(forceDisable=false) {
         if (forceDisable) {
-            gpsBtn.disabled = true;
             systemsInfoBtn.disabled = true;
         } else {
-            gpsBtn.disabled = !(nowIcao && nowIcao.length === 4 && !offlineMode);
             systemsInfoBtn.disabled = !(nowIcao && nowIcao.length === 4);
         }
     }
@@ -2085,7 +2197,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const autoOfflineCheckbox = document.getElementById('autoOfflineCheckbox');
     const doHighlightCheckbox = document.getElementById('doHighlightCheckbox');
     const showAirportInfoCheckbox = document.getElementById('showAirportInfoCheckbox');
-    const useGpsPositionCheckbox = document.getElementById('useGpsPositionCheckbox');
     const doMarkBagdeCheckbox = document.getElementById('doMarkBagdeCheckbox');
 
     // Установить состояние чекбокса при загрузке
@@ -2093,7 +2204,6 @@ document.addEventListener('DOMContentLoaded', () => {
     doHighlightCheckbox.checked = doHighlight; // Установить состояние
     doMarkBagdeCheckbox.checked = doMarkBagde;
     showAirportInfoCheckbox.checked = canShowAirportInfo;
-    useGpsPositionCheckbox.checked = useGpsPosition;
 
     // Обработчик изменения чекбокса
     autoOfflineCheckbox.addEventListener('change', () => {
@@ -2116,35 +2226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         canShowAirportInfo = showAirportInfoCheckbox.checked; // Обновить переменную
         localStorage.setItem('canShowAirportInfo', JSON.stringify(canShowAirportInfo)); // Сохранить в localStorage
     });
-
-    function changeUseGps(checkboxMode=true) {
-        if (checkboxMode) {
-            useGpsPosition = useGpsPositionCheckbox.checked;
-        } else {
-            useGpsPosition = !useGpsPosition;
-            useGpsPositionCheckbox.checked = useGpsPosition;
-        }
-        localStorage.setItem('useGpsPosition', JSON.stringify(useGpsPosition));
-
-        if (useGpsPosition) {
-            updateGpsPosition();
-        } else {
-            window.currentGpsPosition = null;
-            updateSelectedPlacard();
-
-            const gpsTextEl = document.getElementById('currentGPS');
-            const gpsBadgeEl = document.getElementById('gpsBadge');
-
-            gpsTextEl.textContent = "Откл.";
-            gpsBadgeEl.classList.remove('gps-error', 'gps-success', 'gps-outdate');
-            gpsBadgeEl.classList.add('gps-error');
-        }
-    }
-
-    useGpsPositionCheckbox.addEventListener('change', changeUseGps);
-    document.getElementById('gpsBadge').addEventListener('click', () => {
-        changeUseGps(false);
-    })
 
     function showAddRouteModal() {
         addRouteModalBackdrop.classList.add('show');
@@ -2310,12 +2391,6 @@ document.addEventListener('DOMContentLoaded', () => {
         recentOption.innerHTML = 'Недавние';
         routeSelect.appendChild(recentOption);
 
-        // Добавляем опцию "Временный"
-        // let tempOption = document.createElement('option');
-        // tempOption.value = 'temp';
-        // tempOption.innerHTML = 'Временный 🛰';
-        // routeSelect.appendChild(tempOption);
-
         // 2) Для каждого сохранённого маршрута
         savedRoutes.forEach((route, index) => {
             const option = document.createElement('option');
@@ -2339,6 +2414,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Всегда оставляем «Недавние» выбранным по умолчанию (если нужно)
         document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-plus"></i>';
+
+        // Синхронизируем кастомный селект
+        updateRouteSelectLabel();
     }
     renderRoutesInSelect();
 
@@ -2346,8 +2424,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedValue = routeSelect.value;
         const editBtn = document.getElementById('editRouteBtn');
         const reverseBtn = document.getElementById('reverseRouteBtn');
-        const showMapBtn = document.getElementById('showMapBtn');
-        showMapBtn.style.display = 'none';
 
         if (selectedValue === 'recent') {
             // Показываем "Недавние"
@@ -2356,21 +2432,6 @@ document.addEventListener('DOMContentLoaded', () => {
             reverseBtn.hidden = true;
             return;
         }
-
-        // if (selectedValue === 'temp') {
-        //     showMapBtn.style.display = 'block';
-        //     // Попытка получить временный маршрут из localStorage (например, под ключом 'tempRoute')
-        //     const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
-        //     if (tempRoute.departure && tempRoute.arrival) {
-        //         // Функция renderRouteAerodromes уже используется для отображения маршрута
-        //         renderRouteAerodromes([tempRoute.departure, ...tempRoute.alternates, tempRoute.arrival]);
-        //         importedRouteCoords = tempRoute.coords;
-        //     } else {
-        //         historyContainer.innerHTML = '<p>Временный маршрут не задан.</p>';
-        //     }
-        //     editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
-        //     return;
-        // }
 
         if (selectedValue === 'add') {
             // Показываем модалку
@@ -2435,7 +2496,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function renderRouteAerodromes(aerodromes) {
-        // Очищаем контейнер
+        // Обновим лейбл, так как маршрут мог быть перевернут или изменен
+        updateRouteSelectLabel();
+        
         historyContainer.innerHTML = '';
         if (aerodromes.length === 0) return;
 
@@ -2613,34 +2676,6 @@ document.addEventListener('DOMContentLoaded', () => {
         container.style.display = 'flex';
     }
 
-    function updateMenuShow() {
-        const zoomInBtn = document.getElementById('zoomInBtn');
-        const zoomOutBtn = document.getElementById('zoomOutBtn');
-        const refreshAllBtn = document.getElementById('refreshAllBtn');
-        const settingsBtn = document.getElementById('settingsBtn');
-        const aiCheckBtn = document.getElementById('aiCheckBtn');
-
-        if (showSecondMenu) {
-            zoomInBtn.hidden = true;
-            zoomOutBtn.hidden = true;
-            gpsBtn.hidden = false;
-            systemsInfoBtn.hidden = false;
-            restrBtn.hidden = false;
-            refreshAllBtn.hidden = false;
-            settingsBtn.hidden = true;
-            aiCheckBtn.hidden = true;
-        } else {
-            zoomInBtn.hidden = false;
-            zoomOutBtn.hidden = false;
-            gpsBtn.hidden = true;
-            systemsInfoBtn.hidden = true;
-            restrBtn.hidden = true;
-            refreshAllBtn.hidden = true;
-            settingsBtn.hidden = false;
-            aiCheckBtn.hidden = false;
-        }
-
-    }
 
     document.getElementById('exportGamcUidBtn').addEventListener('click', () => {
         const currentUid = localStorage.getItem('gamcUid') || '';
@@ -3224,199 +3259,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const calcModalBackdrop = document.getElementById('calcModalBackdrop');
-    const closeCalcModalBtn = document.getElementById('closeCalcModalBtn');
-
-    closeCalcModalBtn.addEventListener('click', hideCalcModal);
-
-    function showCalcModal(icao) {
-        // ...
-        const runwaySelect = document.getElementById('runwaySelect');
-        const taxiwaySelect = document.getElementById('taxiwaySelect');
-
-        // Очищаем
-        runwaySelect.innerHTML = '';
-        taxiwaySelect.innerHTML = '';
-
-        const airport = airportInfoDb[icao];
-        if (!airport || !airport.runways) {
-            // ...
-            return;
-        }
-
-        const runwayList = airport.runways; // { "12": {...}, "30": {...} }
-        const directions = Object.keys(runwayList);
-        if (!directions.length) {
-            // ...
-            return;
-        }
-
-        // Заполним <option> в #runwaySelect
-        directions.forEach(dir => {
-            const opt = document.createElement('option');
-            opt.value = dir;
-            opt.textContent = dir;
-            runwaySelect.appendChild(opt);
-        });
-
-        // Берём первую ВПП по умолчанию
-        runwaySelect.value = directions[0];
-
-        // Наполняем #taxiwaySelect (рулёжки) под выбранную ВПП
-        updateTaxiways(icao, runwaySelect.value);
-
-        // Отрисовываем
-        renderSingleTaxiway(icao, runwaySelect.value, taxiwaySelect.value);
-
-        // Вешаем обработчики:
-        runwaySelect.addEventListener('change', () => {
-            // Обновляем список РД в taxiwaySelect
-            updateTaxiways(icao, runwaySelect.value);
-            // И заново рендерим
-            renderSingleTaxiway(icao, runwaySelect.value, taxiwaySelect.value);
-        });
-
-        taxiwaySelect.addEventListener('change', () => {
-            renderSingleTaxiway(icao, runwaySelect.value, taxiwaySelect.value);
-        });
-
-        calcModalBackdrop.classList.add('show');
-    }
-
-    function updateTaxiways(icao, dir) {
-        const airport = airportInfoDb[icao];
-        const taxiwaySelect = document.getElementById('taxiwaySelect');
-        taxiwaySelect.innerHTML = '';
-
-        if (!airport || !airport.runways[dir]) return;
-
-        const intersections = airport.runways[dir].intersections || {};
-        // Object.keys(intersections) -> ["B", "C", "D" ...]
-        const keys = Object.keys(intersections).sort(); // сортируем по алфавиту
-
-        keys.forEach(key => {
-            const opt = document.createElement('option');
-            opt.value = key;
-            opt.textContent = key;
-            taxiwaySelect.appendChild(opt);
-        });
-
-        // Если есть хотя бы одна рулёжка, выбираем первую
-        if (keys.length) {
-            taxiwaySelect.value = keys[0];
-        }
-    }
-
-    function hideCalcModal() {
-        calcModalBackdrop.classList.remove('show');
-    }
-
-    // Реализация рендера
-    function renderSingleTaxiway(icao, dir, taxiway) {
-        const runwayIntersectionsInfo = document.getElementById('runwayIntersectionsInfo');
-        const runwaySchematicContainer = document.getElementById('runwaySchematicContainer');
-
-        // Очищаем
-        runwayIntersectionsInfo.innerHTML = '';
-        runwaySchematicContainer.innerHTML = '';
-
-        const airport = airportInfoDb[icao];
-        if (!airport || !airport.runways || !airport.runways[dir]) {
-            runwayIntersectionsInfo.textContent = 'Нет данных о ВПП для ' + icao;
-            return;
-        }
-
-        const runwayData = airport.runways[dir]; // { xlda: 3200, intersections: {...} }
-        const intersections = runwayData.intersections || {};
-
-        const headingDegrees = runwayData['hdg'];
-        const isEast = (headingDegrees < 180);
-
-        // Если нет такой РД, сообщаем
-        if (!intersections[taxiway]) {
-            runwayIntersectionsInfo.textContent = `Нет данных для РД ${taxiway}`;
-            return;
-        }
-
-        // Определяем LDA этой рулёжки
-        const lda = intersections[taxiway].LDA;
-        const fullLda = runwayData.xlda || 0;
-
-        // Пишем текст
-        runwayIntersectionsInfo.innerHTML = `
-    <p><strong>LDA RW ${dir}:</strong> ${fullLda} м</p>
-    <p><strong>From THR to <b>${taxiway}</b>:</strong> ${lda} м</p>
-  `;
-
-        // Высота полосы
-        const runwayHeight = 40; // px
-
-        // Рассчитываем пиксели для метки РД
-        const offsetPct = Math.round(lda / fullLda * 90) + 5;
-
-        // Генерим HTML для схемы
-        // Внутри — "сплошная" полоса, 0м справа, <конец> слева...
-        let schemeHtml = '';
-
-        if (isEast) {
-            // "Слева → направо": 0м слева, конечная длина справа
-            // Самолёт (стрелка) "смотрит" вправо (rotation(0deg))
-            schemeHtml = `
-        <div class="runway-scheme-wrapper">
-            <!-- Подпись 0 м слева -->
-            <div class="runway-zero-label" style="left: 15px;">
-                0 м
-            </div>
-            <!-- Подпись полной длины справа -->
-            <div class="runway-end-label" style="right: -15px;">
-                ${fullLda} м
-            </div>
-
-            <!-- Иконка самолёта, направленная вправо -->
-            <i class="fa-solid fa-plane landing-arrow"
-               style="left: 10%; transform: translate(-50%, -50%) rotate(0deg);">
-            </i>
-
-            <!-- Маркер рулёжки -->
-            <div class="taxiway-marker" style="left: ${offsetPct}%;"></div>
-            <div class="taxiway-marker-label" style="left: ${offsetPct}%; top: 48px;">
-                <b>${taxiway}</b> (${lda} м)
-            </div>
-        </div>
-    `;
-        } else {
-            // "Справа → налево" (как было раньше): 0м справа, конечная длина слева
-            // Самолёт (стрелка) «смотрит» влево (rotation(180deg))
-            const taxiwayLabelPct = (offsetPct - 10) <= 75 ? (offsetPct - 10) : 75;
-            schemeHtml = `
-        <div class="runway-scheme-wrapper">
-            <div class="runway-zero-label" style="right: -10px;">
-                0 м
-            </div>
-            <div class="runway-end-label" style="left: 25px;">
-                ${fullLda} м
-            </div>
-
-            <i class="fa-solid fa-plane landing-arrow"
-               style="left: 90%; transform: translate(-50%, -50%) rotate(180deg);">
-            </i>
-
-            <div class="taxiway-marker" style="right: ${offsetPct}%;"></div>
-            <div class="taxiway-marker-label" style="right: ${taxiwayLabelPct}%;">
-                <b>${taxiway}</b> (${lda} м)
-            </div>
-        </div>
-    `;
-        }
-        runwaySchematicContainer.innerHTML = schemeHtml;
-    }
-
-    const switchBtn = document.getElementById('switchMenuBtn');
-    switchBtn.addEventListener('click', () => {
-        showSecondMenu = !showSecondMenu;
-        localStorage.setItem('showSecondMenu', JSON.stringify(showSecondMenu));
-        updateMenuShow();
-    });
 
 
     function findWorstColor(classes) {
@@ -3538,32 +3380,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Найдите сразу после других обработчиков внутри document.addEventListener('DOMContentLoaded', ...)
-    const gpsModalBackdrop = document.getElementById('gpsModalBackdrop');
-    const gpsIframe = document.getElementById('gpsIframe');
-    const closeGpsModalBtn = document.getElementById('closeGpsModalBtn');
-    
-    gpsBtn.addEventListener('click', () => {
-        // Устанавливаем адрес в iframe
-        const now = new Date();
-        const yesterday = new Date(now.getTime() - 86400000); // 86400000 мс = 24 часа
-        const year = yesterday.getFullYear();
-        const month = String(yesterday.getMonth() + 1).padStart(2, '0');
-        const day = String(yesterday.getDate()).padStart(2, '0');
-        const dateStr = `${year}-${month}-${day}`;
-
-        const airport = airportInfoDb[nowIcao];
-        gpsIframe.src = `https://gpsjam.org/?lat=${airport.latitude}&lon=${airport.longitude}&z=7&date=${dateStr}`;
-
-        // Показываем модальное окно, добавляя класс "show"
-        gpsModalBackdrop.classList.add('show');
-    });
-    
-    closeGpsModalBtn.addEventListener('click', () => {
-        // Скрываем модальное окно и очищаем src, чтобы остановить загрузку сайта
-        gpsModalBackdrop.classList.remove('show');
-        gpsIframe.src = "";
-    });
 
     // Логика для редактирования gamcUid
     const gamcUidInput = document.getElementById('gamcUidInput');
@@ -3652,6 +3468,5 @@ document.addEventListener('DOMContentLoaded', () => {
     return R * c;
 }
 
-    updateMenuShow();
     setInterval(updateBadgesTimeAndColors, 15000);
 });

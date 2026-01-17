@@ -57,16 +57,11 @@
         </div>
 
         <div class="buttons">
-            <button id="zoomInBtn"><i class="fas fa-search-plus"></i></button>
-            <button id="zoomOutBtn"><i class="fas fa-search-minus"></i></button>
-            <button id="restrBtn" hidden><i class="fa-solid fa-ruler-combined"></i></button>
-            <button id="gpsBtn" disabled hidden><i class="fa-solid fa-satellite-dish"></i></button>
-            <button id="systemsInfoBtn" disabled hidden onclick="showLandingSystemModal()"><i class="fa-solid fa-tower-cell"></i></button>
-            <button id="refreshAllBtn" hidden><i class="fa-solid fa-retweet"></i></button>
-            <button id="aiCheckBtn"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
-            <button id="settingsBtn"><i class="fa-solid fa-gear"></i></button>
+            <button id="restrBtn"><i class="fa-solid fa-ruler-combined"></i></button>
+            <button id="systemsInfoBtn" disabled onclick="showLandingSystemModal()"><i class="fa-solid fa-tower-cell"></i></button>
+            <button id="refreshAllBtn"><i class="fa-solid fa-retweet"></i></button>
             <button id="offlineToggleBtn"><i class="fa-solid fa-signal"></i></button>
-            <button id="switchMenuBtn"><i class="fa-solid fa-right-left"></i></button>
+            <button id="settingsBtn"><i class="fa-solid fa-gear"></i></button>
         </div>
 
         <div class="subtitle-row">
@@ -75,22 +70,21 @@
                     <i class="fa-solid fa-plane"></i>
                     <span id="selectedAircraftType">B737</span>
                 </div>
-                <div class="aircraft-type-badge gps-error" id="gpsBadge" hidden>
-                    <i class="fa-solid fa-location-arrow"></i>
-                    <span id="currentGPS">-</span>
-                </div>
             </div>
             <div class="route-dropdown">
-                <button id="showMapBtn" style="display: none;" hidden>
-                    <i class="fa-solid fa-map-location"></i>
-                </button>
                 <button id="reverseRouteBtn" hidden>
                     <i class="fa-solid fa-arrow-right-arrow-left"></i>
                 </button>
                 <button id="editRouteBtn">
                     <i class="fa-solid fa-plus"></i>
                 </button>
-                <select id="routeSelect">
+                <div class="custom-route-select" id="routeSelectContainer">
+                    <div id="routeSelectDisplay" class="route-select-display">
+                        <span id="routeSelectLabel">Недавние</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+                <select id="routeSelect" style="display: none;">
                     <option value="recent" selected>Недавние</option>
                 </select>
             </div>
@@ -140,6 +134,21 @@
             meteoinfo.gamc.ru</div>Перепроверяйте данные.
     </footer>
 
+
+    <div class="modal-backdrop" id="routeSearchModalBackdrop">
+        <div class="modal">
+            <button class="modal-close-btn" id="closeRouteSearchModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Поиск маршрута</h2>
+            <div class="route-search-container">
+                <input type="text" id="routeSearchInput" placeholder="Поиск по ICAO или названию..." autofocus />
+            </div>
+            <div id="routeSearchResults" class="route-search-results">
+                <!-- Сюда будут рендериться результаты поиска -->
+            </div>
+        </div>
+    </div>
 
     <!-- Модальное окно для пароля -->
     <div class="modal-backdrop" id="modalBackdrop">
@@ -212,7 +221,11 @@
                     <button id="resetPasswordBtn" class="modal-button"><i class="fas fa-unlock-alt"></i>Сбросить пароль</button>
                     <button id="showPasswordBtn"  class="modal-button"><i class="fa-solid fa-eye"></i></button>
                 </div>
-                <button id="resetZoomBtn" class="modal-button"><i class="fas fa-compress-arrows-alt"></i>Сбросить масштаб</button>
+                <div class="zoom-controls-row">
+                    <button id="resetZoomBtn" class="modal-button"><i class="fas fa-compress-arrows-alt"></i>Сбросить масштаб</button>
+                    <button id="zoomInBtn" class="modal-button zoom-btn"><i class="fas fa-search-plus"></i></button>
+                    <button id="zoomOutBtn" class="modal-button zoom-btn"><i class="fas fa-search-minus"></i></button>
+                </div>
                 <div id="gamcUidContainer">
                     <input type="text" id="gamcUidInput" value="" readonly maxlength="6" />
                     <button id="editGamcUidBtn">
@@ -248,10 +261,6 @@
                     </select>
                 </div>
                 <div class="modal-checkbox-group">
-                    <label class="custom-checkbox" hidden>
-                        <input type="checkbox" id="useGpsPositionCheckbox">
-                        <span>Использовать GPS (выделять ближайшие аэродромы и метку на карте)</span>
-                    </label>
                     <label class="custom-checkbox">
                         <input type="checkbox" id="showAirportInfoCheckbox">
                         <span>Отображать информацию об аэродроме</span>
@@ -354,44 +363,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно для калькулятора ВПП -->
-    <div class="modal-backdrop" id="calcModalBackdrop">
-        <div class="modal calc-modal">
-            <button class="modal-close-btn" id="closeCalcModalBtn">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2>Расчёт ВПП / РД</h2>
-
-            <div class="modal-content">
-                <!-- Блок ВПП + РД в одной строке -->
-                <div class="calc-row">
-                    <label for="runwaySelect">ВПП:</label>
-                    <select id="runwaySelect" class="no-default-arrow">
-                        <!-- Опции направлений ВПП (12, 30, etc.) -->
-                    </select>
-
-                    <label for="taxiwaySelect">РД:</label>
-                    <select id="taxiwaySelect" class="no-default-arrow">
-                        <!-- Опции рулёжек (B, C, D...), подставляются динамически -->
-                    </select>
-                </div>
-
-                <!-- Тут будет вывод дистанции для выбранной РД -->
-                <div id="runwayIntersectionsInfo"></div>
-
-                <!-- Схема полосы -->
-                <div id="runwaySchematicContainer"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно для отображения GPSJam -->
-    <div class="modal-backdrop" id="gpsModalBackdrop">
-        <div class="modal" id="gps-modal">
-            <button class="modal-close-btn" id="closeGpsModalBtn"><i class="fas fa-times"></i></button>
-            <iframe id="gpsIframe" src="" style="width:100%; height:100%; border:none;"></iframe>
-        </div>
-    </div>
 
     <!-- Модальное окно для результата (или уведомления) -->
     <div class="modal-backdrop" id="resultModalBackdrop">
@@ -706,9 +677,7 @@
     <script src="routeCreator.js"></script>
     <script src="notamUtils.js"></script>
     <script src="mapViewier.js"></script>
-    <script src="aiInteraction.js"></script>
     <script src="wakeLock.js"></script>
-    <script src="gpsUpdater.js"></script>
 
 
     <script>

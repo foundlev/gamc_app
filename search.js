@@ -57,7 +57,6 @@
         const searchInput = backdrop.querySelector('#searchInput');
         const resultsEl = backdrop.querySelector('#searchResults');
         const emptyEl = backdrop.querySelector('#searchHint');
-        const footerEl = backdrop.querySelector('footer');
 
         // Небольшая защита: ждём базу, если она ещё не подгрузилась в main.js
         // (main.js грузит airports_db.json и кладёт в airportsList/airportInfoDb).  [oai_citation:3‡main.js](file-service://file-3ksfbN2wFrd53PYSTsTkfX)
@@ -186,8 +185,6 @@
                 const hasRecents = renderRecents();
                 resultsEl.style.display = hasRecents ? 'block' : 'none';
                 emptyEl.style.display = hasRecents ? 'none' : 'block';
-                footerEl.textContent = hasRecents ? '' : '';
-                footerEl.style.display = 'none';
                 activeIndex = hasRecents ? 1 : -1; // 1 — первый после заголовка
                 return;
             }

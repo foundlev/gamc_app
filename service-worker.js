@@ -12,14 +12,13 @@ const PRECACHE = [
   './data/airports_db.json',
 
   /* JS-модули (добавьте сюда новые, если появятся) */
-  './aiInteraction.js',
   './airportSystems.js',
   './extra.js',
   './extraTwo.js',
-  './gpsUpdater.js',
   './mapViewier.js',
   './notamUtils.js',
   './routeCreator.js',
+  './search.js',
   './synchash.js',
   './wakeLock.js'
 ];

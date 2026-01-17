@@ -14,8 +14,6 @@ function showRouteMap(routeData) {
 
     const maxFontSize = 5;
 
-    let gpsTracking = false;
-    let trackingTimer = null;
 
     // "Коллекция" запасных аэродромов (lat/lon).
     // Получаем их из airportsDB
@@ -111,7 +109,6 @@ function showRouteMap(routeData) {
         const badgeGreenBg = getCssVar('--badge-green-bg', '#27ae60');
         const badgeTextColor = getCssVar('--badge-text-color', '#ffffff');
         const mapBgColor = getCssVar('--map-bg', '#ffffff');
-        const gpsPointColor = getCssVar('--gps-point-color', '#0077ff');
 
         let rect = canvas.getBoundingClientRect();
         let w = rect.width,
@@ -308,38 +305,6 @@ function showRouteMap(routeData) {
             ctx.fillText(airportInfo, c.x + 16 / scale, c.y - 10 / scale);
         });
 
-        // Стиль геопозиции пользователя
-        if (window.currentGpsPosition) {
-            let me = toCanvas(window.currentGpsPosition.lat, window.currentGpsPosition.lon);
-            ctx.beginPath();
-            ctx.arc(me.x, me.y, 10 / scale, 0, 2 * Math.PI);
-            ctx.fillStyle = gpsPointColor;
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2 / scale;
-            ctx.fill();
-            ctx.stroke();
-
-            // Подпись "Я здесь"
-            ctx.font = `${Math.min(14 / scale, 12)}px 'Roboto', sans-serif`;
-            let text = "GPS";
-            let textWidth = ctx.measureText(text).width;
-
-            // Фон
-            ctx.fillStyle = "rgba(255,255,255,0.9)";
-            ctx.beginPath();
-            ctx.roundRect(me.x + 10 / scale, me.y - 25 / scale,
-                        textWidth + 8 / scale, 20 / scale, 4 / scale);
-
-            // Добавляем черную обводку для фона текста
-            ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
-            ctx.lineWidth = 2 / scale;
-            ctx.stroke();
-            ctx.fill();
-
-            // Текст
-            ctx.fillStyle = "#2c3e50";
-            ctx.fillText(text, me.x + 14 / scale, me.y - 10 / scale);
-        }
 
         ctx.restore();
     }
@@ -351,13 +316,6 @@ function showRouteMap(routeData) {
         mapCenterLat += dy / scale;
     }
 
-    // Центр на мою геопозицию
-    function centerOnUser() {
-        if (!window.currentGpsPosition) return;
-        mapCenterLat = window.currentGpsPosition.lat;
-        mapCenterLon = window.currentGpsPosition.lon;
-        drawMap();
-    }
 
     // Вычисляем bounding box только по основному маршруту
     // (Если хотите включать запасные в начальное масштабирование — расширьте BBox под alternates тоже)
@@ -403,12 +361,6 @@ function showRouteMap(routeData) {
         };
     }
 
-    // Геолокация
-    function startGeo(){
-        userZoom = 3; // Устанавливаем масштаб в 5 раз больше
-        centerOnUser(); // Центрируем карту на геопозиции пользователя
-        drawMap();
-    }
 
     // ===== Создаём модалку и canvas ====
     function openModal() {
@@ -472,14 +424,6 @@ function showRouteMap(routeData) {
                     drawMap();
                 });
 
-                startGeo();
-
-                // Добавьте этот блок для обновления позиции из window.currentGpsPosition каждые 60 секунд:
-                setInterval(function() {
-                    if (window.currentGpsPosition) {
-                        drawMap();
-                    }
-                }, 60000);
             }, 0);
 
             // DRAG
@@ -487,12 +431,6 @@ function showRouteMap(routeData) {
                 isDragging = true;
                 dragStartX = e.clientX;
                 dragStartY = e.clientY;
-                // Если режим слежения активен, отключаем его при начале перетаскивания
-                if (gpsTracking) {
-                    gpsTracking = false;
-                    clearInterval(trackingTimer);
-                    document.getElementById("centerMapGeoBtn").classList.remove("tracking-active");
-                }
             });
             canvas.addEventListener("mousemove", (e) => {
                 if (isDragging) {
@@ -553,13 +491,6 @@ function showRouteMap(routeData) {
                 dragStartX = touch.clientX;
                 dragStartY = touch.clientY;
                 e.preventDefault(); // чтобы предотвратить скроллинг страницы
-
-                // Если режим слежения активен, отключаем его при начале перетаскивания
-                if (gpsTracking) {
-                    gpsTracking = false;
-                    clearInterval(trackingTimer);
-                    document.getElementById("centerMapGeoBtn").classList.remove("tracking-active");
-                }
             });
 
             canvas.addEventListener("touchend", (e) => {
@@ -575,56 +506,12 @@ function showRouteMap(routeData) {
                 userZoom /= 1.3;
                 drawMap();
             });
-            document.getElementById("centerMapGeoBtn").addEventListener("click", () => {
-                if (!window.currentGpsPosition) return;
-                // Проверяем, насколько центр карты близок к GPS-позиции
-                const latDiff = Math.abs(mapCenterLat - window.currentGpsPosition.lat);
-                const lonDiff = Math.abs(mapCenterLon - window.currentGpsPosition.lon);
-                const threshold = 0.01; // подберите порог (например, 0.01 градуса)
-
-                if (latDiff < threshold && lonDiff < threshold) {
-                    // Если уже сцентрировано, переключаем режим отслеживания
-                    gpsTracking = !gpsTracking;
-                    // Добавляем/удаляем класс для изменения цвета кнопки
-                    document.getElementById("centerMapGeoBtn").classList.toggle("tracking-active", gpsTracking);
-
-                    if (gpsTracking) {
-                        // Запускаем обновление GPS раз в 3 секунды
-                        trackingTimer = setInterval(() => {
-                            navigator.geolocation.getCurrentPosition((pos) => {
-                                const newLat = pos.coords.latitude;
-                                const newLon = pos.coords.longitude;
-                                animatePan(newLat, newLon);
-                            });
-                        }, 3000);
-                    } else {
-                        clearInterval(trackingTimer);
-                    }
-                } else {
-                    // Если карта не сцентрирована, сразу центрируем и отключаем отслеживание
-                    gpsTracking = false;
-                    document.getElementById("centerMapGeoBtn").classList.remove("tracking-active");
-                    centerOnUser();
-                }
-            });
 
         } else {
             mapModal.style.display = "flex";
             drawMap();
-            startGeo();
         }
     }
 
     openModal();
 }
-
-// ======= Демо: нажимаем кнопку, вызываем showRouteMap(...) =======
-document.addEventListener("DOMContentLoaded", function() {
-    let btn = document.getElementById("showMapBtn");
-    if (btn) {
-        btn.addEventListener("click", function() {
-            // Вызываем нашу универсальную функцию
-            showRouteMap(JSON.parse(localStorage.getItem('tempRoute') || '{}'));
-        });
-    }
-});

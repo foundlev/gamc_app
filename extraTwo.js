@@ -145,11 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Открытие модального окна
-document.getElementById('aiCheckBtn').addEventListener('click', () => {
-    document.getElementById('windDirectionModalBackdrop').classList.add('show');
-});
-
 // Закрытие модального окна
 document.getElementById('closeWindDirectionModalBtn').addEventListener('click', () => {
     document.getElementById('windDirectionModalBackdrop').classList.remove('show');

@@ -20,29 +20,52 @@
 
 <body>
 
-    <header>
-        <h1 id="button-title">
-            <i class="fa-solid fa-plane-circle-check"></i>
-            Weather App
-            <span id="changelogBtn">v1.98</span>
-        </h1>
-    </header>
+    <nav class="sidebar">
+        <button id="infoBtn" class="sidebar-btn" title="Информация">
+            <i class="fa-solid fa-circle-info"></i>
+        </button>
 
-    <!-- Модальное окно для списка обновлений -->
-    <div class="modal-backdrop" id="changelogModalBackdrop">
-        <div class="modal changelog-modal">
-            <button class="modal-close-btn" id="closeChangelogModalBtn">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2>
-                <i class="fas fa-list-ul"></i> Журнал изменений
-            </h2>
-            <div id="changelogContent" class="changelog-content">
-                <!-- Список обновлений будет вставляться сюда -->
-            </div>
-        </div>
-    </div>
+        <div class="sidebar-sep"></div>
 
+        <button id="routeSelectContainer" class="sidebar-btn" title="Маршруты">
+            <i class="fa-solid fa-route"></i>
+            <span id="routeSelectLabel" style="display: none;">Недавние</span>
+        </button>
+        <button id="editRouteBtn" class="sidebar-btn" title="Добавить/Изменить маршрут">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        <button id="reverseRouteBtn" class="sidebar-btn" title="Обратный маршрут" hidden>
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+        </button>
+        
+        <select id="routeSelect" style="display: none;">
+            <option value="recent" selected>Недавние</option>
+        </select>
+
+        <div class="sidebar-sep"></div>
+
+        <button id="refreshAllBtn" class="sidebar-btn" title="Обновить всё">
+            <i class="fa-solid fa-retweet"></i>
+        </button>
+        <button id="restrBtn" class="sidebar-btn" title="Ограничения">
+            <i class="fa-solid fa-ruler-combined"></i>
+        </button>
+        <button id="systemsInfoBtn" class="sidebar-btn" disabled onclick="showLandingSystemModal()" title="Системы аэродрома">
+            <i class="fa-solid fa-tower-cell"></i>
+        </button>
+        <button id="offlineToggleBtn" class="sidebar-btn" title="Оффлайн режим">
+            <i class="fa-solid fa-signal"></i>
+        </button>
+        <div class="sidebar-sep"></div>
+        <button id="settingsBtn" class="sidebar-btn" title="Настройки">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+        <button id="reloadBtn" class="sidebar-btn" title="Перезагрузить страницу">
+            <i class="fa-solid fa-rotate-right"></i>
+        </button>
+    </nav>
+
+    <div class="app-wrapper">
     <main>
         <div class="input-group">
             <div class="input-group icao-input-wrapper">
@@ -53,44 +76,11 @@
                         <ul id="icaoSuggestions" class="icao-suggestions"></ul>
                     </div>
                     <button id="fetchBtn" disabled><i class="fas fa-cloud-download-alt"></i>Запросить</button>
-                    <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button id="notamBtn" disabled title="NOTAM"><i class="fa-solid fa-file-alt"></i>NOTAM</button>
+                    <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i>Поиск</button>
                 </div>
             </div>
 
-        </div>
-
-        <div class="buttons">
-            <button id="restrBtn"><i class="fa-solid fa-ruler-combined"></i></button>
-            <button id="systemsInfoBtn" disabled onclick="showLandingSystemModal()"><i class="fa-solid fa-tower-cell"></i></button>
-            <button id="refreshAllBtn"><i class="fa-solid fa-retweet"></i></button>
-            <button id="offlineToggleBtn"><i class="fa-solid fa-signal"></i></button>
-            <button id="settingsBtn"><i class="fa-solid fa-gear"></i></button>
-        </div>
-
-        <div class="subtitle-row">
-            <div class="aircraft-type-container">
-                <div class="aircraft-type-badge" id="aircraftTypeBadge">
-                    <i class="fa-solid fa-plane"></i>
-                    <span id="selectedAircraftType">B737</span>
-                </div>
-            </div>
-            <div class="route-dropdown">
-                <button id="reverseRouteBtn" hidden>
-                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                </button>
-                <button id="editRouteBtn">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
-                <div class="custom-route-select" id="routeSelectContainer">
-                    <div id="routeSelectDisplay" class="route-select-display">
-                        <span id="routeSelectLabel">Недавние</span>
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
-                </div>
-                <select id="routeSelect" style="display: none;">
-                    <option value="recent" selected>Недавние</option>
-                </select>
-            </div>
         </div>
 
         <!-- Здесь будет либо 10 аэродромов (как раньше), либо список из маршрута -->
@@ -130,13 +120,32 @@
         </div>
     </main>
 
-    <footer>
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        Источник:
-        <div class="original-link" id="btnUrlToGamc" rel="noopener noreferrer">
-            meteoinfo.gamc.ru</div>Перепроверяйте данные.
-    </footer>
+    </div> <!-- .app-wrapper -->
 
+    <div class="modal-backdrop" id="infoModalBackdrop">
+        <div class="modal info-modal">
+            <button class="modal-close-btn" id="closeInfoModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="info-header">
+                <i class="fa-solid fa-plane-circle-check fa-2x" style="color: var(--accent-color);"></i>
+                <h2>Weather App</h2>
+                <span id="changelogBtn" class="version-badge">v1.98</span>
+            </div>
+            
+            <div class="info-content">
+                <p><i class="fa-solid fa-triangle-exclamation"></i> Перепроверяйте данные.</p>
+                <p>Источник: <a href="https://meteoinfo.gamc.ru" target="_blank" rel="noopener noreferrer">meteoinfo.gamc.ru</a></p>
+                
+                <div class="info-sep"></div>
+                
+                <h3>Журнал изменений</h3>
+                <div id="changelogContent" class="changelog-content">
+                    <!-- Список обновлений будет вставляться сюда -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="modal-backdrop" id="routeSearchModalBackdrop">
         <div class="modal">

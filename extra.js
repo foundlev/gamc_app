@@ -101,7 +101,6 @@ function hasNotamsForIcao(icao) {
 // Когда нажимаем кнопку "NOTAM", показываем модалку
 function showNotamModal() {
     if (!nowIcao) {
-        alert('Сначала выберите аэродром');
         return;
     }
     const sameAirport = (nowIcao === lastNotamIcao);
@@ -485,10 +484,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Клик по бейджу для открытия настроек
-    document.getElementById('aircraftTypeBadge').addEventListener('click', () => {
-        updateExportButtonState();
-        document.getElementById('settingsModalBackdrop').classList.add('show');
-    });
+    const aircraftTypeBadge = document.getElementById('aircraftTypeBadge');
+    if (aircraftTypeBadge) {
+        aircraftTypeBadge.addEventListener('click', () => {
+            updateExportButtonState();
+            document.getElementById('settingsModalBackdrop').classList.add('show');
+        });
+    }
 
     updateExportButtonState();
 });
@@ -568,8 +570,3 @@ function updateSelectedPlacard() {
     });
 }
 
-document.getElementById('btnUrlToGamc').addEventListener('click', () => {
-    if (offlineMode) return;
-    // Открываем в новой вкладке http://meteoinfo.gamc.ru
-    window.open('http://meteoinfo.gamc.ru', '_blank');
-});

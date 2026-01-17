@@ -192,6 +192,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Селекторы
     const icaoInput = document.getElementById('icao');
     const fetchBtn = document.getElementById('fetchBtn');
+    const notamBtnStatic = document.getElementById('notamBtn');
+    if (notamBtnStatic) {
+        notamBtnStatic.onclick = showNotamModal;
+    }
+    updateFetchBtn();
     const systemsInfoBtn = document.getElementById('systemsInfoBtn');
     const restrBtn = document.getElementById('restrBtn');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
@@ -515,6 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateFetchBtn() {
         const icao = icaoInput.value.trim().toUpperCase();
+        const notamBtn = document.getElementById('notamBtn');
 
         if (nowIcao && nowIcao === icao && icao.length === 4) {
             fetchBtn.innerHTML = '<i class="fas fa-sync-alt"></i>Обновить';
@@ -522,7 +528,11 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchBtn.innerHTML = '<i class="fas fa-cloud-download-alt"></i>Запросить';
         }
 
-        fetchBtn.disabled = icao.length !== 4;
+        const isDisabled = icao.length !== 4;
+        fetchBtn.disabled = isDisabled;
+        if (notamBtn) {
+            notamBtn.disabled = isDisabled;
+        }
     }
 
     function updateIcaoSuggestions() {
@@ -734,6 +744,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         nowIcao = icao;
         hideAirportInfo();
+        const notamBtn = document.getElementById('notamBtn');
+        if (notamBtn) {
+            notamBtn.classList.remove('badge-default', 'badge-red');
+            notamBtn.innerHTML = '<i class="fa-solid fa-file-alt"></i>NOTAM';
+        }
 
         if (!silent) {
             responseContainer.innerHTML = `
@@ -774,14 +789,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Заменяем текст на анимацию загрузки
             responseContainer.innerHTML = `
               <div class="loading-container">
-                <div class="weather-loader">
-                  <div class="weather-icons">
-                    <i class="fa-solid fa-cloud"></i>
-                    <i class="fa-solid fa-sun"></i>
-                    <i class="fa-solid fa-cloud-rain"></i>
-                  </div>
-                  <span class="loading-text">Получаем данные о погоде...</span>
-                </div>
+                <div class="neuro-loader"></div>
+                <span class="loading-text">Получаем данные о погоде...</span>
               </div>
             `;
             state.worstRunwayFrictionCode = null;
@@ -796,6 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
         if ((!navigator.onLine) || offlineMode) {
             showAirportInfo(icao);
+            updateNotamButton();
             if (savedData[icao]) {
                 responseContainer.innerHTML = savedData[icao];
                 toShowOfflineWarning = true;
@@ -829,6 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Парсим <pre>
             const parser = new DOMParser();
+            updateNotamButton();
             const doc = parser.parseFromString(rawData, 'text/html');
             const preTags = doc.querySelectorAll('pre');
 
@@ -1099,17 +1110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isNotamUpdated = hasNotamsForIcao(icao);
             const notamCount = getNotamCountForIcao(icao);
 
-            const notamsBadge = document.createElement('div');
-            notamsBadge.className = 'time-badge';
-            notamsBadge.id = 'notamBtn';
-            notamsBadge.classList.add(isNotamUpdated ? 'badge-default' : 'badge-red');
-            notamsBadge.classList.add('content-clickable');
-            notamsBadge.onclick = showNotamModal;
-            notamsBadge.innerHTML = `<div class="badge-main"><i class="fa-solid fa-file-alt"></i>` + (isNotamUpdated ? `${notamCount}` : ``) + `</div>`;
-
-            if (!silent && (isNotamUpdated || !offlineMode)) {
-                timeBadgeContainer.appendChild(notamsBadge);
-            }
+            updateNotamButton();
 
             const atifLangSelected = localStorage.getItem('atisLangSelect') || 'en';
             const atisFrqInfo = getAtisFrequencyByIcao(icao, 'arrival', atifLangSelected);
@@ -2215,6 +2216,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Функция для обновления внешнего вида кнопки в зависимости от состояния
     function updateOfflineButton() {
+        const reloadBtn = document.getElementById('reloadBtn');
+        const reloadSep = document.getElementById('reloadSep');
         if (offlineMode) {
             offlineToggleBtn.classList.add('offline');
             offlineToggleBtn.classList.remove('online');
@@ -2222,6 +2225,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('refreshAllBtn').disabled = true;
             document.getElementById('loadGamcUidBtn').disabled = true;
             document.getElementById('exportGamcUidBtn').disabled = true;
+            if (reloadBtn) reloadBtn.hidden = true;
+            if (reloadSep) reloadSep.hidden = true;
         } else {
             offlineToggleBtn.classList.add('online');
             offlineToggleBtn.classList.remove('offline');
@@ -2229,6 +2234,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('refreshAllBtn').disabled = false;
             document.getElementById('loadGamcUidBtn').disabled = false;
             document.getElementById('exportGamcUidBtn').disabled = false;
+            if (reloadBtn) reloadBtn.hidden = false;
+            if (reloadSep) reloadSep.hidden = false;
         }
     }
 
@@ -2242,6 +2249,15 @@ document.addEventListener('DOMContentLoaded', () => {
         updateOfflineButton();
         updateSystemsButton();
     });
+
+    const reloadBtn = document.getElementById('reloadBtn');
+    if (reloadBtn) {
+        reloadBtn.addEventListener('click', () => {
+            if (!offlineMode) {
+                window.location.reload();
+            }
+        });
+    }
 
     function updateSystemsButton(forceDisable=false) {
         if (forceDisable) {
@@ -2482,19 +2498,33 @@ document.addEventListener('DOMContentLoaded', () => {
         routeSelect.appendChild(addOption);
 
         routeSelect.value = selectedValue;
+        // Если вдруг такого значения нет (например, маршрут удалён), сбрасываем на 'recent'
+        if (routeSelect.value !== selectedValue && selectedValue !== 'recent') {
+            routeSelect.value = 'recent';
+        }
 
-        // Всегда оставляем «Недавние» выбранным по умолчанию (если нужно)
-        document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-plus"></i>';
+        // Обновляем иконку кнопки редактирования
+        if (routeSelect.value === 'recent' || routeSelect.value === 'add') {
+             document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-plus"></i>';
+        } else {
+             document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-pen"></i>';
+        }
 
         // Синхронизируем кастомный селект
         updateRouteSelectLabel();
     }
-    renderRoutesInSelect();
+    renderRoutesInSelect(localStorage.getItem('selectedRouteValue') || 'recent');
+    renderSelectedRoute();
 
     function renderSelectedRoute() {
         const selectedValue = routeSelect.value;
         const editBtn = document.getElementById('editRouteBtn');
         const reverseBtn = document.getElementById('reverseRouteBtn');
+
+        // Сохраняем выбор (кроме 'add', так как он временный)
+        if (selectedValue !== 'add') {
+            localStorage.setItem('selectedRouteValue', selectedValue);
+        }
 
         if (selectedValue === 'recent') {
             // Показываем "Недавние"
@@ -2545,6 +2575,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const selectedTypeText = aircraftTypeShortMap[getAircraftType()] || '-';
         const badge = document.getElementById('selectedAircraftType');
+        if (!badge) return;
         if (badge) badge.textContent = selectedTypeText;
     }
 
@@ -3514,16 +3545,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateNotamButton() {
         const notamBtn = document.getElementById('notamBtn');
-        if (notamBtn) {
-            if (hasNotamsForIcao(nowIcao)) {
-                const notamCount = getNotamCountForIcao(nowIcao);
-                notamBtn.innerHTML = `<i class="fa-solid fa-file-alt"></i>${notamCount}`;
-                notamBtn.classList.toggle('badge-default', true);
-                notamBtn.classList.toggle('badge-red', false);
-            } else {
-                notamBtn.classList.toggle('badge-default', false);
-                notamBtn.classList.toggle('badge-red', true);
-            }
+        if (notamBtn && nowIcao) {
+            const isNotamUpdated = hasNotamsForIcao(nowIcao);
+            const notamCount = getNotamCountForIcao(nowIcao);
+            notamBtn.classList.toggle('badge-default', isNotamUpdated);
+            notamBtn.classList.toggle('badge-red', !isNotamUpdated);
+            notamBtn.innerHTML = `<i class="fa-solid fa-file-alt"></i>` + (isNotamUpdated ? `NOTAM ${notamCount}` : `NOTAM`);
         }
     }
 

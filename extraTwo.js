@@ -88,12 +88,12 @@ async function downloadCommitsList() {
 // Функция отображения модального окна
 async function showChangelogModal() {
     const changelogContent = document.getElementById('changelogContent');
+    if (!changelogContent) return;
     changelogContent.innerHTML = ''; // Очищаем содержимое перед вставкой
 
     const changelogData = await getCommits();
     if (!changelogData || !Array.isArray(changelogData)) {
         changelogContent.innerHTML = '<p>Нет данных для отображения</p>';
-        document.getElementById('changelogModalBackdrop').classList.add('show');
         return;
     }
 
@@ -119,7 +119,6 @@ async function showChangelogModal() {
     });
 
     changelogContent.innerHTML = html;
-    document.getElementById('changelogModalBackdrop').classList.add('show');
 }
 
 // Обработчики событий
@@ -128,21 +127,32 @@ document.addEventListener('DOMContentLoaded', () => {
         getCommits().then();
     }
 
+    const infoBtn = document.getElementById('infoBtn');
+    const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
+    const infoModalBackdrop = document.getElementById('infoModalBackdrop');
+
+    if (infoBtn) {
+        infoBtn.addEventListener('click', () => {
+            showChangelogModal(); // Она теперь отвечает за показ Info модалки
+            infoModalBackdrop.classList.add('show');
+        });
+    }
+
+    if (closeInfoModalBtn) {
+        closeInfoModalBtn.addEventListener('click', () => {
+            infoModalBackdrop.classList.remove('show');
+        });
+    }
+
+    if (infoModalBackdrop) {
+        infoModalBackdrop.addEventListener('click', (e) => {
+            if (e.target === infoModalBackdrop) {
+                infoModalBackdrop.classList.remove('show');
+            }
+        });
+    }
+
     const changelogBtn = document.getElementById('changelogBtn');
-    const closeChangelogModalBtn = document.getElementById('closeChangelogModalBtn');
-    const changelogModalBackdrop = document.getElementById('changelogModalBackdrop');
-
-    changelogBtn.addEventListener('click', showChangelogModal);
-
-    closeChangelogModalBtn.addEventListener('click', () => {
-        changelogModalBackdrop.classList.remove('show');
-    });
-
-    changelogModalBackdrop.addEventListener('click', (e) => {
-        if (e.target === changelogModalBackdrop) {
-            changelogModalBackdrop.classList.remove('show');
-        }
-    });
 });
 
 // Закрытие модального окна

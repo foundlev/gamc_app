@@ -1,36 +1,36 @@
 :root {
-    /* Базовая палитра */
-    --bg-color: #f1f5f9;
+    /* Базовая палитра - Обновленная: Modern Slate + Indigo */
+    --bg-color: #f8fafc;
     --card-bg: #ffffff;
-    --text-color: #0f172a;
-    --text-secondary: #475569;
-    --accent-color: #2563eb;
-    --accent-hover: #1d4ed8;
-    --accent-soft: rgba(37, 99, 235, 0.1);
-    --border-color: #cbd5e1;
+    --text-color: #1e293b;
+    --text-secondary: #64748b;
+    --accent-color: #6366f1;
+    --accent-hover: #4f46e5;
+    --accent-soft: rgba(99, 102, 241, 0.1);
+    --border-color: #e2e8f0;
     --input-bg: #ffffff;
     
     /* Универсальные семантические цвета */
     --color-success: #10b981;
     --color-warning: #f59e0b;
     --color-danger: #ef4444;
-    --color-info: #3b82f6;
+    --color-info: #0ea5e9;
 
     /* Состояния и категории */
     --badge-green-bg: var(--color-success);
     --badge-orange-bg: var(--color-warning);
     --badge-red-bg: var(--color-danger);
-    --badge-gray-bg: #94a3b8; /* Улучшен контраст для светлой темы */
+    --badge-gray-bg: #94a3b8;
     --badge-text-color: #ffffff;
 
     --col-green: var(--color-success);
     --col-yellow: var(--color-warning);
     --col-red: var(--color-danger);
-    --col-pink: #db2777;
+    --col-pink: #ec4899;
     --col-purple: #8b5cf6;
     --col-darkred: #991b1b;
     --col-default: var(--accent-color);
-    --col-disabled: #94a3b8;
+    --col-disabled: #cbd5e1;
 
     /* Специфические категории авиационных данных */
     --col-fire: var(--color-danger);
@@ -45,16 +45,16 @@
     --col-airspace: #94a3b8;
 
     --star-color: #f59e0b;
-    --map-bg: #e2e8f0;
+    --map-bg: #f1f5f9;
 
     /* Дизайн-токены */
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 16px;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* =========================
@@ -68,7 +68,7 @@
 @keyframes fadeSlideIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(8px);
     }
     to {
         opacity: 1;
@@ -79,7 +79,7 @@
 @keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translateY(-12px);
     }
     to {
         opacity: 1;
@@ -90,7 +90,7 @@
 @keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(12px);
     }
     to {
         opacity: 1;
@@ -101,7 +101,7 @@
 @keyframes modalPop {
     0% {
         opacity: 0;
-        transform: scale(0.95) translateY(10px);
+        transform: scale(0.98) translateY(8px);
     }
     100% {
         opacity: 1;
@@ -111,38 +111,38 @@
 
 @keyframes backdropFade {
     from { opacity: 0; backdrop-filter: blur(0); }
-    to { opacity: 1; backdrop-filter: blur(4px); }
+    to { opacity: 1; backdrop-filter: blur(6px); }
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg-color: #020617;
-        --card-bg: #0f172a;
-        --text-color: #f8fafc;
+        --bg-color: #0f172a;
+        --card-bg: #1e293b;
+        --text-color: #f1f5f9;
         --text-secondary: #94a3b8;
-        --accent-color: #3b82f6;
-        --accent-hover: #60a5fa;
-        --accent-soft: rgba(59, 130, 246, 0.1);
-        --border-color: #1e293b;
-        --input-bg: #020617;
+        --accent-color: #818cf8;
+        --accent-hover: #a5b4fc;
+        --accent-soft: rgba(129, 140, 248, 0.1);
+        --border-color: #334155;
+        --input-bg: #0f172a;
 
         /* В темной теме приглушаем фоны плашек */
         --badge-green-bg: #064e3b; 
         --badge-orange-bg: #78350f;
         --badge-red-bg: #7f1d1d;
-        --badge-gray-bg: #475569; /* Улучшена видимость в темной теме */
+        --badge-gray-bg: #475569;
         
         --color-success: #10b981;
         --color-warning: #fbbf24;
         --color-danger: #f87171;
-        --color-info: #60a5fa;
+        --color-info: #38bdf8;
 
         --col-green: var(--color-success); 
         --col-yellow: var(--color-warning);
         --col-red: var(--color-danger);
         --col-disabled: #334155;
         
-        --map-bg: #0f172a;
+        --map-bg: #1e293b;
 
         --col-fire: var(--color-danger);
         --col-special: #a78bfa;
@@ -159,13 +159,28 @@
     }
 }
 
+/* Смягчаем жирное начертание глобально */
+b, strong {
+    font-weight: 600;
+}
+
+.semibold {
+    font-weight: 600;
+}
+
+.atis-label {
+    font-weight: 600;
+    color: var(--text-color);
+    min-width: 40px;
+}
+
 /* Общие стили для всех плашек */
 .time-badge {
     background-color: var(--accent-color);
     color: var(--badge-text-color);
     border-radius: var(--radius-sm);
-    padding: 0 10px;
-    font-size: 0.85rem;
+    padding: 0 12px;
+    font-size: 0.8rem;
     font-weight: 500;
     opacity: 0;
     animation: fadeIn 0.4s ease forwards;
@@ -173,8 +188,8 @@
     align-items: center;
     justify-content: center;
     box-shadow: var(--shadow-sm);
-    min-height: 32px;
-    height: 32px;
+    min-height: 28px;
+    height: 28px;
     box-sizing: border-box;
     cursor: pointer;
     transition: var(--transition);
@@ -188,7 +203,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.2;
 }
 
@@ -227,7 +242,7 @@ body {
 }
 
 header {
-    padding: 12px 16px;
+    padding: 16px 20px;
     background: var(--card-bg);
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -240,7 +255,7 @@ header h1 {
     margin: 0;
     width: 100%;
     max-width: 600px;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 500;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -251,7 +266,7 @@ header h1 {
 
 header h1 i {
     color: var(--accent-color);
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     justify-self: end;
 }
 
@@ -260,7 +275,7 @@ header h1 i {
     font-size: 0.75rem;
     background: var(--accent-soft);
     color: var(--accent-color);
-    padding: 2px 8px;
+    padding: 4px 10px;
     border-radius: 12px;
     font-weight: 500;
     opacity: 1 !important;
@@ -270,8 +285,8 @@ main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 12px 16px;
-    gap: 12px;
+    padding: 16px 20px;
+    gap: 16px;
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
@@ -281,7 +296,7 @@ main {
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .input-group label {
@@ -307,7 +322,7 @@ main {
 .input-group input:focus {
     outline: none;
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px var(--accent-soft);
+    box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 /* =========================
@@ -315,13 +330,13 @@ main {
 ========================= */
 .buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     flex-wrap: wrap;
     justify-content: flex-start;
 }
 
 button {
-    padding: 8px 14px;
+    padding: 10px 18px;
     font-size: 0.95rem;
     font-weight: 500;
     border: 1px solid transparent;
@@ -452,7 +467,7 @@ footer {
 .original-link {
     display: inline-block;
     color: var(--accent-color);
-    font-weight: 600;
+    font-weight: 500;
     text-decoration: none;
     margin: 0 4px;
     padding: 2px 6px;
@@ -1066,20 +1081,6 @@ footer {
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        --bg-color: #121212;
-        --text-color: #eeeeee;
-        --accent-color: #1E6FB7;
-        --accent-color-light: #008deb;
-        --border-color: #444444;
-        --card-bg: #1e1e1e;
-
-        --badge-green-bg: #249152;
-        --badge-orange-bg: #d17320;
-        --badge-red-bg: #881818;
-        --badge-default-bg: #34495e;
-        --badge-text-color: #ecf0f1;
-    }
 
     .modal {
         background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
@@ -1573,7 +1574,7 @@ footer {
 }
 
 .route-item-title {
-    font-weight: bold;
+    font-weight: 600;
     color: var(--accent-color);
 }
 
@@ -1628,7 +1629,7 @@ footer {
 
 .airport-codes {
     /* Левый блок */
-    font-weight: bold;
+    font-weight: 600;
     color: var(--accent-color);
     font-size: 0.9rem;
     /* Не слишком большой шрифт */
@@ -1874,7 +1875,7 @@ button[hidden] {
 
 /* Стилизуем <label> и <select> внутри calc-row */
 .calc-row label {
-    font-weight: bold;
+    font-weight: 600;
     font-size: 1rem;
     color: var(--text-color);
 }
@@ -2087,7 +2088,7 @@ button[hidden] {
 
 .notam-id {
     font-family: monospace;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--accent-color);
     font-size: 1.1rem;
 }
@@ -2232,7 +2233,7 @@ button[hidden] {
 
 .notam-id {
     font-family: monospace;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--accent-color);
     font-size: 1.1rem;
 }
@@ -2479,7 +2480,7 @@ input::-webkit-inner-spin-button {
 }
 
 .landing-system-group-header {
-    font-weight: bold;
+    font-weight: 600;
     margin-top: 10px;
     color: var(--accent-color);
 }
@@ -2724,9 +2725,9 @@ input::-webkit-inner-spin-button {
 .limitation-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 12px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--accent-color);
     font-size: 1rem;
 }
@@ -3107,7 +3108,7 @@ input::-webkit-inner-spin-button {
 }
 
 .changelog-modal h2 {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     color: var(--text-color);
     margin-bottom: 24px;
     display: flex;
@@ -3115,7 +3116,7 @@ input::-webkit-inner-spin-button {
     gap: 12px;
     border-bottom: 2px solid var(--accent-soft);
     padding-bottom: 12px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .changelog-content {
@@ -3145,7 +3146,7 @@ input::-webkit-inner-spin-button {
     font-size: 0.9rem;
     color: var(--accent-color);
     margin-bottom: 8px;
-    font-weight: 700;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -3367,7 +3368,7 @@ input::-webkit-inner-spin-button {
 }
 
 .airport-code {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--accent-color);
     font-size: 1rem;
 }
@@ -3416,7 +3417,7 @@ input::-webkit-inner-spin-button {
 .search-item__code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 1.05rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--accent-color);
     letter-spacing: .3px;
 }
@@ -3448,7 +3449,7 @@ input::-webkit-inner-spin-button {
     font-size: .8rem;
     text-transform: uppercase;
     letter-spacing: .05em;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-secondary);
     border-top: 0;
     cursor: default;
@@ -3459,7 +3460,7 @@ input::-webkit-inner-spin-button {
 .search-item .hl {
     background: transparent;
     color: var(--accent-color);
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .placeholder {

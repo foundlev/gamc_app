@@ -590,11 +590,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const titleButton = document.getElementById('button-title');
-    titleButton.addEventListener('click', () => {
-        if (!offlineMode) {
-            location.reload();
-        }
-    });
+    if (titleButton) {
+        titleButton.addEventListener('click', () => {
+            if (!offlineMode) {
+                location.reload();
+            }
+        });
+    }
 
 
     function showModal() {
@@ -910,11 +912,41 @@ document.addEventListener('DOMContentLoaded', () => {
             const nowUTC = new Date();
             const hhUTC = String(nowUTC.getUTCHours()).padStart(2, '0');
             const mmUTC = String(nowUTC.getUTCMinutes()).padStart(2, '0');
+            
+            // Local Time
+            const hhLT = String(nowUTC.getHours()).padStart(2, '0');
+            const mmLT = String(nowUTC.getMinutes()).padStart(2, '0');
 
             const utcBadge = document.createElement('div');
             utcBadge.className = 'time-badge';
             utcBadge.id = 'utcBadge';
-            utcBadge.textContent = `UTC ${hhUTC}:${mmUTC}`;
+            
+            const utcVal = `UTC ${hhUTC}:${mmUTC}`;
+            const ltVal = `LT ${hhLT}:${mmLT}`;
+            
+            utcBadge.innerHTML = `<div class="badge-main"><span class="badge-value">${utcVal}</span></div>`;
+
+            let utcTimer = null;
+            utcBadge.addEventListener('click', () => {
+                const valSpan = utcBadge.querySelector('.badge-value');
+                const now = new Date();
+                const hhUTC = String(now.getUTCHours()).padStart(2, '0');
+                const mmUTC = String(now.getUTCMinutes()).padStart(2, '0');
+                const hhLT = String(now.getHours()).padStart(2, '0');
+                const mmLT = String(now.getMinutes()).padStart(2, '0');
+
+                if (valSpan.textContent.startsWith('UTC')) {
+                    valSpan.textContent = `LT ${hhLT}:${mmLT}`;
+                    if (utcTimer) clearTimeout(utcTimer);
+                    utcTimer = setTimeout(() => {
+                        const nowBack = new Date();
+                        valSpan.textContent = `UTC ${String(nowBack.getUTCHours()).padStart(2, '0')}:${String(nowBack.getUTCMinutes()).padStart(2, '0')}`;
+                    }, 3000);
+                } else {
+                    valSpan.textContent = `UTC ${hhUTC}:${mmUTC}`;
+                    if (utcTimer) clearTimeout(utcTimer);
+                }
+            });
 
             // Добавляем в контейнер первым
             if (toShowOfflineWarning) {
@@ -944,15 +976,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Пробуем собрать дату сообщения
                     const msgDate = new Date(Date.UTC(currentYear, currentMonth, dd, hh, mm));
-                    const nowUTC = new Date(); // текущее время (локально), но сравнение будем вести в UTC
-                    const diffMin = (nowUTC - msgDate) / 60000;
+                    const nowUTC_comp = new Date(); 
+                    const diffMs = nowUTC_comp - msgDate;
+                    const diffMin = Math.floor(diffMs / 60000);
                     const diffAbs = Math.abs(diffMin);
+
+                    // Формируем текст "сколько назад"
+                    let agoText = "";
+                    if (diffMin >= 0) {
+                        if (diffMin < 60) {
+                            agoText = `${diffMin}m ago`;
+                        } else {
+                            const h = Math.floor(diffMin / 60);
+                            const m = diffMin % 60;
+                            agoText = `${h}h ${m}m ago`;
+                        }
+                    } else {
+                        agoText = "Future";
+                    }
 
                     // Делаем плашку
                     const badge = document.createElement('div');
                     badge.className = 'time-badge';
-                    badge.textContent = `${t} ${hh}:${String(mm).padStart(2, '0')}`;
+                    badge.dataset.type = t;
                     badge.dataset.msgDate = msgDate.toISOString();
+                    
+                    const timeVal = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+                    const mainText = `${t} ${timeVal}`;
+                    badge.dataset.mainText = mainText;
+                    badge.dataset.agoText = agoText;
+                    
+                    badge.innerHTML = `<div class="badge-main"><span class="badge-value">${mainText}</span></div>`;
+                    
+                    let badgeTimer = null;
+                    badge.addEventListener('click', () => {
+                        const valSpan = badge.querySelector('.badge-value');
+                        if (valSpan.textContent === badge.dataset.mainText) {
+                            valSpan.textContent = badge.dataset.agoText;
+                            if (badgeTimer) clearTimeout(badgeTimer);
+                            badgeTimer = setTimeout(() => {
+                                valSpan.textContent = badge.dataset.mainText;
+                            }, 3000);
+                        } else {
+                            valSpan.textContent = badge.dataset.mainText;
+                            if (badgeTimer) clearTimeout(badgeTimer);
+                        }
+                    });
 
                     // Добавляем классы в зависимости от условий
                     if (diffAbs <= 10) {
@@ -987,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', () => {
             airportClassBadge.id = 'airportClassBadge';
             airportClassBadge.classList.add(getAirportColorClass(state.nowIcao));
             airportClassBadge.classList.add('content-clickable');
-            airportClassBadge.innerHTML = getAirportIconClass(state.nowIcao);
+            airportClassBadge.innerHTML = `<div class="badge-main">${getAirportIconClass(state.nowIcao)}</div>`;
 
             airportClassBadge.addEventListener('click', () => {
                 showMaintenanceInfoModal(getAirportClassInfoText(state.nowIcao));
@@ -1007,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', () => {
             maintenanceBadge.id = 'showMaintenanceInfoModal';
             maintenanceBadge.classList.add(isIncludesMaintenance ? 'badge-green' : 'badge-red');
             maintenanceBadge.classList.add('content-clickable');
-            maintenanceBadge.innerHTML = `<i class="fa-solid fa-wrench"></i>`;
+            maintenanceBadge.innerHTML = `<div class="badge-main"><i class="fa-solid fa-wrench"></i></div>`;
 
             maintenanceBadge.addEventListener('click', () => {
                 const selectedAircraftLocal = getAircraftType();
@@ -1036,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             notamsBadge.classList.add(isNotamUpdated ? 'badge-default' : 'badge-red');
             notamsBadge.classList.add('content-clickable');
             notamsBadge.onclick = showNotamModal;
-            notamsBadge.innerHTML = `<i class="fa-solid fa-file-alt"></i>` + (isNotamUpdated ? `${notamCount}` : ``);
+            notamsBadge.innerHTML = `<div class="badge-main"><i class="fa-solid fa-file-alt"></i>` + (isNotamUpdated ? `${notamCount}` : ``) + `</div>`;
 
             if (!silent && (isNotamUpdated || !offlineMode)) {
                 timeBadgeContainer.appendChild(notamsBadge);
@@ -1052,8 +1121,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 atisBadge.classList.add('badge-default');
                 atisBadge.classList.add('content-clickable');
                 atisBadge.onclick = changeLangAtis;
-                atisBadge.innerHTML = `<i class="fa-solid fa-tower-cell"></i> ${atisFrqInfo.frq}` +
-                    (atisFrqInfo.lang ? ` ${atisFrqInfo.lang.toUpperCase()}` : '');
+                atisBadge.innerHTML = `<div class="badge-main"><i class="fa-solid fa-tower-cell"></i> ${atisFrqInfo.frq}` +
+                    (atisFrqInfo.lang ? ` ${atisFrqInfo.lang.toUpperCase()}` : '') + `</div>`;
 
                 if (!silent) {
                     timeBadgeContainer.appendChild(atisBadge);
@@ -1149,7 +1218,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function setButtonColorSplit(btn, metarColor, tafColor) {
         btn.style.background = `linear-gradient(to right, var(--col-${metarColor}) 50%, var(--col-${tafColor}) 50%)`;
         btn.style.color = 'white';
-        btn.style.textShadow = '0 0 2px rgba(0, 0, 0, 0.5)';
+        btn.style.textShadow = '0 1px 2px rgba(0, 0, 0, 0.4)';
+        btn.style.border = 'none';
+        btn.style.boxShadow = 'var(--shadow-sm)';
     }
 
     function applyIcaoButtonColors(icao, btn) {
@@ -2567,37 +2638,57 @@ document.addEventListener('DOMContentLoaded', () => {
             const nowUTC = new Date();
             const hhUTC = String(nowUTC.getUTCHours()).padStart(2, '0');
             const mmUTC = String(nowUTC.getUTCMinutes()).padStart(2, '0');
-            utcBadge.textContent = `UTC ${hhUTC}:${mmUTC}`;
+            
+            const valSpan = utcBadge.querySelector('.badge-value');
+            if (valSpan) {
+                // Если сейчас НЕ показывается Local Time, обновляем
+                if (valSpan.textContent.startsWith('UTC')) {
+                    valSpan.textContent = `UTC ${hhUTC}:${mmUTC}`;
+                }
+            }
         }
 
         // 2) Находим все .time-badge (которые у нас METAR/TAF) и пересчитываем разницу
         const badges = document.querySelectorAll('.time-badge');
         badges.forEach(badge => {
-            // Пропускаем плашку UTC и плашку «Wrench»
-            if (badge.id === 'utcBadge' || badge.id === 'airportClassBadge' || badge.id === 'showMaintenanceInfoModal') return;
+            // Пропускаем плашку UTC и другие сервисные
+            if (badge.id === 'utcBadge' || badge.id === 'airportClassBadge' || badge.id === 'showMaintenanceInfoModal' || badge.id === 'notamBtn' || badge.id === 'atisFrqBtn') return;
 
-            // Извлекаем дату, которую мы записали в badge.dataset.msgDate
             const msgDateStr = badge.dataset.msgDate;
-            if (!msgDateStr) return; // если дата не задана — уходим
+            if (!msgDateStr) return;
 
             const msgDate = new Date(msgDateStr);
             const now = new Date();
-            const diffMin = (now - msgDate) / 60000;
+            const diffMin = Math.floor((now - msgDate) / 60000);
             const diffAbs = Math.abs(diffMin);
 
-            // Сначала убираем все «цветные» классы, чтобы потом назначить заново
+            // Пересчитываем agoText
+            let newAgo = "Future";
+            if (diffMin >= 0) {
+                if (diffMin < 60) {
+                    newAgo = `${diffMin}m ago`;
+                } else {
+                    const h = Math.floor(diffMin / 60);
+                    const m = diffMin % 60;
+                    newAgo = `${h}h ${m}m ago`;
+                }
+            }
+            badge.dataset.agoText = newAgo;
+
+            // Если сейчас на плашке отображается "ago", обновим текст в реальном времени
+            const valSpan = badge.querySelector('.badge-value');
+            if (valSpan && valSpan.textContent.includes('ago')) {
+                valSpan.textContent = newAgo;
+            }
+
+            // Пересчитываем классы (цвета)
+            const t = badge.dataset.type;
+            const isMetarSpeci = (t === 'METAR' || t === 'SPECI');
+            const isTaf = (t && t.startsWith('TAF'));
+
             badge.classList.remove('badge-green', 'badge-orange', 'badge-red', 'badge-default');
 
-            // Восстанавливаем оригинальный тип (METAR, TAF и т.п.) из badge.textContent или ещё откуда:
-            const text = badge.textContent;
-            // Можно отловить "METAR", "SPECI", "TAF" и т.д.
-            // Здесь покажу самый короткий путь – просто проверить, содержит ли текст "METAR/TAF"
-            const isMetarSpeci = /^(METAR|SPECI)/i.test(text);
-            const isTaf = /^TAF/i.test(text);
-
-            // Пересчитываем классы
             if (diffAbs <= 10) {
-                // до 10 минут — badge-green
                 badge.classList.add('badge-green');
             } else if (isMetarSpeci && diffAbs >= 30) {
                 if (diffAbs >= 180) {

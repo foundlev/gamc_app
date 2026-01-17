@@ -4,12 +4,14 @@
 <head>
     <meta charset="UTF-8" />
     <title>Weather Helper</title>
-<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#f8fafc">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="logo.png" sizes="100x100" type="image/png">
@@ -19,9 +21,10 @@
 <body>
 
     <header>
-        <h1>
-            <span id="button-title"><i class="fa-solid fa-plane-circle-check"></i> Weather App</span>
-            <span style="opacity: 0.5;" id="changelogBtn">v1.98</span>
+        <h1 id="button-title">
+            <i class="fa-solid fa-plane-circle-check"></i>
+            Weather App
+            <span id="changelogBtn">v1.98</span>
         </h1>
     </header>
 
@@ -119,7 +122,7 @@
         </div>
 
         <!-- Основной контейнер для данных -->
-        <div class="response-container" id="responseContainer" style="padding: 10px;">
+        <div class="response-container" id="responseContainer">
             <div class="placeholder">
                 <i class="fa-solid fa-cloud-sun fa-2x"></i>
                 <p>Введите ICAO код аэродрома, чтобы увидеть погоду</p>
@@ -206,7 +209,9 @@
         <div class="modal">
             <button class="modal-close-btn" id="closeMaintenanceInfoModalBtn"><i class="fas fa-times"></i></button>
             <h2>Информация об аэродроме</h2>
-            <p id="maintenanceInfoContent">Здесь будет информация о техническом обслуживании</p>
+            <div class="modal-content-scrollable">
+                <p id="maintenanceInfoContent">Здесь будет информация о техническом обслуживании</p>
+            </div>
         </div>
     </div>
 
@@ -215,68 +220,70 @@
         <div class="modal">
             <button class="modal-close-btn" id="closeSettingsModalBtn"><i class="fas fa-times"></i></button>
             <h2>Настройки</h2>
-            <div class="modal-button-container">
-                <button id="removeSavedIcaos" class="modal-button"><i class="fa-solid fa-trash"></i>Удалить сохранения</button>
-                <div class="password-block">
-                    <button id="resetPasswordBtn" class="modal-button"><i class="fas fa-unlock-alt"></i>Сбросить пароль</button>
-                    <button id="showPasswordBtn"  class="modal-button"><i class="fa-solid fa-eye"></i></button>
-                </div>
-                <div class="zoom-controls-row">
-                    <button id="resetZoomBtn" class="modal-button"><i class="fas fa-compress-arrows-alt"></i>Сбросить масштаб</button>
-                    <button id="zoomInBtn" class="modal-button zoom-btn"><i class="fas fa-search-plus"></i></button>
-                    <button id="zoomOutBtn" class="modal-button zoom-btn"><i class="fas fa-search-minus"></i></button>
-                </div>
-                <div id="gamcUidContainer">
-                    <input type="text" id="gamcUidInput" value="" readonly maxlength="6" />
-                    <button id="editGamcUidBtn">
-                        <i class="fas fa-pencil-alt"></i>
-                    </button>
-                </div>
-                <div class="two-column-buttons">
-                    <button id="loadGamcUidBtn" disabled>
-                        <i class="fas fa-download"></i>Загрузить
-                    </button>
-                    <button id="exportGamcUidBtn" disabled>
-                        <i class="fas fa-upload"></i>Выгрузить
-                        <span class="export-indicator"></span>
-                    </button>
-                </div>
-                <div class="setting-row">
-                    <label for="aircraftTypeSelect">Тип ВС (maintenance support):</label>
-                    <select id="aircraftTypeSelect">
-                        <option value="B737">B737</option>
-                        <option value="A320N,A321N">A320N, A321N</option>
-                        <option value="A320,A320S,A321,A321S">A320, A320S, A321, A321S</option>
-                        <option value="B777">B777</option>
-                        <option value="A330">A330</option>
-                        <option value="A350">A350</option>
-                    </select>
-                </div>
-                <div class="setting-row">
-                    <label for="atisLangSelect">Язык частоты АТИС:</label>
-                    <select id="atisLangSelect">
-                        <option selected value="EN">EN</option>
-                        <option value="RU">RU</option>
-                        <option value="EN">中文</option>
-                    </select>
-                </div>
-                <div class="modal-checkbox-group">
-                    <label class="custom-checkbox">
-                        <input type="checkbox" id="showAirportInfoCheckbox">
-                        <span>Отображать информацию об аэродроме</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" id="doHighlightCheckbox">
-                        <span>Выделение и расшифровка метеокода</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" id="doMarkBagdeCheckbox">
-                        <span>Выделять плашки аэродромов с техобслуживанием ВС</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" id="autoOfflineCheckbox">
-                        <span>Автоматически включать режим оффлайн, если нет интернета</span>
-                    </label>
+            <div class="modal-content-scrollable">
+                <div class="modal-button-container">
+                    <button id="removeSavedIcaos" class="modal-button"><i class="fa-solid fa-trash"></i>Удалить сохранения</button>
+                    <div class="password-block">
+                        <button id="resetPasswordBtn" class="modal-button"><i class="fas fa-unlock-alt"></i>Сбросить пароль</button>
+                        <button id="showPasswordBtn"  class="modal-button"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                    <div class="zoom-controls-row">
+                        <button id="resetZoomBtn" class="modal-button"><i class="fas fa-compress-arrows-alt"></i>Сбросить масштаб</button>
+                        <button id="zoomInBtn" class="modal-button zoom-btn"><i class="fas fa-search-plus"></i></button>
+                        <button id="zoomOutBtn" class="modal-button zoom-btn"><i class="fas fa-search-minus"></i></button>
+                    </div>
+                    <div id="gamcUidContainer">
+                        <input type="text" id="gamcUidInput" value="" readonly maxlength="6" />
+                        <button id="editGamcUidBtn">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                    <div class="two-column-buttons">
+                        <button id="loadGamcUidBtn" disabled>
+                            <i class="fas fa-download"></i>Загрузить
+                        </button>
+                        <button id="exportGamcUidBtn" disabled>
+                            <i class="fas fa-upload"></i>Выгрузить
+                            <span class="export-indicator"></span>
+                        </button>
+                    </div>
+                    <div class="setting-row">
+                        <label for="aircraftTypeSelect">Тип ВС (maintenance support):</label>
+                        <select id="aircraftTypeSelect">
+                            <option value="B737">B737</option>
+                            <option value="A320N,A321N">A320N, A321N</option>
+                            <option value="A320,A320S,A321,A321S">A320, A320S, A321, A321S</option>
+                            <option value="B777">B777</option>
+                            <option value="A330">A330</option>
+                            <option value="A350">A350</option>
+                        </select>
+                    </div>
+                    <div class="setting-row">
+                        <label for="atisLangSelect">Язык частоты АТИС:</label>
+                        <select id="atisLangSelect">
+                            <option selected value="EN">EN</option>
+                            <option value="RU">RU</option>
+                            <option value="EN">中文</option>
+                        </select>
+                    </div>
+                    <div class="modal-checkbox-group">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="showAirportInfoCheckbox">
+                            <span>Отображать информацию об аэродроме</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="doHighlightCheckbox">
+                            <span>Выделение и расшифровка метеокода</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="doMarkBagdeCheckbox">
+                            <span>Выделять плашки аэродромов с техобслуживанием ВС</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="autoOfflineCheckbox">
+                            <span>Автоматически включать режим оффлайн, если нет интернета</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>

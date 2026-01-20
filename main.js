@@ -2217,7 +2217,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Функция для обновления внешнего вида кнопки в зависимости от состояния
     function updateOfflineButton() {
         const reloadBtn = document.getElementById('reloadBtn');
-        const reloadSep = document.getElementById('reloadSep');
         if (offlineMode) {
             offlineToggleBtn.classList.add('offline');
             offlineToggleBtn.classList.remove('online');
@@ -2225,8 +2224,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('refreshAllBtn').disabled = true;
             document.getElementById('loadGamcUidBtn').disabled = true;
             document.getElementById('exportGamcUidBtn').disabled = true;
-            if (reloadBtn) reloadBtn.hidden = true;
-            if (reloadSep) reloadSep.hidden = true;
+            if (reloadBtn) reloadBtn.style.display = 'none';
         } else {
             offlineToggleBtn.classList.add('online');
             offlineToggleBtn.classList.remove('offline');
@@ -2234,8 +2232,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('refreshAllBtn').disabled = false;
             document.getElementById('loadGamcUidBtn').disabled = false;
             document.getElementById('exportGamcUidBtn').disabled = false;
-            if (reloadBtn) reloadBtn.hidden = false;
-            if (reloadSep) reloadSep.hidden = false;
+            if (reloadBtn) reloadBtn.style.display = 'flex';
         }
     }
 

@@ -60,9 +60,6 @@
         <button id="settingsBtn" class="sidebar-btn" title="Настройки">
             <i class="fa-solid fa-gear"></i>
         </button>
-        <button id="reloadBtn" class="sidebar-btn" title="Перезагрузить страницу">
-            <i class="fa-solid fa-rotate-right"></i>
-        </button>
     </nav>
 
     <div class="app-wrapper">
@@ -124,24 +121,34 @@
 
     <div class="modal-backdrop" id="infoModalBackdrop">
         <div class="modal info-modal">
-            <button class="modal-close-btn" id="closeInfoModalBtn">
+            <button id="reloadBtn" class="modal-refresh-btn info-reload-btn" title="Перезагрузить страницу">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>Перезагрузить</span>
+            </button>
+            <button class="modal-close-btn info-close-btn" id="closeInfoModalBtn">
                 <i class="fas fa-times"></i>
             </button>
             <div class="info-header">
                 <i class="fa-solid fa-plane-circle-check fa-2x" style="color: var(--accent-color);"></i>
-                <h2>Weather App</h2>
-                <span id="changelogBtn" class="version-badge">v1.98</span>
+                <div class="info-title-group">
+                    <h2>Weather App</h2>
+                    <span id="changelogBtn" class="version-badge">v1.98</span>
+                </div>
             </div>
             
             <div class="info-content">
-                <p><i class="fa-solid fa-triangle-exclamation"></i> Перепроверяйте данные.</p>
-                <p>Источник: <a href="https://meteoinfo.gamc.ru" target="_blank" rel="noopener noreferrer">meteoinfo.gamc.ru</a></p>
-                
+                <div class="info-content-top">
+                    <p><i class="fa-solid fa-triangle-exclamation"></i> Перепроверяйте данные.</p>
+                    <p>Источник: <a href="https://meteoinfo.gamc.ru" target="_blank" rel="noopener noreferrer">meteoinfo.gamc.ru</a></p>
+                </div>
+
                 <div class="info-sep"></div>
-                
-                <h3>Журнал изменений</h3>
-                <div id="changelogContent" class="changelog-content">
-                    <!-- Список обновлений будет вставляться сюда -->
+
+                <div class="info-changelog">
+                    <h3>Журнал изменений</h3>
+                    <div id="changelogContent" class="changelog-content">
+                        <!-- Список обновлений будет вставляться сюда -->
+                    </div>
                 </div>
             </div>
         </div>

@@ -1456,24 +1456,18 @@ button:disabled {
     /* Скрываем стандартный чекбокс */
 }
 
-.custom-checkbox input[type="checkbox"]+span {
-    position: relative;
-    padding-left: 30px;
-    /* Оставляем место для галочки */
-}
-
 .custom-checkbox input[type="checkbox"]+span::before {
     content: "";
     position: absolute;
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border: 2px solid var(--border-color);
-    border-radius: var(--radius-sm);
+    border-radius: 6px;
     background-color: var(--card-bg);
-    transition: background-color 0.2s, border-color 0.2s;
+    transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
     box-sizing: border-box;
 }
 
@@ -1482,12 +1476,21 @@ button:disabled {
     /* Галочка из Font Awesome */
     font: var(--fa-font-solid);
     font-weight: 900;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
     background-color: var(--accent-color);
     border-color: var(--accent-color);
+}
+
+.custom-checkbox input[type="checkbox"]+span {
+    position: relative;
+    padding-left: 36px;
+    /* Оставляем место для галочки */
+    line-height: 24px;
+    display: inline-block;
 }
 
 .custom-checkbox:active input[type="checkbox"]+span::before {

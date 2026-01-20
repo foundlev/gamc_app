@@ -210,17 +210,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (diffMin < 0) return "В будущем";
         if (diffMin < 1) return "Только что";
         if (diffMin < 60) return `${diffMin} мин. назад`;
-        if (diffMin < 180) { // 3 часа = 180 мин
-            const h = Math.floor(diffMin / 60);
-            const m = diffMin % 60;
-            if (m === 0) return `${h} ч. назад`;
-            return `${h} ч. ${m} мин. назад`;
-        }
         if (diffMin < 1440) { // 24 часа = 1440 мин
-            const h = Math.floor(diffMin / 60);
+            const h = Math.round(diffMin / 60);
+            if (h === 0) return "Только что"; // На всякий случай, если округлится до 0
             return `${h} ч. назад`;
         }
-        return ">1 дня";
+        return ">1 дн. назад";
     }
 
     // Модальное окно
@@ -3320,7 +3315,10 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             refreshAllBtn.disabled = false;
             updateOfflineButton(); // Восстанавливаем корректное состояние кнопки (online/offline)
-            if (progressFill) progressFill.style.width = '0%';
+            if (progressFill) {
+                progressFill.style.width = '0%';
+                progressFill.style.display = 'none'; // Скрываем прогресс после завершения
+            }
             if (icon) icon.className = originalClass;
         }, 3000);
     }

@@ -192,10 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Селекторы
     const icaoInput = document.getElementById('icao');
     const fetchBtn = document.getElementById('fetchBtn');
-    const notamBtnStatic = document.getElementById('notamBtn');
-    if (notamBtnStatic) {
-        notamBtnStatic.onclick = showNotamModal;
-    }
     updateFetchBtn();
     const systemsInfoBtn = document.getElementById('systemsInfoBtn');
     const restrBtn = document.getElementById('restrBtn');
@@ -208,11 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const upperBadgeContainer = document.getElementById('upperBadgeContainer');
 
     const refreshAllBtn = document.getElementById('refreshAllBtn');
-    const batchRefreshModalBackdrop = document.getElementById('batchRefreshModalBackdrop');
-    const closeBatchRefreshModalBtn = document.getElementById('closeBatchRefreshModalBtn');
-    const batchRefreshInfo = document.getElementById('batchRefreshInfo');
-    const batchRefreshProgress = document.getElementById('batchRefreshProgress');
-    const batchRefreshCurrentIcao = document.getElementById('batchRefreshCurrentIcao');
 
     // Модальное окно
     const modalBackdrop = document.getElementById('modalBackdrop');
@@ -520,7 +511,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateFetchBtn() {
         const icao = icaoInput.value.trim().toUpperCase();
-        const notamBtn = document.getElementById('notamBtn');
 
         if (nowIcao && nowIcao === icao && icao.length === 4) {
             fetchBtn.innerHTML = '<i class="fas fa-sync-alt"></i>Обновить';
@@ -530,9 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const isDisabled = icao.length !== 4;
         fetchBtn.disabled = isDisabled;
-        if (notamBtn) {
-            notamBtn.disabled = isDisabled;
-        }
     }
 
     function updateIcaoSuggestions() {
@@ -719,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* =========================
        ЗАПРОС ПОГОДЫ
     ========================= */
-    async function getWeather(icao, isRefresh = false, silent = false) {
+    async function getWeather(icao, isRefresh = false, silent = false, forceRefresh = false) {
         // Если silent === true, значит обновлять только localStorage,
         // ничего не показывать в responseContainer,
         // не показывать timeBadgeContainer, airportInfo итд.
@@ -742,15 +729,14 @@ document.addEventListener('DOMContentLoaded', () => {
             runwayFrictionMap: {}
         };
 
-        nowIcao = icao;
-        hideAirportInfo();
-        const notamBtn = document.getElementById('notamBtn');
-        if (notamBtn) {
-            notamBtn.classList.remove('badge-default', 'badge-red');
-            notamBtn.innerHTML = '<i class="fa-solid fa-file-alt"></i>NOTAM';
+        const isUserRequest = !silent;
+
+        if (isUserRequest) {
+            nowIcao = icao;
+            hideAirportInfo();
         }
 
-        if (!silent) {
+        if (isUserRequest) {
             responseContainer.innerHTML = `
                 <div class="placeholder">
                     <i class="fa-solid fa-cloud-sun fa-2x"></i>
@@ -764,28 +750,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const existingWarning = document.querySelector('.offline-warning');
-        if (existingWarning) {
+        if (existingWarning && isUserRequest) {
             existingWarning.remove();
         }
 
         const existingWarningNoInfo = document.querySelector('.offline-warning-no-info');
-        if (existingWarningNoInfo) {
+        if (existingWarningNoInfo && isUserRequest) {
             existingWarningNoInfo.remove();
         }
 
         const gamcUid = getGamcUID();
         const url = `https://myapihelper.na4u.ru/gamc_app/api.php?password=${encodeURIComponent(password)}&icao=${encodeURIComponent(icao)}&gamcUid=${encodeURIComponent(gamcUid)}`;
 
-        if (silent) {
-            responseContainer.innerHTML = `
-                <div class="placeholder">
-                    <i class="fa-solid fa-cloud-sun fa-2x"></i>
-                    <p>Введите ICAO код аэродрома, чтобы увидеть погоду</p>
-                </div>
-            `;
-            responseContainer.style.padding = '10px';
-            state.worstRunwayFrictionCode = null;
-        } else {
+        if (isUserRequest) {
             // Заменяем текст на анимацию загрузки
             responseContainer.innerHTML = `
               <div class="loading-container">
@@ -794,31 +771,46 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             `;
             state.worstRunwayFrictionCode = null;
+            timeBadgeContainer.innerHTML = '';
+            favBadgeContainer.innerHTML = '';
+            removeTimeBadgeContainerBottomGap();
+        } else {
+            // В silent режиме просто инициализируем state.worstRunwayFrictionCode
+            state.worstRunwayFrictionCode = null;
         }
-        timeBadgeContainer.innerHTML = '';
-        favBadgeContainer.innerHTML = '';
-        removeTimeBadgeContainerBottomGap();
 
         let toShowOfflineWarning = false;
 
         // Проверка сохраненных данных
         const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
-        if ((!navigator.onLine) || offlineMode) {
-            showAirportInfo(icao);
-            updateNotamButton();
+
+        // Проверка свежести данных для онлайн режима
+        let useSavedData = false;
+        if (!forceRefresh && navigator.onLine && !offlineMode && savedData[icao] && icaoColors[icao] && icaoColors[icao].updatedAt) {
+            const lastUpdate = new Date(icaoColors[icao].updatedAt).getTime();
+            const now = Date.now();
+            if (now - lastUpdate < 60 * 60 * 1000) { // Меньше 1 часа
+                useSavedData = true;
+            }
+        }
+
+        if ((!navigator.onLine) || offlineMode || useSavedData) {
+            if (isUserRequest) showAirportInfo(icao);
             if (savedData[icao]) {
-                responseContainer.innerHTML = savedData[icao];
-                toShowOfflineWarning = true;
-            } else {
-                showOfflineWarningNoInfo(); // Показать предупреждение
-                responseContainer.innerHTML = 'Нет данных.';
+                if (isUserRequest) responseContainer.innerHTML = savedData[icao];
+                if (!useSavedData) toShowOfflineWarning = true;
+            } else if (!useSavedData) {
+                if (isUserRequest) {
+                    showOfflineWarningNoInfo(); // Показать предупреждение
+                    responseContainer.innerHTML = 'Нет данных.';
+                }
                 return;
             }
         }
 
         try {
             let rawData;
-            if (offlineMode && toShowOfflineWarning) {
+            if ((offlineMode && toShowOfflineWarning) || useSavedData) {
                 rawData = savedData[icao];
             } else {
                 const res = await fetch(url);
@@ -839,7 +831,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Парсим <pre>
             const parser = new DOMParser();
-            updateNotamButton();
             const doc = parser.parseFromString(rawData, 'text/html');
             const preTags = doc.querySelectorAll('pre');
 
@@ -966,6 +957,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!silent) {
                 timeBadgeContainer.appendChild(utcBadge);
+
+                // Плашка "обновлено назад" (справа от UTC)
+                const updatedAt = icaoColors[icao] ? icaoColors[icao].updatedAt : null;
+                if (updatedAt) {
+                    const updateBadge = document.createElement('div');
+                    updateBadge.className = 'time-badge badge-default';
+                    updateBadge.id = 'airportUpdateBadge';
+                    
+                    const updateTime = new Date(updatedAt).getTime();
+                    const diffMin = Math.floor((Date.now() - updateTime) / 60000);
+                    let timeStr = "";
+                    if (diffMin < 1) {
+                        timeStr = "Только что";
+                    } else if (diffMin < 60) {
+                        timeStr = `${diffMin} мин. назад`;
+                    } else if (diffMin < 1440) {
+                        const h = Math.floor(diffMin / 60);
+                        timeStr = `${h} ч. назад`;
+                    } else {
+                        timeStr = ">1 дня";
+                    }
+
+                    updateBadge.innerHTML = `<div class="badge-main"><span class="badge-value">${timeStr}</span></div>`;
+                    timeBadgeContainer.appendChild(updateBadge);
+                }
+
                 addTimeBadgeContainerBottomGap();
             }
 
@@ -1092,12 +1109,11 @@ document.addEventListener('DOMContentLoaded', () => {
             maintenanceBadge.addEventListener('click', () => {
                 const selectedAircraftLocal = getAircraftType();
                 const maintenanceCodesLocal = getAircraftMaintainanceIcaos();
-                const maintenanceNotamLocal = maintenance[selectedAircraftLocal]?.notam;
-
+                const maintenanceInfoLocal = maintenance[selectedAircraftLocal]?.info;
                 const isIncludesMaintenanceLocal = maintenanceCodesLocal.includes(icao);
 
                 if (isIncludesMaintenanceLocal) {
-                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> <span style="color: var(--badge-green-bg)"><b>осуществляется</b></span> техническое обслуживание <b>${selectedAircraftLocal.replaceAll(',', ', ')}</b><br><br>NOTAM: ${maintenanceNotamLocal}`);
+                    showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> <span style="color: var(--badge-green-bg)"><b>осуществляется</b></span> техническое обслуживание <b>${selectedAircraftLocal.replaceAll(',', ', ')}</b>` + (maintenanceInfoLocal ? `<br><br>Сведение: ${maintenanceInfoLocal}` : ''));
                 } else {
                     showMaintenanceInfoModal(`На аэродроме <b>${icao}</b> <span style="color: var(--badge-red-bg)"><b>НЕ осуществляется</b></span> техническое обслуживание <b>${selectedAircraftLocal.replaceAll(',', ', ')}</b>`);
                 }
@@ -1106,11 +1122,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!silent) {
                 timeBadgeContainer.appendChild(maintenanceBadge);
             }
-
-            const isNotamUpdated = hasNotamsForIcao(icao);
-            const notamCount = getNotamCountForIcao(icao);
-
-            updateNotamButton();
 
             const atifLangSelected = localStorage.getItem('atisLangSelect') || 'en';
             const atisFrqInfo = getAtisFrequencyByIcao(icao, 'arrival', atifLangSelected);
@@ -1154,8 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Выводим как HTML (чтобы теги <b>, <u> работали)
-            if (!silent) {
+            if (isUserRequest) {
                 responseContainer.innerHTML = finalText;
                 showAirportInfo(icao);
             }
@@ -1210,9 +1220,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyIcaoButtonColors(icao, buttonInHistory);
             }
 
-            updateSystemsButton(silent);
+            if (isUserRequest) {
+                updateSystemsButton(silent);
+            }
         } catch (err) {
-            responseContainer.textContent = 'Ошибка при запросе: ' + err;
+            if (isUserRequest) responseContainer.textContent = 'Ошибка при запросе: ' + err;
         }
     }
 
@@ -1494,7 +1506,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function fetchWeather() {
         const icao = icaoInput.value.trim().toUpperCase();
         icaoInput.value = icao;
-        getWeather(icao, false);
+        getWeather(icao, false, false, true);
         updateFetchBtn();
         updateSystemsButton();
 
@@ -1526,23 +1538,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Если сейчас "Недавние", то сразу перерисуем
         if (routeSelect.value === 'recent') {
             renderHistory();
-        }
-    }
-
-    function updateHistoryBtnNotam() {
-        // Получаем кнопки из historyContainer
-        const historyBtns = historyContainer.querySelectorAll('button');
-        const icaoUpdatedNotam = getIcaoListUpdatedNotams();
-
-        const maintenanceCodes = getAircraftMaintainanceIcaos();
-
-        // Обновляем кнопки
-        if (doMarkBagde) {
-            historyBtns.forEach(btn => {
-                const i = btn.textContent.trim();
-                const hasMaintenance = maintenanceCodes.includes(i);
-                btn.classList.toggle('has-maintenance', hasMaintenance);
-            });
         }
     }
 
@@ -1579,8 +1574,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             historyContainer.appendChild(btn);
         });
-
-        updateHistoryBtnNotam();
     }
 
     // Функция для обновления масштаба
@@ -1624,27 +1617,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmYesBtn = document.getElementById('confirmYesBtn');
     const confirmNoBtn = document.getElementById('confirmNoBtn');
 
+    const confirmModalExtra = document.getElementById('confirmModalExtra');
+    const confirmModalCheckbox = document.getElementById('confirmModalCheckbox');
+    const confirmModalCheckboxLabel = document.getElementById('confirmModalCheckboxLabel');
+
     /**
      * Показывает модалку подтверждения с заголовком, сообщением и коллбэком,
      * который вызывается по нажатию "Да".
      */
-    function showConfirmModal(title, message, onYes, onYesBgColor = "", onNoBgColor = "", showNotamCheckbox = false) {
+    function showConfirmModal(title, message, onYes, onYesBgColor = "", onNoBgColor = "", extra = null) {
         confirmModalTitle.textContent = title;
-        confirmModalMessage.textContent = message;
+        confirmModalMessage.innerHTML = message.replace(/\n/g, '<br>');
 
-        const notamContainer = document.getElementById('confirmNotamContainer');
-        notamContainer.style.display = showNotamCheckbox ? 'flex' : 'none';
-        document.getElementById('confirmNotamCheckbox').checked = false;
+        if (extra && extra.checkbox) {
+            confirmModalExtra.style.display = 'block';
+            confirmModalCheckbox.checked = extra.checkbox.checked || false;
+            confirmModalCheckboxLabel.textContent = extra.checkbox.label || 'Обновить все аэродромы';
+            
+            if (extra.checkbox.onToggle) {
+                confirmModalCheckbox.onchange = () => {
+                    extra.checkbox.onToggle(confirmModalCheckbox.checked);
+                };
+            } else {
+                confirmModalCheckbox.onchange = null;
+            }
+        } else {
+            confirmModalExtra.style.display = 'none';
+            confirmModalCheckbox.onchange = null;
+        }
 
         // При нажатии на "Да" выполняем нужное действие
         confirmYesBtn.onclick = () => {
+            const isChecked = confirmModalCheckbox.checked;
             hideConfirmModal();
 
-            // Считаем галочку
-            const isLoadNotam = document.getElementById('confirmNotamCheckbox').checked;
-
             // Передаём во внешний обработчик, если нужно
-            onYes(isLoadNotam);
+            if (extra && extra.checkbox) {
+                onYes(isChecked);
+            } else {
+                onYes();
+            }
         };
 
         confirmYesBtn.style.backgroundColor = onYesBgColor;
@@ -1656,6 +1668,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showOfflineAlert() {
         confirmModalTitle.textContent = 'Оффлайн режим включен';
         confirmModalMessage.textContent = 'Отключите оффлайн режим для обновления';
+        confirmModalExtra.style.display = 'none';
 
         // Спрячем кнопку "Да" полностью
         confirmYesBtn.style.display = 'none';
@@ -1670,6 +1683,8 @@ document.addEventListener('DOMContentLoaded', () => {
     /** Скрыть модалку подтверждения */
     function hideConfirmModal() {
         confirmModalBackdrop.classList.remove('show');
+        confirmModalExtra.style.display = 'none';
+        confirmModalCheckbox.onchange = null;
 
         // Восстанавливаем кнопки
         confirmYesBtn.style.display = '';
@@ -2655,7 +2670,6 @@ document.addEventListener('DOMContentLoaded', () => {
             historyContainer.appendChild(lastBtn);
         }
 
-        updateHistoryBtnNotam();
         updateSelectedPlacard();
     }
 
@@ -2679,8 +2693,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2) Находим все .time-badge (которые у нас METAR/TAF) и пересчитываем разницу
         const badges = document.querySelectorAll('.time-badge');
         badges.forEach(badge => {
-            // Пропускаем плашку UTC и другие сервисные
-            if (badge.id === 'utcBadge' || badge.id === 'airportClassBadge' || badge.id === 'showMaintenanceInfoModal' || badge.id === 'notamBtn' || badge.id === 'atisFrqBtn') return;
+            // Пропускаем плашку UTC, плашку обновления и другие сервисные
+            if (badge.id === 'utcBadge' || badge.id === 'airportUpdateBadge' || badge.id === 'airportClassBadge' || badge.id === 'showMaintenanceInfoModal' || badge.id === 'atisFrqBtn') return;
 
             const msgDateStr = badge.dataset.msgDate;
             if (!msgDateStr) return;
@@ -2736,6 +2750,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 badge.classList.add('badge-default');
             }
         });
+
+        // 3) Обновляем время обновления текущего аэродрома
+        const updateBadge = document.getElementById('airportUpdateBadge');
+        if (updateBadge && nowIcao) {
+            const colObj = icaoColors[nowIcao];
+            if (colObj && colObj.updatedAt) {
+                const updatedTime = new Date(colObj.updatedAt).getTime();
+                const nowTime = Date.now();
+                const diffMin = Math.floor((nowTime - updatedTime) / 60000);
+
+                let timeStr = "";
+                if (diffMin < 1) {
+                    timeStr = "Только что";
+                } else if (diffMin < 60) {
+                    timeStr = `${diffMin} мин. назад`;
+                } else if (diffMin < 1440) {
+                    const h = Math.floor(diffMin / 60);
+                    timeStr = `${h} ч. назад`;
+                } else {
+                    timeStr = ">1 дня";
+                }
+                const valSpan = updateBadge.querySelector('.badge-value');
+                if (valSpan) {
+                    valSpan.textContent = timeStr;
+                }
+            }
+        }
     }
 
     function hideAirportInfo() {
@@ -2751,7 +2792,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const countryElem = document.getElementById('airportCountry');
         const elevationLength = document.getElementById('airportRunwayLength');
         const codesElem = document.getElementById('airportCodes');
-        const notamModalName = document.getElementById('notamModalName');
 
         if (!airportInfoDb[icao]) {
             container.style.display = 'none';
@@ -2780,17 +2820,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         elevationLength.textContent = `RW ${maxLengthRunway}: ${maxLength} м`;
 
-        let airportCodesText;
         if (iata) {
             codesElem.textContent = `${icao}/${iata}`;
-            airportCodesText = `(${icao}/${iata})`;
         } else {
             codesElem.textContent = icao;
-            airportCodesText = `(${icao})`;
         }
-
-        const notamCount = getNotamCountForIcao(icao);
-        notamModalName.textContent = 'NOTAM ' + (name ? name : `Аэродром ${icao}`) + ' ' + airportCodesText + (notamCount > 0 && hasNotamsForIcao(icao) ? ` (${notamCount})` : '');
 
         container.style.display = 'flex';
     }
@@ -2864,7 +2898,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const icaoHistory = localStorage.getItem('icaoHistory') || '[]';
         const savedRoutes = localStorage.getItem('savedRoutes') || '[]';
         const icaoColors = localStorage.getItem('icaoColors') || '{}';
-        const notamData = localStorage.getItem('notamData') || '{}';
         const landingSystems = localStorage.getItem('landingSystems') || '{}';
         const aircraftType = localStorage.getItem('aircraftType') || 'B737';
         const atisFrequencies = localStorage.getItem('atisFrequencies') || '{}';
@@ -2878,7 +2911,6 @@ document.addEventListener('DOMContentLoaded', () => {
             icaoHistory: icaoHistory,
             savedRoutes: savedRoutes,
             icaoColors: icaoColors,
-            notamData: notamData,
             landingSystems: landingSystems,
             aircraftType: aircraftType,
             atisFrequencies: atisFrequencies,
@@ -2939,9 +2971,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (serverData.icaoColors) {
                 localStorage.setItem('icaoColors', serverData.icaoColors);
-            }
-            if (serverData.notamData) {
-                localStorage.setItem('notamData', serverData.notamData);
             }
             if (serverData.landingSystems) {
                 localStorage.setItem('landingSystems', serverData.landingSystems);
@@ -3198,185 +3227,126 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshAllBtn.addEventListener('click', onRefreshAllBtnClick);
 
     function onRefreshAllBtnClick() {
-        // Если оффлайн режим включён, показываем наше сообщение и уходим
         if (offlineMode) {
             showOfflineAlert();
             return;
         }
 
-        // 1) Определяем, какие аэродромы хотим обновить
-        let aerodromesToRefresh = [];
+        const isRecent = routeSelect.value === 'recent';
+        let routeAerodromes = [];
+        let allAerodromes = [];
 
-        if (routeSelect.value === 'recent') {
-            // Берём все аэродромы, которые ЕСТЬ в localStorage icaoData
-            // (или те, что есть в истории). Ниже — вариант с icaoData:
-            const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
-            aerodromesToRefresh = Object.keys(savedData);
-            // Если хотите брать из истории, то вместо этого
-            // можно aerodromesToRefresh = JSON.parse(localStorage.getItem(ICAO_HISTORY_KEY) || '[]');
-        } else if (routeSelect.value === 'temp') {
-            // Если выбран временный маршрут – получаем его из localStorage (ключ 'tempRoute')
+        // Получаем аэродромы маршрута
+        if (routeSelect.value === 'temp') {
             const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
             if (tempRoute.departure && tempRoute.arrival) {
-                aerodromesToRefresh = [
-                    tempRoute.departure,
-                    tempRoute.arrival,
-                    ...(tempRoute.alternates || [])
-                ];
+                routeAerodromes = [tempRoute.departure, tempRoute.arrival, ...(tempRoute.alternates || [])];
             }
-        } else {
-            // Иначе выбрана "маршрут"
+        } else if (!isRecent) {
             const idx = parseInt(routeSelect.value, 10);
             const route = savedRoutes[idx];
             if (route) {
-                aerodromesToRefresh = [
-                    route.departure,
-                    route.arrival,
-                    ...route.alternates
-                ];
+                routeAerodromes = [route.departure, route.arrival, ...route.alternates];
             }
         }
 
-        // Убираем дубли, фильтруем 4-буквенные
-        aerodromesToRefresh = aerodromesToRefresh
-            .filter(x => x && x.length === 4)
-            .filter((value, index, arr) => arr.indexOf(value) === index);
+        // Получаем вообще все аэродромы из сохраненных данных
+        const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
+        allAerodromes = Object.keys(savedData);
 
-        // Если совсем нет аэродромов, просто alert
-        if (aerodromesToRefresh.length === 0) {
+        // Функция фильтрации
+        const cleanList = (list) => list.filter(x => x && x.length === 4).filter((v, i, a) => a.indexOf(v) === i);
+
+        routeAerodromes = cleanList(routeAerodromes);
+        allAerodromes = cleanList(allAerodromes);
+
+        if (allAerodromes.length === 0) {
             alert('Нет сохранённых аэродромов для обновления!');
             return;
         }
 
-        // 2) Показываем confirmModal: "Вы уверены, X аэродромов?"
-        const count = aerodromesToRefresh.length;
         const title = 'Обновление информации';
-        const msg = `Обновить данные для ${count} аэродромов?`;
-
-        showConfirmModal(
-            title,
-            msg,
-            (isLoadNotam) => {
-                // Если нажали "Да" — запускаем пакетное обновление
-                startBatchRefresh(aerodromesToRefresh, true, isLoadNotam);
-            },
-            "",
-            "",
-            true
-        );
-    }
-
-    async function startBatchRefresh(aerodromes, loadMeteo, isLoadNotam) {
-        showBatchRefreshModal();
-        if (loadMeteo) {
-            const total = aerodromes.length;
-            batchRefreshInfo.textContent = `Аэродромов: ${total}`;
-            batchRefreshProgress.style.width = '0%';
-            batchRefreshCurrentIcao.textContent = '...';
-
-            const batchSize = 10; // количество запросов одновременно
-            let completed = 0;
-
-            for (let i = 0; i < total; i += batchSize) {
-                // Берём батч из 10 аэродромов (или меньше, если оставшихся меньше 10)
-                const batch = aerodromes.slice(i, i + batchSize);
-                // Обновляем текущий статус: показываем аэродромы из текущего батча
-                batchRefreshCurrentIcao.textContent = `Обновление метео: ${batch.join(', ')}`;
-
-                // Отправляем запросы асинхронно в рамках батча, обновляя progress по завершению каждого запроса
-                const promises = batch.map(icao =>
-                    getWeather(icao, true, true).then(() => {
-                        completed++;
-                        const percent = Math.round((completed / total) * 100);
-                        batchRefreshProgress.style.width = percent + '%';
-                    })
-                );
-                // Ждём завершения всех запросов батча
-                await Promise.all(promises);
-
-                // Небольшая задержка между батчами для плавности (необязательно)
-                await new Promise(r => setTimeout(r, 400));
-            }
-
-            batchRefreshProgress.style.width = '100%';
-            batchRefreshCurrentIcao.textContent = 'Завершено обновление метео';
-
-            // Делаем паузу на 1 секунду
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        if (isLoadNotam) {
-            // aerodromes
-            const total = aerodromes.length;
-
-            const batchNotamSize = 3;
-
-            batchRefreshInfo.textContent = `Аэродромов: ${total}`;
-            batchRefreshProgress.style.width = '0%';
-            batchRefreshCurrentIcao.textContent = '...';
+        
+        if (isRecent) {
+            const msg = `Обновить данные для всех сохраненных аэродромов (${allAerodromes.length})?`;
+            showConfirmModal(title, msg, () => {
+                startBatchRefresh(allAerodromes);
+            });
+        } else {
+            // Маршрут выбран
+            const msg = `Обновить данные для аэродромов маршрута (${routeAerodromes.length})?`;
             
-            let completed = 0;
-            let totalNotamsLoaded = 0;
-
-            for (let i = 0; i < total; i += batchNotamSize) {
-                const batch = aerodromes.slice(i, i + batchNotamSize);
-                // Обновляем текущий статус: показываем аэродромы из текущего батча
-                batchRefreshCurrentIcao.textContent = `Обновление NOTAM: ${batch.join(', ')}`;
-
-                // Отправляем запросы асинхронно в рамках батча, обновляя progress по завершению каждого запроса
-
-                await getNotam(batch);
-                // Подсчёт NOTAMов для текущего батча из localStorage
-                try {
-                    const storeRaw = localStorage.getItem('notamData') || '{}';
-                    const store = JSON.parse(storeRaw);
-                    for (const icao of batch) {
-                        const arr = (store && store[icao] && Array.isArray(store[icao].notams)) ? store[icao].notams : [];
-                        totalNotamsLoaded += arr.length;
+            showConfirmModal(
+                title, 
+                msg, 
+                (refreshAll) => {
+                    if (refreshAll) {
+                        startBatchRefresh(allAerodromes);
+                    } else {
+                        startBatchRefresh(routeAerodromes);
                     }
-                } catch (_) {
-                    // игнорируем ошибки парсинга — счётчик просто не увеличится
+                },
+                "", "",
+                {
+                    checkbox: {
+                        label: `Обновить все аэродромы (${allAerodromes.length})`,
+                        checked: false,
+                        onToggle: (checked) => {
+                            if (checked) {
+                                confirmModalMessage.textContent = `Обновить данные для всех аэродромов (${allAerodromes.length})?`;
+                            } else {
+                                confirmModalMessage.textContent = `Обновить данные для аэродромов маршрута (${routeAerodromes.length})?`;
+                            }
+                        }
+                    }
                 }
-                completed += batch.length;
-                const percent = Math.round((completed / total) * 100);
-                batchRefreshProgress.style.width = percent + '%';
+            );
+        }
+    }
 
-                // Небольшая задержка между батчами для плавности (необязательно)
-                await new Promise(r => setTimeout(r, 1000));
-            }
+    async function startBatchRefresh(aerodromes) {
+        if (!aerodromes || aerodromes.length === 0) return;
 
-            batchRefreshProgress.style.width = '100%';
-            if (totalNotamsLoaded > 0) {
-                batchRefreshCurrentIcao.textContent = `Загружено NOTAM: ${totalNotamsLoaded}`;
-            } else {
-                batchRefreshCurrentIcao.textContent = `Нет активных NOTAM`;
-            }
+        const total = aerodromes.length;
+        const progressFill = refreshAllBtn.querySelector('.progress-fill');
+        
+        refreshAllBtn.disabled = true;
+        // Убираем иконку или делаем её прозрачнее, чтобы не мешала? 
+        // Или просто пусть будет. Пользователь просил чтобы было видно закрашивание.
+        if (progressFill) {
+            progressFill.style.width = '0%';
+            progressFill.style.display = 'block';
         }
 
-        updateHistoryBtnNotam();
+        const batchSize = 5;
+        let completed = 0;
 
+        for (let i = 0; i < total; i += batchSize) {
+            const batch = aerodromes.slice(i, i + batchSize);
+            
+            const promises = batch.map(icao => 
+                getWeather(icao, false, true, true).then(() => {
+                    completed++;
+                    const percent = Math.round((completed / total) * 100);
+                    if (progressFill) progressFill.style.width = percent + '%';
+                }).catch(e => console.error(`Error refreshing ${icao}:`, e))
+            );
+
+            await Promise.all(promises);
+            // Небольшая задержка между батчами
+            await new Promise(r => setTimeout(r, 200));
+        }
+
+        if (progressFill) progressFill.style.width = '100%';
+        
+        // Кратковременная индикация завершения перед включением кнопки
         setTimeout(() => {
-            hideBatchRefreshModal();
-        }, 2000);
+            refreshAllBtn.disabled = false;
+            updateOfflineButton(); // Восстанавливаем корректное состояние кнопки (online/offline)
+            if (progressFill) progressFill.style.width = '0%';
+        }, 1000);
     }
 
-    function showBatchRefreshModal() {
-        batchRefreshModalBackdrop.classList.add('show');
-    }
-
-    function hideBatchRefreshModal() {
-        batchRefreshModalBackdrop.classList.remove('show');
-    }
-
-    closeBatchRefreshModalBtn.addEventListener('click', () => {
-        hideBatchRefreshModal();
-    });
-
-    batchRefreshModalBackdrop.addEventListener('click', (e) => {
-        if (e.target === batchRefreshModalBackdrop) {
-            hideBatchRefreshModal();
-        }
-    });
 
 
 
@@ -3538,24 +3508,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Автоматически переводим вводимые символы в верхний регистр
     gamcUidInput.addEventListener('input', () => {
         gamcUidInput.value = gamcUidInput.value.toUpperCase();
-    });
-
-    function updateNotamButton() {
-        const notamBtn = document.getElementById('notamBtn');
-        if (notamBtn && nowIcao) {
-            const isNotamUpdated = hasNotamsForIcao(nowIcao);
-            const notamCount = getNotamCountForIcao(nowIcao);
-            notamBtn.classList.toggle('badge-default', isNotamUpdated);
-            notamBtn.classList.toggle('badge-red', !isNotamUpdated);
-            notamBtn.innerHTML = `<i class="fa-solid fa-file-alt"></i>` + (isNotamUpdated ? `NOTAM ${notamCount}` : `NOTAM`);
-        }
-    }
-
-    loadNotamBtn.addEventListener('click', async () => {
-        notamModalBackdrop.classList.remove('show');
-        const nowIcaoList = [nowIcao];
-        await startBatchRefresh(nowIcaoList, false, true);
-        updateNotamButton();
     });
 
     // В main.js (или extra.js) найди где все остальные close*ModalBtn

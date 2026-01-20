@@ -505,8 +505,8 @@ button:disabled {
 }
 
 .response-container b, .response-container strong {
-    color: var(--accent-color);
-    font-weight: 500;
+    color: var(--text-color);
+    font-weight: 700;
 }
 
 
@@ -620,24 +620,41 @@ button:disabled {
     min-width: 110px;
 }
 
-#notamBtn.badge-default {
-    background-color: var(--badge-gray-bg);
+
+#refreshAllBtn {
+    position: relative;
+    overflow: hidden;
 }
 
-#notamBtn.badge-red {
-    background-color: var(--badge-red-bg);
+#refreshAllBtn .progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0%;
+    background-color: var(--accent-color);
+    opacity: 0.6;
+    transition: width 0.3s ease;
+    pointer-events: none;
+    z-index: 0;
 }
 
-#refreshBtn {
-    padding: 10px 8px;
+#refreshAllBtn i {
+    position: relative;
+    z-index: 1;
 }
 
+
+#refreshAllBtn:disabled {
+    cursor: not-allowed;
+    opacity: 1;
+    background-color: var(--card-bg);
+}
 
 #fetchBtn:disabled,
 #saveRouteBtn:disabled,
 #calcBtn:disabled,
 #airportSettingsBtn:disabled,
-#refreshAllBtn:disabled,
 #editRouteBtn:disabled,
 #loadGamcUidBtn:disabled,
 #exportGamcUidBtn:disabled,
@@ -1740,8 +1757,15 @@ button:disabled {
     font-size: 0.85rem;
     color: var(--text-secondary);
     font-weight: 500;
-    white-space: nowrap;
 }
+
+.airport-subinfo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+
 
 /* Правый блок (иконка горы + высота) */
 .airport-right {
@@ -1814,29 +1838,6 @@ button[hidden] {
     color: var(--accent-color);
 }
 
-/* Модалка для пакетного обновления */
-.batch-refresh-modal {
-    max-width: 450px;
-}
-
-/* Контейнер для "прогресс-бара" */
-.progress-bar-container {
-    width: 100%;
-    height: 12px;
-    background-color: var(--border-color);
-    border-radius: 6px;
-    overflow: hidden;
-    margin: 16px 0;
-    position: relative;
-}
-
-/* Заполняющая часть */
-.progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent-color), #60a5fa);
-    width: 0%;
-    transition: width 0.3s ease;
-}
 
 @media (max-width: 650px) {
 
@@ -2055,299 +2056,7 @@ button[hidden] {
     /* Можно подогнать стили под общую тематику, если нужно */
 }
 
-/* NOTAM Modal Styles */
-#notamModalBackdrop .modal {
-    max-width: 800px;
-    width: 90%;
-    padding: 25px;
-    text-align: left;
-    max-height: 80vh;
-    overflow-y: auto;
-}
 
-#notamModalBackdrop .modal.download-mode {
-    max-width: 400px;
-}
-
-#loadNotamBtnDiv {
-    justify-content: center;
-    display: flex;
-    margin-top: 25px;
-}
-
-.notam-item {
-    background: var(--card-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    margin: 15px 0;
-    padding: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.notam-item:active {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.notam-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-}
-
-.notam-id-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.notam-alert-icon {
-    color: var(--col-red);
-    font-size: 1.4rem;
-}
-
-.notam-id {
-    font-family: monospace;
-    font-weight: 600;
-    color: var(--accent-color);
-    font-size: 1.1rem;
-}
-
-.notam-category {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    padding: 6px 12px;
-    border-radius: 20px;
-    background: var(--badge-default-bg);
-    color: var(--badge-text-color);
-}
-
-.notam-category i {
-    font-size: 0.9rem;
-}
-
-.notam-short-info {
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 10px 0;
-    padding-left: 26px;
-    position: relative;
-}
-
-.notam-short-info i {
-    position: absolute;
-    left: 0;
-    top: 2px;
-    color: var(--col-yellow);
-}
-
-.notam-interpretation {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin: 15px 0;
-    padding: 15px;
-    background: var(--bg-color);
-    border-radius: 8px;
-    border-left: 4px solid var(--accent-color);
-}
-
-.notam-raw {
-    font-family: monospace;
-    line-height: 1.5rem;
-    font-size: 0.8rem;
-    white-space: pre-wrap;
-    background: var(--bg-color);
-    padding: 15px;
-    border-radius: 6px;
-    margin-top: 15px;
-    position: relative;
-    border: 1px dashed var(--border-color);
-}
-
-.notam-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    font-size: 0.8rem;
-    color: var(--text-color);
-    opacity: 0.9;
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border-color);
-}
-
-.notam-period {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    /*color: var(--col-pink);*/
-    font-weight: 600;
-    opacity: 0.9;
-}
-
-.notam-schedule {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: 8px;
-    opacity: 0.9;
-    font-weight: 600;
-}
-
-/* Темная тема */
-@media (prefers-color-scheme: dark) {
-    .notam-interpretation {
-        border-left-color: var(--col-default);
-    }
-
-    .notam-raw {
-        background: #2a2a2a;
-        border-color: #444;
-    }
-
-    .notam-item {
-        border-color: #444;
-    }
-}
-
-.notam-category[data-category="Airspace Closure"],
-.notam-category[data-category="Special Use Airspace"] {
-    background: var(--col-darkred);
-}
-
-.notam-item {
-    background: var(--card-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    margin: 15px 0;
-    padding: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.notam-item:active {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.notam-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-    gap: 10px;
-}
-
-.notam-id-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.notam-doc-icon {
-    color: var(--accent-color);
-    font-size: 1.4rem;
-}
-
-.notam-id {
-    font-family: monospace;
-    font-weight: 600;
-    color: var(--accent-color);
-    font-size: 1.1rem;
-}
-
-.notam-category {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    padding: 6px 12px;
-    border-radius: 20px;
-    background: var(--badge-default-bg);
-    color: var(--badge-text-color);
-    flex-shrink: 0;
-}
-
-.notam-category i {
-    font-size: 0.9rem;
-    width: 16px;
-    text-align: center;
-}
-
-.notam-short-info {
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 10px 0;
-    padding-left: 26px;
-    position: relative;
-}
-
-.notam-short-info i {
-    position: absolute;
-    left: 0;
-    top: 2px;
-    color: var(--col-yellow);
-}
-
-.notam-interpretation {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin: 15px 0;
-    padding: 15px;
-    background: var(--bg-color);
-    border-radius: 8px;
-    border-left: 4px solid var(--accent-color);
-}
-
-.notam-raw {
-    font-size: 0.8rem;
-    white-space: pre-wrap;
-    background: var(--bg-color);
-    padding: 15px;
-    border-radius: 6px;
-    margin-top: 15px;
-    position: relative;
-    border: 1px dashed var(--border-color);
-}
-
-.notam-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    font-size: 0.8rem;
-    color: var(--text-color);
-    opacity: 0.9;
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border-color);
-}
-
-.notam-period {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-/* Темная тема */
-@media (prefers-color-scheme: dark) {
-    .notam-interpretation {
-        border-left-color: var(--col-default);
-    }
-
-    .notam-raw {
-        background: var(--bg-color);
-        border-color: var(--border-color);
-    }
-
-    .notam-item {
-        border-color: var(--border-color);
-        background: var(--card-bg);
-    }
-}
 
 /* ================
    Стили для окна систем захода

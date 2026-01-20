@@ -16,7 +16,6 @@ const PRECACHE = [
   './extra.js',
   './extraTwo.js',
   './mapViewier.js',
-  './notamUtils.js',
   './routeCreator.js',
   './search.js',
   './synchash.js',

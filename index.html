@@ -46,6 +46,7 @@
 
         <button id="refreshAllBtn" class="sidebar-btn" title="Обновить всё">
             <i class="fa-solid fa-retweet"></i>
+            <div class="progress-fill"></div>
         </button>
         <button id="restrBtn" class="sidebar-btn" title="Ограничения">
             <i class="fa-solid fa-ruler-combined"></i>
@@ -73,7 +74,6 @@
                         <ul id="icaoSuggestions" class="icao-suggestions"></ul>
                     </div>
                     <button id="fetchBtn" disabled><i class="fas fa-cloud-download-alt"></i>Запросить</button>
-                    <button id="notamBtn" disabled title="NOTAM"><i class="fa-solid fa-file-alt"></i>NOTAM</button>
                     <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i>Поиск</button>
                 </div>
             </div>
@@ -93,7 +93,9 @@
             <!-- По центру: Название и страна (мелким шрифтом) -->
             <div class="airport-center">
                 <div class="airport-name" id="airportName"></div>
-                <div class="airport-country" id="airportCountry"></div>
+                <div class="airport-subinfo">
+                    <span class="airport-country" id="airportCountry"></span>
+                </div>
             </div>
 
             <div class="airport-right">
@@ -189,10 +191,10 @@
             </button>
             <h2 id="confirmModalTitle">Подтверждение</h2>
             <p id="confirmModalMessage">Вы уверены?</p>
-            <div class="modal-checkbox-group" id="confirmNotamContainer" style="display: none; justify-content: center; margin-bottom: 1rem;">
+            <div id="confirmModalExtra" style="display: none; margin-bottom: 15px;">
                 <label class="custom-checkbox">
-                    <input type="checkbox" id="confirmNotamCheckbox">
-                    <span>Загрузить также NOTAM</span>
+                    <input type="checkbox" id="confirmModalCheckbox">
+                    <span id="confirmModalCheckboxLabel">Обновить все аэродромы</span>
                 </label>
             </div>
             <div class="modal-button-group">
@@ -366,25 +368,6 @@
         <input type="file" id="gpxFileInput" accept=".gpx" style="display:none">
     </div>
 
-    <!-- Модальное окно для пакетного обновления -->
-    <div class="modal-backdrop" id="batchRefreshModalBackdrop">
-        <div class="modal batch-refresh-modal">
-            <button class="modal-close-btn" id="closeBatchRefreshModalBtn">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2>Пакетное обновление</h2>
-            <p id="batchRefreshInfo">Подготовка...</p>
-
-            <!-- Контейнер для прогресс-бара -->
-            <div class="progress-bar-container">
-                <div class="progress-bar-fill" id="batchRefreshProgress"></div>
-            </div>
-
-            <p id="batchRefreshCurrentIcao" style="margin-top: 12px; font-weight: 500;">
-                &nbsp;
-            </p>
-        </div>
-    </div>
 
 
     <!-- Модальное окно для результата (или уведомления) -->
@@ -422,21 +405,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно для NOTAM -->
-    <div class="modal-backdrop" id="notamModalBackdrop">
-        <div class="modal" id="notamModalWindow">
-            <button class="modal-close-btn" id="closeNotamModalBtn">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2 id="notamModalName">Список NOTAM</h2>
-            <div id="notamContent">Здесь будет список NOTAMов</div>
-            <div class="notam-load-button" id="loadNotamBtnDiv">
-                <button id="loadNotamBtn" class="btn btn-primary">
-                    <i class="fas fa-cloud-download-alt"></i> Загрузить NOTAM
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Модальное окно для систем захода на посадку -->
     <div class="modal-backdrop" id="landingSystemsModalBackdrop">
@@ -697,7 +665,6 @@
     <script src="search.js"></script>
     <script src="airportSystems.js"></script>
     <script src="synchash.js"></script>
-    <script src="notamUtils.js"></script>
     <script src="wakeLock.js"></script>
 
 

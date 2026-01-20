@@ -119,7 +119,6 @@ function renderLandingSystemsList() {
             confirmModal.classList.add('show');
 
             document.getElementById('confirmModalMessage').textContent = 'Вы уверены?';
-            document.getElementById('confirmNotamContainer').style.display = 'none';
             document.getElementById('confirmYesBtn').style.backgroundColor = 'var(--badge-red-bg)';
 
             // Обработчик кнопки "Да" в модальном окне

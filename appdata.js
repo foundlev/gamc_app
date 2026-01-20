@@ -8,7 +8,7 @@ const maintenance = {
             'OMAA', 'ULLI', 'USTR', 'UWWW', 'USRR', 'UEEE', 'VTBS', 'HECA', 'HESH', 'HEGN', 'UMMS', 'LTBS', 'UTTT',
             'UTSS', 'UAFO', 'URWA', 'UHHH', 'URMT', 'UHWW', 'UCFM', 'UBBB', 'VTSP', 'ZJSY'
         ],
-        "notam": "AFL 9EMIH/24 (11 JUN 25)"
+        "info": ""
     },
     "A320N,A321N": {
         "icao": [
@@ -16,7 +16,7 @@ const maintenance = {
             'OMDW', 'UAAA', 'OMDB', 'OMAA', 'HESH', 'HEGN', 'UTTT', 'ZJSY', 'UNNT', 'UWOO', 'USRR', 'LTAI', 'VTBS',
             'VIDP', 'LTBS', 'VTSP', 'UTSS'
         ],
-        "notam": "AFL 9EMII/24 (11 JUN 25)"
+        "info": ""
     },
     "A320,A320S,A321,A321S": {
         "icao": [
@@ -25,25 +25,25 @@ const maintenance = {
             'OMAA', 'ULLI', 'USTR', 'UWWW', 'USCC', 'HECA', 'HESH', 'HEGN', 'UMMS', 'UCFM', 'LTBS', 'UTTT', 'URWA',
             'VIDP', 'UBBB', 'UWSG', 'UWOO', 'USRR', 'URMT', 'UHSS', 'UHWW', 'VTBS', 'VTSP', 'UAFO', 'UTSS'
         ],
-        "notam": "AFL 9EMJ1/24 (11 JUN 25)"
+        "info": ""
     },
     "B777": {
         "icao": [
             'URSS', 'UHHH', 'UHWW', 'UHPP', 'LTAI', 'LTFM', 'ULLI', 'VIDP', 'VTSP', 'VTBS', 'HECA', 'HESH', 'HEGN',
             'VCBI', 'UNNT', 'UHSS', 'OMAA', 'ZGGG', 'OMDW', 'OMDB', 'ZSPD', 'ZJSY'
         ],
-        "notam": "AFL 9EMIC/24 (11 JUN 25)"
+        "info": ""
     },
     "A330": {
         "icao": [
             'URSS', 'UNKL', 'UHHH', 'UHWW', 'UMKK', 'USSS', 'LTAI', 'LTFM', 'UAAA', 'ULLI', 'VTSP', 'VTBS', 'HECA',
             'HESH', 'HEGN', 'VCBI', 'UWKD', 'UNNT', 'UWUU', 'OMAA', 'OMDW', 'OMDB', 'ZJSY'
         ],
-        "notam": "AFL 9EMIE/24 (11 JUN 25)"
+        "info": ""
     },
     "A350": {
         "icao": ['URSS', 'UHHH', 'UHWW', 'UHSS', 'VTBS', 'VCBI', 'HEGN', 'HESH', 'ZJSY'],
-        "notam": "AFL 9JDJ5/24 (11 JUN 25)"
+        "info": ""
     }
 }
 

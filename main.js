@@ -206,6 +206,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const refreshAllBtn = document.getElementById('refreshAllBtn');
 
+    function formatTimeAgoRussian(diffMin) {
+        if (diffMin < 0) return "В будущем";
+        if (diffMin < 1) return "Только что";
+        if (diffMin < 60) return `${diffMin} мин. назад`;
+        if (diffMin < 180) { // 3 часа = 180 мин
+            const h = Math.floor(diffMin / 60);
+            const m = diffMin % 60;
+            if (m === 0) return `${h} ч. назад`;
+            return `${h} ч. ${m} мин. назад`;
+        }
+        if (diffMin < 1440) { // 24 часа = 1440 мин
+            const h = Math.floor(diffMin / 60);
+            return `${h} ч. назад`;
+        }
+        return ">1 дня";
+    }
+
     // Модальное окно
     const modalBackdrop = document.getElementById('modalBackdrop');
     const modalPassword = document.getElementById('modalPassword');
@@ -607,21 +624,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showOfflineWarning() {
         const warning = document.createElement('div');
-        warning.className = 'offline-warning';
+        warning.className = 'time-badge offline-warning-badge';
+        warning.id = 'offlineWarningBadge';
         warning.innerHTML = `
-            <i class="fa-solid fa-plane-up"></i>Включен авиарежим. Данные взяты из сохраненных.
+            <div class="badge-main"><i class="fa-solid fa-plane-up"></i> Авиарежим</div>
         `;
-        upperBadgeContainer.insertAdjacentElement('afterend', warning);
+        timeBadgeContainerRow2.appendChild(warning);
         addTimeBadgeContainerBottomGap();
     }
 
     function showOfflineWarningNoInfo() {
         const warning = document.createElement('div');
-        warning.className = 'offline-warning-no-info';
+        warning.className = 'time-badge offline-warning-no-info-badge';
+        warning.id = 'offlineWarningNoInfoBadge';
         warning.innerHTML = `
-            <i class="fa-solid fa-ban"></i>Нет подключения. Нет сохраненных данных.
+            <div class="badge-main"><i class="fa-solid fa-ban"></i> Нет данных</div>
         `;
-        upperBadgeContainer.insertAdjacentElement('afterend', warning);
+        timeBadgeContainerRow2.appendChild(warning);
         addTimeBadgeContainerBottomGap();
     }
 
@@ -731,13 +750,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const isUserRequest = !silent;
+        const shouldUpdateUI = isUserRequest || (icao === nowIcao);
 
         if (isUserRequest) {
             nowIcao = icao;
             hideAirportInfo();
         }
 
-        if (isUserRequest) {
+        if (shouldUpdateUI && isUserRequest) {
             responseContainer.innerHTML = `
                 <div class="placeholder">
                     <i class="fa-solid fa-cloud-sun fa-2x"></i>
@@ -751,25 +771,25 @@ document.addEventListener('DOMContentLoaded', () => {
             removeTimeBadgeContainerBottomGap();
         }
 
-        const existingWarning = document.querySelector('.offline-warning');
-        if (existingWarning && isUserRequest) {
+        const existingWarning = document.getElementById('offlineWarningBadge');
+        if (existingWarning && shouldUpdateUI) {
             existingWarning.remove();
         }
 
-        const existingWarningNoInfo = document.querySelector('.offline-warning-no-info');
-        if (existingWarningNoInfo && isUserRequest) {
+        const existingWarningNoInfo = document.getElementById('offlineWarningNoInfoBadge');
+        if (existingWarningNoInfo && shouldUpdateUI) {
             existingWarningNoInfo.remove();
         }
 
         const gamcUid = getGamcUID();
         const url = `https://myapihelper.na4u.ru/gamc_app/api.php?password=${encodeURIComponent(password)}&icao=${encodeURIComponent(icao)}&gamcUid=${encodeURIComponent(gamcUid)}`;
 
-        if (isUserRequest) {
+        if (shouldUpdateUI && isUserRequest) {
             // Заменяем текст на анимацию загрузки
             responseContainer.innerHTML = `
               <div class="loading-container">
                 <div class="neuro-loader"></div>
-                <span class="loading-text">Получаем данные о погоде...</span>
+                <div class="loading-text">Получаем данные...</div>
               </div>
             `;
             state.worstRunwayFrictionCode = null;
@@ -798,12 +818,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if ((!navigator.onLine) || offlineMode || useSavedData) {
-            if (isUserRequest) showAirportInfo(icao);
+            if (shouldUpdateUI) showAirportInfo(icao);
             if (savedData[icao]) {
-                if (isUserRequest) responseContainer.innerHTML = savedData[icao];
+                if (shouldUpdateUI) responseContainer.innerHTML = savedData[icao];
                 if (!useSavedData) toShowOfflineWarning = true;
             } else if (!useSavedData) {
-                if (isUserRequest) {
+                if (shouldUpdateUI) {
                     showOfflineWarningNoInfo(); // Показать предупреждение
                     responseContainer.innerHTML = 'Нет данных.';
                 }
@@ -826,11 +846,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 rawData = rawData.replace(/<br>/g, ' ');
             }
 
-            if (silent) {
-                const savedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
-                savedData[icao] = rawData;
-                localStorage.setItem('icaoData', JSON.stringify(savedData));
-            }
+            // Сохраняем в localStorage сразу
+            const currentSavedData = JSON.parse(localStorage.getItem('icaoData') || '{}');
+            currentSavedData[icao] = rawData;
+            localStorage.setItem('icaoData', JSON.stringify(currentSavedData));
 
             // Парсим <pre>
             const parser = new DOMParser();
@@ -909,8 +928,30 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             finalText = finalText.trimEnd(); // убираем последний \n\n
 
+            // --- РАСЧЕТ ЦВЕТОВ И ОБНОВЛЕНИЕ icaoColors ДО СОЗДАНИЯ ПЛАШЕК ---
+            let metarWorstColor = null;
+            let tafWorstColor = null;
+
+            blockObjects.forEach(block => {
+                if (block.type === "METAR" || block.type === "SPECI") {
+                    const color = detectWorstMetarOrSpeciColor(block.text, state);
+                    if (color) metarWorstColor = compareWorstColor(metarWorstColor, color);
+                } else if (block.type === "TAF") {
+                    const color = detectWorstTafColor(block.text, state);
+                    if (color) tafWorstColor = compareWorstColor(tafWorstColor, color);
+                }
+            });
+
+            if (!toShowOfflineWarning && !useSavedData) {
+                if (!icaoColors[icao]) icaoColors[icao] = {};
+                icaoColors[icao].metarColor = metarWorstColor;
+                icaoColors[icao].tafColor = tafWorstColor;
+                icaoColors[icao].updatedAt = new Date().toISOString();
+                localStorage.setItem('icaoColors', JSON.stringify(icaoColors));
+            }
+
             // ========= Формируем плашки с временем в новом порядке =======
-            if (!silent) {
+            if (shouldUpdateUI) {
                 timeBadgeContainer.innerHTML = '';
                 timeBadgeContainerRow2.innerHTML = '';
                 favBadgeContainer.innerHTML = '';
@@ -957,11 +998,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Добавляем в контейнер первым
-            if (toShowOfflineWarning && !silent) {
+            if (toShowOfflineWarning && shouldUpdateUI) {
                 showOfflineWarning();
             }
 
-            if (!silent) {
+            if (shouldUpdateUI) {
                 timeBadgeContainer.appendChild(utcBadge);
 
                 // Плашка "обновлено назад" (справа от UTC)
@@ -974,16 +1015,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (updatedAt) {
                     const updateTime = new Date(updatedAt).getTime();
                     const diffMin = Math.floor((Date.now() - updateTime) / 60000);
-                    if (diffMin < 1) {
-                        timeStr = "Только что";
-                    } else if (diffMin < 60) {
-                        timeStr = `${diffMin} мин. назад`;
-                    } else if (diffMin < 1440) {
-                        const h = Math.floor(diffMin / 60);
-                        timeStr = `${h} ч. назад`;
-                    } else {
-                        timeStr = ">1 дня";
-                    }
+                    timeStr = formatTimeAgoRussian(diffMin);
                 } else {
                     timeStr = "Только что";
                 }
@@ -1018,18 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const diffAbs = Math.abs(diffMin);
 
                     // Формируем текст "сколько назад"
-                    let agoText = "";
-                    if (diffMin >= 0) {
-                        if (diffMin < 60) {
-                            agoText = `${diffMin}m ago`;
-                        } else {
-                            const h = Math.floor(diffMin / 60);
-                            const m = diffMin % 60;
-                            agoText = `${h}h ${m}m ago`;
-                        }
-                    } else {
-                        agoText = "Future";
-                    }
+                    let agoText = formatTimeAgoRussian(diffMin);
 
                     // Делаем плашку
                     const badge = document.createElement('div');
@@ -1080,7 +1101,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         badge.classList.add('badge-default');
                     }
 
-                    if (!silent) {
+                    if (shouldUpdateUI) {
                         // Добавляем плашку в контейнер
                         timeBadgeContainer.appendChild(badge);
                     }
@@ -1098,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMaintenanceInfoModal(getAirportClassInfoText(state.nowIcao));
             });
 
-            if (!silent) {
+            if (shouldUpdateUI) {
                 timeBadgeContainerRow2.appendChild(airportClassBadge);
             }
 
@@ -1127,7 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            if (!silent) {
+            if (shouldUpdateUI) {
                 timeBadgeContainerRow2.appendChild(maintenanceBadge);
             }
 
@@ -1144,7 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 atisBadge.innerHTML = `<div class="badge-main"><i class="fa-solid fa-tower-cell"></i> ${atisFrqInfo.frq}` +
                     (atisFrqInfo.lang ? ` ${atisFrqInfo.lang.toUpperCase()}` : '') + `</div>`;
 
-                if (!silent) {
+                if (shouldUpdateUI) {
                     timeBadgeContainerRow2.appendChild(atisBadge);
                 }
             }
@@ -1173,46 +1194,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            if (isUserRequest) {
+            if (shouldUpdateUI) {
                 responseContainer.innerHTML = finalText;
                 showAirportInfo(icao);
-            }
-
-            // Создадим переменные
-            let metarWorstColor = null;
-            let tafWorstColor = null;
-
-            // Возьмём массив blockObjects (у вас он выше называется именно так),
-            // чтобы понять, какой из блоков METAR/SPECI, а какой TAF
-            blockObjects.forEach(block => {
-                if (block.type === "METAR" || block.type === "SPECI") {
-                    // Ищем худший цвет в block.text
-                    const color = detectWorstMetarOrSpeciColor(block.text, state);
-                    if (color) {
-                        // Сравниваем с текущим metarWorstColor
-                        metarWorstColor = compareWorstColor(metarWorstColor, color);
-                    }
-                } else if (block.type === "TAF") {
-                    // Ищем худший цвет в block.text (но без TEMPO/PROB)
-                    const color = detectWorstTafColor(block.text, state);
-                    if (color) {
-                        tafWorstColor = compareWorstColor(tafWorstColor, color);
-                    }
-                }
-            });
-
-            // Запишем в некий глобальный объект
-            // (объявите его где-нибудь наверху: let icaoColors = {}; )
-
-            if (!toShowOfflineWarning && !useSavedData) {
-                if (!icaoColors[icao]) {
-                    icaoColors[icao] = {};
-                }
-                icaoColors[icao].metarColor = metarWorstColor;
-                icaoColors[icao].tafColor = tafWorstColor;
-                icaoColors[icao].updatedAt = new Date().toISOString();
-
-                localStorage.setItem('icaoColors', JSON.stringify(icaoColors));
+                updateSystemsButton(silent);
             }
 
             const buttons = document.querySelectorAll('.history button');
@@ -1227,12 +1212,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (buttonInHistory) {
                 applyIcaoButtonColors(icao, buttonInHistory);
             }
-
-            if (isUserRequest) {
-                updateSystemsButton(silent);
-            }
         } catch (err) {
-            if (isUserRequest) responseContainer.textContent = 'Ошибка при запросе: ' + err;
+            if (shouldUpdateUI) responseContainer.textContent = 'Ошибка при запросе: ' + err;
         }
     }
 
@@ -2702,7 +2683,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const badges = document.querySelectorAll('.time-badge');
         badges.forEach(badge => {
             // Пропускаем плашку UTC, плашку обновления и другие сервисные
-            if (badge.id === 'utcBadge' || badge.id === 'airportUpdateBadge' || badge.id === 'airportClassBadge' || badge.id === 'showMaintenanceInfoModal' || badge.id === 'atisFrqBtn') return;
+            if (badge.id === 'utcBadge' || badge.id === 'airportUpdateBadge' || badge.id === 'airportClassBadge' || 
+                badge.id === 'showMaintenanceInfoModal' || badge.id === 'atisFrqBtn' || 
+                badge.id === 'offlineWarningBadge' || badge.id === 'offlineWarningNoInfoBadge') return;
 
             const msgDateStr = badge.dataset.msgDate;
             if (!msgDateStr) return;
@@ -2713,21 +2696,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const diffAbs = Math.abs(diffMin);
 
             // Пересчитываем agoText
-            let newAgo = "Future";
-            if (diffMin >= 0) {
-                if (diffMin < 60) {
-                    newAgo = `${diffMin}m ago`;
-                } else {
-                    const h = Math.floor(diffMin / 60);
-                    const m = diffMin % 60;
-                    newAgo = `${h}h ${m}m ago`;
-                }
-            }
+            let newAgo = formatTimeAgoRussian(diffMin);
             badge.dataset.agoText = newAgo;
 
-            // Если сейчас на плашке отображается "ago", обновим текст в реальном времени
+            // Если сейчас на плашке отображается "назад", обновим текст в реальном времени
             const valSpan = badge.querySelector('.badge-value');
-            if (valSpan && valSpan.textContent.includes('ago')) {
+            if (valSpan && (valSpan.textContent.includes('назад') || valSpan.textContent.includes('Только что'))) {
                 valSpan.textContent = newAgo;
             }
 
@@ -2768,17 +2742,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const nowTime = Date.now();
                 const diffMin = Math.floor((nowTime - updatedTime) / 60000);
 
-                let timeStr = "";
-                if (diffMin < 1) {
-                    timeStr = "Только что";
-                } else if (diffMin < 60) {
-                    timeStr = `${diffMin} мин. назад`;
-                } else if (diffMin < 1440) {
-                    const h = Math.floor(diffMin / 60);
-                    timeStr = `${h} ч. назад`;
-                } else {
-                    timeStr = ">1 дня";
-                }
+                let timeStr = formatTimeAgoRussian(diffMin);
                 const valSpan = updateBadge.querySelector('.badge-value');
                 if (valSpan) {
                     valSpan.textContent = timeStr;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gamc-app-v2';
+const CACHE_NAME = 'gamc-app-v3';
 
 const PRECACHE = [
   './',                     // fallback для навигаций
@@ -13,10 +13,9 @@ const PRECACHE = [
 
   /* JS-модули (добавьте сюда новые, если появятся) */
   './airportSystems.js',
+  './appdata.js',
   './extra.js',
   './extraTwo.js',
-  './mapViewier.js',
-  './routeCreator.js',
   './search.js',
   './synchash.js',
   './wakeLock.js'

@@ -148,9 +148,9 @@
 
         --bg-color: #0f172a;
         --card-bg: #1e293b;
-        --text-color: #f1f5f9;
+        --text-color: #eeeeee;
         --text-secondary: #94a3b8;
-        --accent-color: #818cf8;
+        --accent-color: #1E6FB7;
         --accent-hover: #a5b4fc;
         --accent-soft: rgba(129, 140, 248, 0.1);
         --border-color: #334155;
@@ -247,8 +247,8 @@ b, strong {
 }
 
 .badge-default {
-    background-color: var(--badge-gray-bg);
-    color: var(--text-color);
+    background-color: var(--accent-color);
+    color: var(--badge-text-color);
 }
 
 body {
@@ -435,8 +435,8 @@ button:disabled {
 }
 
 .history button {
-    background-color: var(--badge-gray-bg);
-    color: var(--badge-text-color);
+    background: var(--card-bg);
+    color: var(--text-color);
     border: 1px solid var(--border-color);
     font-size: 0.95rem;
     padding: 6px 12px;
@@ -470,7 +470,8 @@ button:disabled {
 
 .upper-badge-container {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 8px;
 }
 
 /* =========================
@@ -553,13 +554,13 @@ button:disabled {
 }
 
 .clear-icao-btn {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
     position: absolute;
     right: 10px;
     /* отступ от края инпута */
     top: 50%;
     transform: translateY(-50%);
-    background: var(--badge-default-bg);
-    border: none;
     color: var(--text-secondary);
     /* или любой другой цвет */
     font-size: 0.8rem;
@@ -594,7 +595,6 @@ button:disabled {
     font-size: 0.95rem;
     padding: 7px 10px;
     border-radius: var(--radius-sm);
-    margin-top: -5px;
     text-align: center;
     animation: fadeSlideIn 0.4s ease forwards;
 }
@@ -607,7 +607,6 @@ button:disabled {
     font-size: 0.95rem;
     padding: 7px 10px;
     border-radius: var(--radius-sm);
-    margin-top: -10px;
     text-align: center;
     animation: fadeSlideIn 0.4s ease forwards;
 }
@@ -3191,83 +3190,84 @@ input::-webkit-inner-spin-button {
     position: relative;
 }
 
+.info-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    z-index: 20;
+}
+
 .info-header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
-    gap: 16px;
-    padding: 56px 24px 20px;
-    background: var(--bg-secondary);
+    justify-content: center;
+    gap: 20px;
+    padding: 32px 24px;
+    background: var(--card-bg);
     border-bottom: 1px solid var(--border-color);
     text-align: left;
 }
 
 .info-header .fa-plane-circle-check {
     color: var(--accent-color);
-    font-size: 2rem;
+    font-size: 3rem;
 }
 
 .info-title-group {
-    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .info-header h2 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-color);
 }
 
 .version-badge {
     align-self: flex-start;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     background: var(--accent-soft);
     color: var(--accent-color);
-    padding: 2px 10px;
+    padding: 4px 12px;
     border-radius: 999px;
     font-weight: 600;
 }
 
-.modal-refresh-btn {
+.info-reload-btn {
     background: var(--bg-color);
     border: 1px solid var(--border-color);
     color: var(--text-color);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--transition);
 }
 
-.modal-refresh-btn:hover {
+.info-reload-btn:hover {
     background: var(--accent-soft);
     color: var(--accent-color);
     border-color: var(--accent-color);
 }
 
-.modal-refresh-btn:active {
+.info-reload-btn:active {
     transform: scale(0.95);
 }
 
-.info-reload-btn {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    width: auto;
-    height: auto;
-    padding: 8px 12px;
-    border-radius: 999px;
-    gap: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
+.info-close-btn {
+    position: static !important;
 }
 
 .info-reload-btn span {

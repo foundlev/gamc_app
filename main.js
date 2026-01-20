@@ -200,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const responseContainer = document.getElementById('responseContainer');
     const historyContainer = document.getElementById('historyContainer');
     const timeBadgeContainer = document.getElementById('timeBadgeContainer');
+    const timeBadgeContainerRow2 = document.getElementById('timeBadgeContainerRow2');
     const favBadgeContainer = document.getElementById('favBadgeContainer');
     const upperBadgeContainer = document.getElementById('upperBadgeContainer');
 
@@ -745,6 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             responseContainer.style.padding = '10px';
             timeBadgeContainer.innerHTML = '';
+            timeBadgeContainerRow2.innerHTML = '';
             favBadgeContainer.innerHTML = '';
             removeTimeBadgeContainerBottomGap();
         }
@@ -772,6 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             state.worstRunwayFrictionCode = null;
             timeBadgeContainer.innerHTML = '';
+            timeBadgeContainerRow2.innerHTML = '';
             favBadgeContainer.innerHTML = '';
             removeTimeBadgeContainerBottomGap();
         } else {
@@ -907,9 +910,12 @@ document.addEventListener('DOMContentLoaded', () => {
             finalText = finalText.trimEnd(); // убираем последний \n\n
 
             // ========= Формируем плашки с временем в новом порядке =======
-            timeBadgeContainer.innerHTML = '';
-            favBadgeContainer.innerHTML = '';
-            removeTimeBadgeContainerBottomGap();
+            if (!silent) {
+                timeBadgeContainer.innerHTML = '';
+                timeBadgeContainerRow2.innerHTML = '';
+                favBadgeContainer.innerHTML = '';
+                removeTimeBadgeContainerBottomGap();
+            }
 
             const nowUTC = new Date();
             const hhUTC = String(nowUTC.getUTCHours()).padStart(2, '0');
@@ -926,7 +932,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const utcVal = `UTC ${hhUTC}:${mmUTC}`;
             const ltVal = `LT ${hhLT}:${mmLT}`;
             
-            utcBadge.innerHTML = `<div class="badge-main"><span class="badge-value">${utcVal}</span></div>`;
+            utcBadge.innerHTML = `<div class="badge-main"><i class="fa-solid fa-clock"></i> <span class="badge-value">${utcVal}</span></div>`;
 
             let utcTimer = null;
             utcBadge.addEventListener('click', () => {
@@ -951,7 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Добавляем в контейнер первым
-            if (toShowOfflineWarning) {
+            if (toShowOfflineWarning && !silent) {
                 showOfflineWarning();
             }
 
@@ -960,14 +966,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Плашка "обновлено назад" (справа от UTC)
                 const updatedAt = icaoColors[icao] ? icaoColors[icao].updatedAt : null;
+                const updateBadge = document.createElement('div');
+                updateBadge.className = 'time-badge badge-default';
+                updateBadge.id = 'airportUpdateBadge';
+                
+                let timeStr = "";
                 if (updatedAt) {
-                    const updateBadge = document.createElement('div');
-                    updateBadge.className = 'time-badge badge-default';
-                    updateBadge.id = 'airportUpdateBadge';
-                    
                     const updateTime = new Date(updatedAt).getTime();
                     const diffMin = Math.floor((Date.now() - updateTime) / 60000);
-                    let timeStr = "";
                     if (diffMin < 1) {
                         timeStr = "Только что";
                     } else if (diffMin < 60) {
@@ -978,10 +984,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         timeStr = ">1 дня";
                     }
-
-                    updateBadge.innerHTML = `<div class="badge-main"><span class="badge-value">${timeStr}</span></div>`;
-                    timeBadgeContainer.appendChild(updateBadge);
+                } else {
+                    timeStr = "Только что";
                 }
+
+                updateBadge.innerHTML = `<div class="badge-main"><i class="fa-solid fa-rotate"></i> <span class="badge-value">${timeStr}</span></div>`;
+                timeBadgeContainer.appendChild(updateBadge);
 
                 addTimeBadgeContainerBottomGap();
             }
@@ -1034,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     badge.dataset.mainText = mainText;
                     badge.dataset.agoText = agoText;
                     
-                    badge.innerHTML = `<div class="badge-main"><span class="badge-value">${mainText}</span></div>`;
+                    badge.innerHTML = `<div class="badge-main"><i class="fa-solid fa-cloud"></i> <span class="badge-value">${mainText}</span></div>`;
                     
                     let badgeTimer = null;
                     badge.addEventListener('click', () => {
@@ -1091,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!silent) {
-                timeBadgeContainer.appendChild(airportClassBadge);
+                timeBadgeContainerRow2.appendChild(airportClassBadge);
             }
 
             const selectedAircraft = getAircraftType();
@@ -1120,7 +1128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!silent) {
-                timeBadgeContainer.appendChild(maintenanceBadge);
+                timeBadgeContainerRow2.appendChild(maintenanceBadge);
             }
 
             const atifLangSelected = localStorage.getItem('atisLangSelect') || 'en';
@@ -1137,7 +1145,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     (atisFrqInfo.lang ? ` ${atisFrqInfo.lang.toUpperCase()}` : '') + `</div>`;
 
                 if (!silent) {
-                    timeBadgeContainer.appendChild(atisBadge);
+                    timeBadgeContainerRow2.appendChild(atisBadge);
                 }
             }
 
@@ -1196,7 +1204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Запишем в некий глобальный объект
             // (объявите его где-нибудь наверху: let icaoColors = {}; )
 
-            if (!toShowOfflineWarning) {
+            if (!toShowOfflineWarning && !useSavedData) {
                 if (!icaoColors[icao]) {
                     icaoColors[icao] = {};
                 }
@@ -3339,12 +3347,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (progressFill) progressFill.style.width = '100%';
         
+        // Показываем галочку при завершении
+        const icon = refreshAllBtn.querySelector('i');
+        const originalClass = icon ? icon.className : '';
+        if (icon) icon.className = 'fa-solid fa-check';
+        
         // Кратковременная индикация завершения перед включением кнопки
         setTimeout(() => {
             refreshAllBtn.disabled = false;
             updateOfflineButton(); // Восстанавливаем корректное состояние кнопки (online/offline)
             if (progressFill) progressFill.style.width = '0%';
-        }, 1000);
+            if (icon) icon.className = originalClass;
+        }, 3000);
     }
 
 

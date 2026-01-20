@@ -123,8 +123,13 @@ async function showChangelogModal() {
 
 // Обработчики событий
 document.addEventListener('DOMContentLoaded', () => {
-    if (!offlineMode) {
+    if (typeof offlineMode !== 'undefined' && !offlineMode) {
         getCommits().then();
+    } else if (typeof offlineMode === 'undefined') {
+        const storedOffline = JSON.parse(localStorage.getItem('offlineMode')) || false;
+        if (!storedOffline) {
+            getCommits().then();
+        }
     }
 
     const infoBtn = document.getElementById('infoBtn');

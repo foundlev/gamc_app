@@ -36,6 +36,44 @@ fetch('data/airports_db.json')
 
 // Приоритет цветов от худшего к лучшему
 // (darkred и purple можно тоже расставить, если нужно)
+const WEATHER_PHENOMENA = {
+    DZ: { en: "Drizzle", ru: "морось" },
+    RA: { en: "Rain", ru: "дождь" },
+    SN: { en: "Snow", ru: "снег" },
+    SG: { en: "Snow Grains", ru: "снежные зёрна (снежная крупа)" },
+    IC: { en: "Ice Crystals", ru: "ледяные кристаллы" },
+    PL: { en: "Ice Pellets", ru: "ледяная крупа" },
+    GR: { en: "Hail", ru: "град" },
+    GS: { en: "Small Hail and/or Snow Pellets", ru: "мелкий град и/или снежная крупа" },
+    UP: { en: "Unknown Precipitation", ru: "неизвестные осадки" },
+
+    FG: { en: "Fog", ru: "туман" },
+    BR: { en: "Mist", ru: "дымка" },
+    HZ: { en: "Haze", ru: "мгла" },
+    FU: { en: "Smoke", ru: "дым" },
+    VA: { en: "Volcanic Ash", ru: "вулканический пепел" },
+    DU: { en: "Widespread Dust", ru: "пыль (обширная)" },
+    SA: { en: "Sand", ru: "песок" },
+    PY: { en: "Spray", ru: "водяная пыль" },
+
+    PO: { en: "Dust or Sand Whirls", ru: "пыльные/песчаные вихри" },
+    SQ: { en: "Squalls", ru: "шквалы" },
+    FC: { en: "Funnel Cloud (Tornado or Waterspout)", ru: "воронка (торнадо/смерч над водой)" },
+    SS: { en: "Sandstorm", ru: "песчаная буря" },
+    DS: { en: "Duststorm", ru: "пыльная буря" }
+};
+
+const WEATHER_DESCRIPTORS = {
+    MI: { en: "Shallow", ru: "стелющийся" },
+    PR: { en: "Partial", ru: "частичный" },
+    BC: { en: "Patches", ru: "клочьями" },
+    DR: { en: "Drifting", ru: "позёмный" },
+    BL: { en: "Blowing", ru: "метущий" },
+    SH: { en: "Showers", ru: "ливневый" },
+    TS: { en: "Thunderstorm", ru: "гроза" },
+    FZ: { en: "Freezing", ru: "переохлаждённый" }
+};
+
 const colorPriority = [
     "color-purple", // считаем экстремально худшим
     "color-darkred",
@@ -702,6 +740,76 @@ document.addEventListener('DOMContentLoaded', () => {
         if (noConnModalBackdrop) noConnModalBackdrop.classList.remove('show');
     }
     if (closeNoConnModalBtn) closeNoConnModalBtn.addEventListener('click', hideNoConnModal);
+
+    const airportDetailsModalBackdrop = document.getElementById('airportDetailsModalBackdrop');
+    const closeAirportDetailsModalBtn = document.getElementById('closeAirportDetailsModalBtn');
+    const airportInfoContainer = document.getElementById('airportInfoContainer');
+
+    function showAirportDetailsModal(icao) {
+        if (!airportInfoDb[icao]) return;
+        const data = airportInfoDb[icao];
+        const contentElem = document.getElementById('airportDetailsContent');
+
+        let html = `
+            <div class="airport-details-modal-info">
+                <p><b>Название:</b> ${data.geo ? data.geo.join(', ') : '-'}</p>
+                <p><b>ICAO/IATA:</b> ${data.icao}${data.iata ? ' / ' + data.iata : ''}</p>
+                <p><b>Превышение:</b> ${data.elevation} ft</p>
+                <p><b>Склонение:</b> ${data.declination}°</p>
+                <hr>
+                <h3>Взлетно-посадочные полосы</h3>
+        `;
+
+        if (data.runways) {
+            // Сортировка полос
+            const sortedRunways = Object.keys(data.runways).sort((a, b) => {
+                const numA = parseInt(a);
+                const numB = parseInt(b);
+                if (numA !== numB) return numA - numB;
+                
+                // Если номера одинаковые (например 03L, 03R), сортируем по буквам R > C > L
+                const order = { 'R': 1, 'C': 2, 'L': 3 };
+                const charA = a.slice(-1);
+                const charB = b.slice(-1);
+                return (order[charA] || 0) - (order[charB] || 0);
+            });
+
+            sortedRunways.forEach(rwyKey => {
+                const rwy = data.runways[rwyKey];
+                html += `
+                    <div class="runway-detail-item">
+                        <b>ВПП ${rwyKey}</b>: курс ${rwy.hdg}°, ${rwy.xlda} м x ${rwy.width} м
+                    </div>
+                `;
+            });
+        } else {
+            html += '<p>Нет данных о полосах</p>';
+        }
+
+        html += `</div>`;
+        contentElem.innerHTML = html;
+        airportDetailsModalBackdrop.classList.add('show');
+    }
+
+    function hideAirportDetailsModal() {
+        airportDetailsModalBackdrop.classList.remove('show');
+    }
+
+    if (airportInfoContainer) {
+        airportInfoContainer.style.cursor = 'pointer';
+        airportInfoContainer.addEventListener('click', () => {
+            if (nowIcao) showAirportDetailsModal(nowIcao);
+        });
+    }
+    if (closeAirportDetailsModalBtn) {
+        closeAirportDetailsModalBtn.addEventListener('click', hideAirportDetailsModal);
+    }
+    if (airportDetailsModalBackdrop) {
+        airportDetailsModalBackdrop.addEventListener('click', (e) => {
+            if (e.target === airportDetailsModalBackdrop) hideAirportDetailsModal();
+        });
+    }
+
     if (noConnModalBackdrop) {
         noConnModalBackdrop.addEventListener('click', (e) => {
             if (e.target === noConnModalBackdrop) hideNoConnModal();
@@ -1133,7 +1241,7 @@ document.addEventListener('DOMContentLoaded', () => {
             maintenanceBadge.addEventListener('click', () => {
                 const selectedAircraftLocal = getAircraftType();
                 const maintenanceCodesLocal = getAircraftMaintainanceIcaos();
-                const maintenanceInfoLocal = maintenance[selectedAircraftLocal]?.info;
+                let maintenanceInfoLocal = maintenance[selectedAircraftLocal]?.info;
                 const isIncludesMaintenanceLocal = maintenanceCodesLocal.includes(icao);
 
                 if (isIncludesMaintenanceLocal) {
@@ -1368,7 +1476,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            return `<span class="color-description runway-info" data-runway="${rwy}" data-info="${info}">${match} <i class="fa fa-info-circle" aria-hidden="true"></i></span>`;
+            return `<span class="color-description runway-info" data-runway="${rwy}" data-info="${info}">${match}<i class="fa fa-info-circle" aria-hidden="true"></i></span>`;
+        });
+
+        // Распознавание и выделение групп погодных явлений (METAR/TAF)
+        text = text.replace(/(?<=^|\s)([+-]|VC)?(MI|PR|BC|DR|BL|SH|TS|FZ)?((?:DZ|RA|SN|SG|IC|PL|GR|GS|UP|FG|BR|HZ|FU|VA|DU|SA|PY|PO|SQ|FC|SS|DS)+)(?=$|\s)/g, (token, prefix, descriptor, phenomenaStr) => {
+            // Токен не должен содержать цифр
+            if (/\d/.test(token)) return token;
+
+            // Явления идут парами по 2 буквы
+            if (phenomenaStr.length % 2 !== 0) return token;
+            
+            const phenomenaList = [];
+            for (let i = 0; i < phenomenaStr.length; i += 2) {
+                const code = phenomenaStr.substring(i, i + 2);
+                if (!WEATHER_PHENOMENA[code]) return token; // Неизвестное явление
+                phenomenaList.push(code);
+            }
+
+            // Правила валидности
+            // TS и SH не могут быть вместе (в токене дескриптор только один, но SH не может быть в phenomena)
+            // В нашем словаре SH - дескриптор, его нет в WEATHER_PHENOMENA. 
+            // Поэтому if (!WEATHER_PHENOMENA[code]) уже отсечет SH из списка явлений.
+
+            // FZ только с FG/DZ/RA
+            if (descriptor === 'FZ') {
+                const allowed = ['FG', 'DZ', 'RA'];
+                if (!phenomenaList.some(p => allowed.includes(p))) return token;
+            }
+
+            // BL/DR только с SN/SA/DU
+            if (descriptor === 'BL' || descriptor === 'DR') {
+                const allowed = ['SN', 'SA', 'DU'];
+                if (!phenomenaList.some(p => allowed.includes(p))) return token;
+            }
+
+            // Если всё ок — оборачиваем
+            return `<span class="weather-phenomena-token color-description" data-token="${token}" data-prefix="${prefix || ''}" data-descriptor="${descriptor || ''}" data-phenomena="${phenomenaList.join(',')}">${token}<i class="fa fa-info-circle" aria-hidden="true"></i></span>`;
         });
 
         // Распознавание и выделение информации о ветре
@@ -1484,7 +1628,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Возвращаем HTML
-                return `<span class="wind-info ${colorClass}" data-wind="${fullMatch}" data-unit="${unit}" data-dir="${dir}" data-speed="${speedStr}" data-gust="${gustStr||''}">${fullMatch} <i class="fa-solid fa-wind"></i></span>`;
+                return `<span class="wind-info ${colorClass}" data-wind="${fullMatch}" data-unit="${unit}" data-dir="${dir}" data-speed="${speedStr}" data-gust="${gustStr||''}">${fullMatch}<i class="fa-solid fa-wind"></i></span>`;
             }
         );
 
@@ -1866,16 +2010,73 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        
+        const optSelection = getOptOfferSelection(condition, depth);
+
+        // Получаем данные о полосе из БД
+        let runwayHdg = "-";
+        let runwaySize = "-";
+        if (nowIcao && airportInfoDb[nowIcao] && airportInfoDb[nowIcao].runways) {
+            const rwyData = airportInfoDb[nowIcao].runways[runway];
+            if (rwyData) {
+                runwayHdg = `${rwyData.hdg}°`;
+                runwaySize = `${rwyData.xlda}x${rwyData.width} м`;
+            }
+        }
 
         return `
-            <strong class='strong-header'>Код:</strong> ${runway} / ${info}<br><br>
-            <strong>ВПП:</strong> ${runwayDesc}<br>
-            <strong>Условия:</strong> ${conditionDesc} (${condition || "-"})<br>
-            <strong>Степень:</strong> ${coverageDesc} (${coverage || "-"})<br>
-            <strong>Толщина:</strong> ${depthDesc} (${depth || "-"})<br>
-            <strong>Коэф сцеп:</strong> ${frictionDesc} (${friction || "-"})<br><br>
-            <strong>Для OPT:</strong> ${nConditionCodeTmp} / ${mConditionCodeTmp} / ${getOptOfferSelection(condition, depth)}
+            <div class="runway-code-badge">${runway} / ${info}</div>
+            
+            <div class="runway-header-badges">
+                <div class="header-badge">
+                    <span class="badge-label">ВПП</span>
+                    <span class="badge-value">${runwayDesc}</span>
+                </div>
+                <div class="header-badge">
+                    <span class="badge-label">КУРС</span>
+                    <span class="badge-value">${runwayHdg}</span>
+                </div>
+                <div class="header-badge">
+                    <span class="badge-label">РАЗМЕР</span>
+                    <span class="badge-value">${runwaySize}</span>
+                </div>
+            </div>
+
+            <div class="runway-params-grid">
+                <div class="runway-param-card">
+                    <div class="runway-param-label"><i class="fa-solid fa-cloud-showers-heavy"></i> Условия</div>
+                    <div class="runway-param-value">${conditionDesc} <span class="text-secondary">(${condition || "0"})</span></div>
+                </div>
+                <div class="runway-param-card">
+                    <div class="runway-param-label"><i class="fa-solid fa-chart-pie"></i> Степень</div>
+                    <div class="runway-param-value">${coverageDesc} <span class="text-secondary">(${coverage || "0"})</span></div>
+                </div>
+                <div class="runway-param-card">
+                    <div class="runway-param-label"><i class="fa-solid fa-arrows-up-down"></i> Толщина</div>
+                    <div class="runway-param-value">${depthDesc} <span class="text-secondary">(${depth || "0"})</span></div>
+                </div>
+                <div class="runway-param-card">
+                    <div class="runway-param-label"><i class="fa-solid fa-gauge-high"></i> Коэф сцеп</div>
+                    <div class="runway-param-value">${frictionDesc} <span class="text-secondary">(${friction || "0"})</span></div>
+                </div>
+            </div>
+
+            <div class="opt-section">
+                <div class="opt-title"><i class="fa-solid fa-microchip"></i> Для OPT</div>
+                <div class="opt-badges-row">
+                    <div class="opt-badge">
+                        <span class="opt-label">Нормативное</span>
+                        <span class="opt-value">${nConditionCodeTmp}</span>
+                    </div>
+                    <div class="opt-badge">
+                        <span class="opt-label">Измеренное</span>
+                        <span class="opt-value">${mConditionCodeTmp}</span>
+                    </div>
+                    <div class="opt-badge">
+                        <span class="opt-label">Покрытие</span>
+                        <span class="opt-value">${optSelection}</span>
+                    </div>
+                </div>
+            </div>
         `;
     }
 
@@ -1926,6 +2127,79 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (e) => {
         const modal = document.getElementById('maintenanceInfoModal');
         if (e.target === modal) hideMaintenanceInfoModal();
+    });
+
+    function decodeWeatherPhenomena(prefix, descriptor, phenomenaCodes) {
+        let html = '';
+        const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+        // Интенсивность / VC
+        if (prefix) {
+            let prefTextEN = "";
+            let prefTextRU = "";
+            if (prefix === '+') { prefTextEN = "Heavy"; prefTextRU = "сильный"; }
+            else if (prefix === '-') { prefTextEN = "Light"; prefTextRU = "слабый"; }
+            else if (prefix === 'VC') { prefTextEN = "In the vicinity"; prefTextRU = "в окрестности"; }
+            
+            html += `<p><b>Интенсивность / VC:</b> ${capitalize(prefTextRU)} (${capitalize(prefTextEN)})</p>`;
+        }
+
+        // Дескриптор
+        if (descriptor && WEATHER_DESCRIPTORS[descriptor]) {
+            const desc = WEATHER_DESCRIPTORS[descriptor];
+            html += `<p><b>Дескриптор:</b> ${capitalize(desc.ru)} (${capitalize(desc.en)})</p>`;
+        }
+
+        // Явления
+        if (phenomenaCodes) {
+            const codes = phenomenaCodes.split(',');
+            html += `<hr><h3>Явления</h3>`;
+            codes.forEach(code => {
+                const phenom = WEATHER_PHENOMENA[code];
+                if (phenom) {
+                    html += `<div class="runway-detail-item"><b>${code}:</b> ${capitalize(phenom.ru)} (${capitalize(phenom.en)})</div>`;
+                }
+            });
+        }
+
+        return html;
+    }
+
+    function showWeatherPhenomenaModal(content) {
+        const modal = document.getElementById('weatherPhenomenaModalBackdrop');
+        const contentElem = document.getElementById('weatherPhenomenaContent');
+        contentElem.innerHTML = content;
+        modal.classList.add('show');
+    }
+
+    function hideWeatherPhenomenaModal() {
+        const modal = document.getElementById('weatherPhenomenaModalBackdrop');
+        modal.classList.remove('show');
+    }
+
+    document.getElementById('closeWeatherPhenomenaModalBtn').addEventListener('click', hideWeatherPhenomenaModal);
+
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('weatherPhenomenaModalBackdrop');
+        if (e.target === modal) hideWeatherPhenomenaModal();
+    });
+
+    // Обработчик клика по элементам погодных явлений
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest('.weather-phenomena-token');
+        if (target) {
+            const token = target.dataset.token;
+            const prefix = target.dataset.prefix;
+            const descriptor = target.dataset.descriptor;
+            const phenomena = target.dataset.phenomena;
+            
+            let content = `<div class="airport-details-modal-info">`;
+            content += `<p><b>Группа:</b> <span class="code">${token}</span></p>`;
+            content += decodeWeatherPhenomena(prefix, descriptor, phenomena);
+            content += `</div>`;
+            
+            showWeatherPhenomenaModal(content);
+        }
     });
 
     // Вспомогательная функция, которая ищет «противоположную» ВПП в airportInfoDb
@@ -2050,74 +2324,49 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Перебираем все ВПП
-        let shownSet = new Set();
+        let windCardsHtml = "";
         const runwaysObj = airportInfoDb[state.nowIcao].runways;
         const worstCond = getWorstRunwayCondition(state);
 
-        // Вставьте полностью этот вариант:
+        let shownSet = new Set();
         for (const [rwyName, rwyData] of Object.entries(runwaysObj)) {
-            // Магнитный курс полосы
             const hdgMag = rwyData.hdg;
-
-            // Ищем противоположную полосу
             const oppName = findOppositeRunway(state.nowIcao, rwyName);
             const oppHdgMag = runwaysObj[oppName]?.hdg || hdgMag;
 
-            // Выбираем ту ВПП, которая ближе к ветру
             const chosenHdg = closestRunway(windDirMag, hdgMag, oppHdgMag);
-            // Если chosenHdg совпадает с hdgMag, значит это rwyName, иначе oppName
             const chosenName = (chosenHdg === hdgMag) ? rwyName : oppName;
 
-            // Чтобы не дублировать «парную» ВПП (например, 06L и 24R),
-            // если мы её уже выводили — пропускаем
-            if (shownSet.has(chosenName)) {
-                continue;
-            }
+            if (shownSet.has(chosenName)) continue;
             shownSet.add(chosenName);
 
-            // Считаем боковую/встречную (steady ветер)
             const xwMain = calcCrosswind(chosenHdg, windSpeed);
             const hwMain = calcHeadwind(chosenHdg, windSpeed);
-
-            // Если есть порыв – считаем и для порыва
             const xwGust = windGust ? calcCrosswind(chosenHdg, windGust) : 0;
             const hwGust = windGust ? calcHeadwind(chosenHdg, windGust) : 0;
-
             const xwMainAbs = Math.abs(xwMain);
             const xwGustAbs = Math.abs(xwGust);
 
-            // Определяем предельные значения (takeoff/landing) для худшего состояния
             let takeoffMax, landingMax;
             if (worstCond.kind === 'reported') {
-                const cat = worstCond.category; // например 'poor','medium','good'
+                const cat = worstCond.category;
                 takeoffMax = reportedBrakingActions.takeoff[cat] || reportedBrakingActions.takeoff.good;
                 landingMax = reportedBrakingActions.landing[cat] || reportedBrakingActions.landing.good;
             } else {
-                // measured
                 const friction = worstCond.frictionValue;
                 const relevant = worstCond.relevantData;
-                // Подставляем "currentFriction"
-                let toObj = {
-                    ...relevant.takeoff,
-                    currentFriction: friction
-                };
-                let ldObj = {
-                    ...relevant.landing,
-                    currentFriction: friction
-                };
+                let toObj = { ...relevant.takeoff, currentFriction: friction };
+                let ldObj = { ...relevant.landing, currentFriction: friction };
                 takeoffMax = getCrosswindLimit('takeoff', toObj, reportedBrakingActions.takeoff.good);
                 landingMax = getCrosswindLimit('landing', ldObj, reportedBrakingActions.landing.good);
             }
 
-            // Приводим к нужным единицам (MPS или KTS)
             const toLimit = (unit === 'MPS') ? takeoffMax.mps : takeoffMax.kts;
             const ldLimit = (unit === 'MPS') ? landingMax.mps : landingMax.kts;
 
-            // Считаем проценты для steady и порыва (используем landingLimit, как раньше)
             const ratioSteady = (xwMainAbs / ldLimit) * 100;
             const ratioGust = windGust ? (xwGustAbs / ldLimit) * 100 : 0;
 
-            // Функция для выбора цвета
             function pickColor(ratio) {
                 if (ratio < 40) return 'color-green';
                 if (ratio >= 40 && ratio < 70) return 'color-yellow';
@@ -2129,79 +2378,65 @@ document.addEventListener('DOMContentLoaded', () => {
             const steadyClass = pickColor(ratioSteady);
             const gustClass = windGust ? pickColor(ratioGust) : '';
 
-            // ---- Читаем индивидуальный коэффициент сцепления для chosenName
             const frictionCode = state.runwayFrictionMap[chosenName] ?? null;
-            let frictionText = '(нет данных)';
+            let frictionText = '—';
             if (typeof frictionCode === 'number') {
                 if (frictionCode >= 91 && frictionCode <= 95) {
-                    // 91=poor, 92=poor_to_medium, 93=medium, ...
-                    // Можно написать decodeFrictionCode, но коротко:
-                    const frictionMap = {
-                        91: 'poor',
-                        92: 'poor/medium',
-                        93: 'medium',
-                        94: 'medium/good',
-                        95: 'good'
-                    };
+                    const frictionMap = { 91: 'poor', 92: 'poor/med', 93: 'medium', 94: 'med/good', 95: 'good' };
                     frictionText = frictionMap[frictionCode] || '???';
                 } else {
-                    // 10..90 => 0.xx
                     frictionText = (frictionCode / 100).toFixed(2);
                 }
             }
 
-            // Получаем длинну ВПП
             const rwyLength = runwaysObj[chosenName].xlda;
 
-            // Формируем вывод
-            content += `
-                <strong>ВПП ${chosenName}</strong> (${formatNumber(chosenHdg)}°):
-                <br>
-                <i class="fa-solid fa-ruler-vertical"></i> LDA: ${rwyLength} м
-                <br>
-                Коэф сцеп: <b>${frictionText}</b>
-                <br>
-                <i class="fa-solid fa-chevron-right"></i> HW: ${hwMain.toFixed(1)} ${unit}
+            windCardsHtml += `
+                <div class="wind-rwy-card">
+                    <div class="wind-rwy-header">
+                        <span class="wind-rwy-id">ВПП ${chosenName}</span>
+                        <span class="wind-rwy-hdg">${formatNumber(chosenHdg)}°</span>
+                    </div>
+                    <div class="wind-rwy-info">
+                        <span><i class="fa-solid fa-ruler"></i> ${rwyLength}м</span>
+                        <span><i class="fa-solid fa-gauge-simple-high"></i> ${frictionText}</span>
+                    </div>
+                    <div class="wind-rwy-values">
+                        <div class="wind-val-item">
+                            <span class="val-label">HW</span>
+                            <span class="val-text">${hwMain.toFixed(0)}${unit} ${windGust ? `(<i class="fa-solid fa-wind"></i>${hwGust.toFixed(0)})` : ''}</span>
+                        </div>
+                        <div class="wind-val-item">
+                            <span class="val-label">XW</span>
+                            <span class="val-text ${steadyClass}">${xwMainAbs.toFixed(1)}${unit} ${windGust ? `(<span class="${gustClass}"><i class="fa-solid fa-wind"></i>${xwGustAbs.toFixed(1)}</span>)` : ''}</span>
+                        </div>
+                    </div>
+                    <div class="wind-rwy-limits">Limit T/O: ${toLimit}${unit} | LDG: ${ldLimit}${unit}</div>
+                </div>
             `;
-            if (windGust) {
-                content += `, (<i class="fa-solid fa-wind"></i> ${hwGust.toFixed(1)} ${unit})`;
-            }
-            content += `<br><i class="fa-solid fa-chevron-right"></i> XW: `;
-
-            if (steadyClass) {
-                content += `<span class="${steadyClass}">${xwMainAbs.toFixed(1)} ${unit}</span>`;
-            } else {
-                content += `${xwMainAbs.toFixed(1)} ${unit}`;
-            }
-
-            if (windGust) {
-                if (gustClass) {
-                    content += ` (<span class="${gustClass}">
-                        <i class="fa-solid fa-wind"></i> ${xwGustAbs.toFixed(1)} ${unit}
-                    </span>)`;
-                } else {
-                    content += ` (${xwGustAbs.toFixed(1)} ${unit})`;
-                }
-            }
-
-            content += `<br><small>(Limit T/O=${toLimit} ${unit}, LDG=${ldLimit} ${unit})</small>`;
-            content += `<br><br>`;
         }
 
-        // После цикла
+        content = `
+            <div class="wind-info-header">
+                <div class="wind-main-text">
+                    <i class="fa-solid fa-wind"></i> ${dirStr}° / ${parseInt(speedStr)}${unit} ${gustStr ? `<span class="wind-gust">(G ${parseInt(gustStr.replace('G',''))})</span>` : ''}
+                </div>
+            </div>
+            <div class="wind-cards-container">
+                ${windCardsHtml}
+            </div>
+        `;
+
         if (worstCond.kind === 'reported') {
-            content += `<hr><p><b>Состояние ВПП:</b> ${worstCond.category.toUpperCase()}</p>`;
+            content += `<div class="wind-info-footer"><b>Общее состояние:</b> ${worstCond.category.toUpperCase()}</div>`;
         } else {
-            content += `<hr><p><b>Коэф сцеп:</b> ${worstCond.frictionValue.toFixed(2)} (тип: ${isRussianAirport(nowIcao) ? 'нормативный' : 'измеренный'})</p>`;
+            content += `<div class="wind-info-footer"><b>Общий коэф сцеп:</b> ${worstCond.frictionValue.toFixed(2)} (${isRussianAirport(nowIcao) ? 'нормативный' : 'измеренный'})</div>`;
         }
 
         if (declination) {
             const magWind = trueToMag(dirStr, declination);
-            let unitsOpt = '';
-            if (unit === 'MPS') {
-                unitsOpt = 'M';
-            }
-            content += `<hr><p><b>Ветер для OPT:</b> <span class="code">${magWind}/${parseInt(speedStr)}${unitsOpt}</span></p>`;
+            let unitsOpt = unit === 'MPS' ? 'M' : '';
+            content += `<div class="wind-info-footer opt"><b>Ветер для OPT:</b> <span class="code">${magWind}/${parseInt(speedStr)}${unitsOpt}</span></div>`;
         }
 
         showWindInfoModal(content);

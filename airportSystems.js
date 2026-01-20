@@ -159,8 +159,8 @@ function changeLangAtis() {
     }
 
     const newFrqInfo = getAtisFrequencyByIcao(nowIcao, 'arrival', newLang);
-    atisFrqBtn.innerHTML = `<i class="fa-solid fa-tower-cell"></i> ${newFrqInfo.frq}` +
-                    (newFrqInfo.lang ? ` ${newFrqInfo.lang.toUpperCase()}` : '');
+    atisFrqBtn.innerHTML = `<div class="badge-main"><i class="fa-solid fa-tower-cell"></i> ${newFrqInfo.frq}` +
+                    (newFrqInfo.lang ? ` ${newFrqInfo.lang.toUpperCase()}` : '') + `</div>`;
 }
 
 // Функция открытия модального окна систем захода

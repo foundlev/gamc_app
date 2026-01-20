@@ -109,6 +109,29 @@ document.getElementById('limitationsModalBackdrop').addEventListener('click', (e
     }
 });
 
+// Логика переключения вкладок в модальных окнах (универсальная)
+document.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('.tab-btn');
+    if (!tabBtn) return;
+
+    const modal = tabBtn.closest('.modal');
+    if (!modal) return;
+
+    const tabId = tabBtn.dataset.tab;
+    if (!tabId) return;
+
+    // Переключаем активную кнопку
+    modal.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    tabBtn.classList.add('active');
+
+    // Переключаем активную вкладку
+    modal.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+    const targetPane = modal.querySelector(`#${tabId}`);
+    if (targetPane) {
+        targetPane.classList.add('active');
+    }
+});
+
 // Копирование запасных аэродромов
 document.getElementById('copyAlternatesBtn').addEventListener('click', function() {
     const alternates = document.getElementById('alternatesIcao').value;

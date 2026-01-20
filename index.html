@@ -174,6 +174,17 @@
         </div>
     </div>
 
+    <!-- Контейнер для модального окна информации об аэродроме -->
+    <div class="modal-backdrop" id="airportDetailsModalBackdrop">
+        <div class="modal">
+            <button class="modal-close-btn" id="closeAirportDetailsModalBtn"><i class="fas fa-times"></i></button>
+            <h2 id="airportDetailsTitle">Информация об аэродроме</h2>
+            <div class="modal-content-scrollable" id="airportDetailsContent">
+                <!-- Сюда будет рендериться информация об аэродроме -->
+            </div>
+        </div>
+    </div>
+
     <!-- Модальное окно для пароля -->
     <div class="modal-backdrop" id="modalBackdrop">
         <div class="modal">
@@ -211,8 +222,10 @@
     <div class="modal-backdrop runway-info-modal-backdrop" id="runwayInfoModal">
         <div class="modal">
             <button class="modal-close-btn" id="closeRunwayInfoModalBtn"><i class="fas fa-times"></i></button>
-            <h2>Информация о ВПП</h2>
-            <p id="runwayInfoContent">Здесь будет информация о состоянии ВПП...</p>
+            <h2><i class="fa-solid fa-road"></i> Состояние ВПП</h2>
+            <div id="runwayInfoContent">
+                <!-- Сюда рендерится контент из decodeRunwayInfo -->
+            </div>
         </div>
     </div>
 
@@ -222,6 +235,17 @@
             <button class="modal-close-btn" id="closeWindInfoModalBtn"><i class="fas fa-times"></i></button>
             <h2>Информация о ветре</h2>
             <p id="windInfoContent">Здесь будет информация о ветре...</p>
+        </div>
+    </div>
+
+    <!-- Контейнер для модального окна расшифровки погоды -->
+    <div class="modal-backdrop" id="weatherPhenomenaModalBackdrop">
+        <div class="modal">
+            <button class="modal-close-btn" id="closeWeatherPhenomenaModalBtn"><i class="fas fa-times"></i></button>
+            <h2><i class="fa-solid fa-cloud-sun"></i> Расшифровка погоды</h2>
+            <div class="modal-content-scrollable" id="weatherPhenomenaContent">
+                <!-- Сюда будет рендериться расшифровка -->
+            </div>
         </div>
     </div>
 
@@ -488,103 +512,96 @@
             <button class="modal-close-btn" id="closeLimitationsModalBtn">
                 <i class="fas fa-times"></i>
             </button>
-            <h2><i class="fa-solid fa-triangle-exclamation"></i> Ограничения для ВП</h2>
-            <div class="modal-content-scrollable">
-                <div class="limitations-content">
-                    <div class="limitations-section">
-                        <h3 class="section-title">
-                            <i class="fa-solid fa-plane-departure"></i>
-                            Взлет (Cat A & B)
-                        </h3>
+            
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="limitsTab">Ограничения для ВП</button>
+                <button class="tab-btn" data-tab="minimaTab">Минимумы</button>
+            </div>
 
-                        <div class="limitation-item">
-                            <div class="limitation-header">
-                                <i class="fa-solid fa-wind"></i>
-                                <span>Ветер:</span>
+            <div class="modal-content-scrollable">
+                <!-- Вкладка: Ограничения -->
+                <div id="limitsTab" class="tab-pane active">
+                    <div class="limitations-grid">
+                        <div class="limitations-section">
+                            <h3 class="section-title"><i class="fa-solid fa-plane-departure"></i> Взлет</h3>
+                            <div class="limitation-card">
+                                <div class="card-header"><i class="fa-solid fa-house-chimney-window"></i> Аэродромы</div>
+                                <div class="card-value">Категории A, B, B*</div>
                             </div>
-                            <ul class="limitation-list">
-                                <li>
-                                    <i class="fa-solid fa-chalkboard-user"></i>
-                                    С инструктором: ≤ 100%
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-graduation-cap"></i>
-                                    С 1000 ч налёта: ≤ 80%
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-clock"></i>
-                                    Менее 1000 ч налёта: ≤ 50%
-                                </li>
-                            </ul>
+                            <div class="limitation-card">
+                                <div class="card-header"><i class="fa-solid fa-eye"></i> Видимость / RVR</div>
+                                <div class="card-value">≥ 400 м</div>
+                            </div>
+                            <div class="limitation-card">
+                                <div class="card-header"><i class="fa-solid fa-wind"></i> Боковой ветер</div>
+                                <div class="card-value">≤ 80%</div>
+                                <div class="card-value instructor-value">≤ 100% с инструктором</div>
+                            </div>
                         </div>
 
-                        <div class="limitation-item">
-                            <div class="limitation-header">
-                                <i class="fa-solid fa-eye"></i>
-                                <span>Видимость:</span>
+                        <div class="limitations-section">
+                            <h3 class="section-title"><i class="fa-solid fa-plane-arrival"></i> Посадка</h3>
+                            <div class="limitation-card">
+                                <div class="card-header"><i class="fa-solid fa-house-chimney-window"></i> Аэродромы</div>
+                                <div class="card-value">Категории A, B</div>
+                                <div class="card-value instructor-value">B* с инструктором</div>
                             </div>
-                            <div class="limitation-value">
-                                ≥ 400 м
+                            <div class="limitation-card">
+                                <div class="card-header"><i class="fa-solid fa-eye"></i> Видимость / RVR</div>
+                                <div class="card-value">≥ MIN + 200 м (но ≥ 550 м)</div>
+                                <div class="card-value instructor-value">≥ MIN (но ≥ 550 м) с инструктором</div>
+                            </div>
+                            <div class="limitation-card">
+                                <div class="card-header"><i class="fa-solid fa-cloud"></i> НГО / ВВ</div>
+                                <div class="card-value">≥ DH / MDH (но ≥ 60 м / 200 ft)</div>
+                            </div>
+                            <div class="limitation-card">
+                                <div class="card-header"><i class="fa-solid fa-ruler-horizontal"></i> Дистанция (LDA)</div>
+                                <div class="card-value">≥ LDR + 15%</div>
+                            </div>
+                            <div class="limitation-card">
+                                <div class="card-header"><i class="fa-solid fa-wind"></i> Боковой ветер</div>
+                                <div class="card-value">≤ 80%</div>
+                                <div class="card-value instructor-value">≤ 100% с инструктором</div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="limitations-section">
-                        <h3 class="section-title">
-                            <i class="fa-solid fa-plane-arrival"></i>
-                            Посадка (Cat A & B)
-                        </h3>
-
-                        <div class="limitation-item">
-                            <div class="limitation-header">
-                                <i class="fa-solid fa-wind"></i>
-                                <span>Ветер:</span>
-                            </div>
-                            <ul class="limitation-list">
-                                <li>
-                                    <i class="fa-solid fa-chalkboard-user"></i>
-                                    С инструктором: ≤ 100%
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-clock"></i>
-                                    ≥ 1000 часов: ≤ 80%
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-gauge-low"></i>
-                                    Обычно: ≤ 50%
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="limitation-item">
-                            <div class="limitation-header">
-                                <i class="fa-solid fa-ruler-combined"></i>
-                                <span>LDA:</span>
-                            </div>
-                            <div class="limitation-value">
-                                ≥ LDR × 1.15
-                            </div>
-                        </div>
-
-                        <div class="limitation-item">
-                            <div class="limitation-header">
-                                <i class="fa-solid fa-cloud"></i>
-                                <span>НГО:</span>
-                            </div>
-                            <div class="limitation-value">
-                                ≥ ВПР, но не менее 60 м
-                            </div>
-                        </div>
-
-                        <div class="limitation-item">
-                            <div class="limitation-header">
-                                <i class="fa-solid fa-eye"></i>
-                                <span>Видимость:</span>
-                            </div>
-                            <div class="limitation-value">
-                                ≥ MIN + 200 м (с инструктором ≥ MIN), но не менее 550 м
-                            </div>
-                        </div>
+                <!-- Вкладка: Минимумы -->
+                <div id="minimaTab" class="tab-pane">
+                    <div class="minima-table-wrapper">
+                        <table class="minima-table">
+                            <thead>
+                                <tr>
+                                    <th>Категория захода</th>
+                                    <th>Зона приземления</th>
+                                    <th>Середина ВПП</th>
+                                    <th>Дальний конец</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CAT I или выше<br><small>(без осевых огней)</small></td>
+                                    <td rowspan="4">≥ MIN</td>
+                                    <td>≥ 300 м</td>
+                                    <td>≥ 150 м</td>
+                                </tr>
+                                <tr>
+                                    <td>CAT I или выше<br><small>(с осевыми огнями)</small></td>
+                                    <td rowspan="2">≥ 125 м</td>
+                                    <td rowspan="2">≥ 75 м</td>
+                                </tr>
+                                <tr>
+                                    <td>CAT II / IIIA</td>
+                                </tr>
+                                <tr>
+                                    <td>CAT IIIB</td>
+                                    <td>≥ MIN</td>
+                                    <td>≥ MIN</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

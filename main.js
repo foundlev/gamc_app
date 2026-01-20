@@ -1221,6 +1221,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyIcaoButtonColors(icao, btn) {
+        // --- Логика техобслуживания (wrench icon) ---
+        if (doMarkBagde) {
+            const maintenanceCodes = getAircraftMaintainanceIcaos();
+            if (maintenanceCodes.includes(icao)) {
+                btn.classList.add('has-maintenance');
+            } else {
+                btn.classList.remove('has-maintenance');
+            }
+        } else {
+            btn.classList.remove('has-maintenance');
+        }
+
         const colObj = icaoColors[icao];
 
         // Если нет цветовых данных - ставим дефолт
@@ -1533,6 +1545,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = document.createElement('button');
             btn.textContent = icao;
 
+            // Сначала применяем общие стили (включая иконку техобслуживания)
+            applyIcaoButtonColors(icao, btn);
+
             let colObj = icaoColors[icao];
             if (colObj) {
                 // colObj.metarColor может быть "color-green", "color-yellow"...
@@ -1548,7 +1563,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 convertColorClassToBg(tc, isDark);
 
                 btn.classList.remove('color-green', 'color-yellow', 'color-red', 'color-purple', 'color-darkred');
-                applyIcaoButtonColors(icao, btn);
+                // Мы уже вызвали applyIcaoButtonColors выше, но там она могла выйти раньше, если нет colObj.
+                // Но техобслуживание мы уже проверили внутри applyIcaoButtonColors.
+                // Чтобы не дублировать вызов и не перезатирать градиент, просто оставим как есть.
             }
 
             btn.addEventListener('click', () => {
@@ -2303,6 +2320,7 @@ document.addEventListener('DOMContentLoaded', () => {
     doMarkBagdeCheckbox.addEventListener('change', () => {
         doMarkBagde = doMarkBagdeCheckbox.checked; // Обновить переменную
         localStorage.setItem('doMarkBagde', JSON.stringify(doMarkBagde)); // Сохранить в localStorage
+        renderSelectedRoute();
     });
 
     showAirportInfoCheckbox.addEventListener('change', () => {

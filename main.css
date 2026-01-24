@@ -467,6 +467,7 @@ button:disabled {
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-sm);
     font-weight: 500;
+    transition: none;
 }
 
 .history button:active {
@@ -1290,7 +1291,7 @@ button:disabled {
     color: black;
     text-shadow: 0 0 5px white;
     padding: 2px 4px;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     background: none;
 }
 
@@ -1306,7 +1307,7 @@ button:disabled {
             rgba(0, 128, 0, 0.5) 5px,
             rgba(0, 0, 0, 0) 5px,
             rgba(0, 0, 0, 0) 10px);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     z-index: -1;
 }
 
@@ -1315,7 +1316,7 @@ button:disabled {
     color: black;
     text-shadow: 0 0 5px white;
     padding: 2px 4px;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     background: none;
 }
 
@@ -1331,7 +1332,7 @@ button:disabled {
             rgba(255, 165, 0, 0.5) 5px,
             rgba(0, 0, 0, 0) 5px,
             rgba(0, 0, 0, 0) 10px);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     z-index: -1;
 }
 
@@ -1340,7 +1341,7 @@ button:disabled {
     color: black;
     text-shadow: 0 0 5px white;
     padding: 2px 4px;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     background: none;
 }
 
@@ -1356,7 +1357,7 @@ button:disabled {
             rgba(178, 34, 34, 0.5) 5px,
             rgba(0, 0, 0, 0) 5px,
             rgba(0, 0, 0, 0) 10px);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     z-index: -1;
 }
 
@@ -1365,7 +1366,7 @@ button:disabled {
     color: black;
     text-shadow: 0 0 5px white;
     padding: 2px 4px;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     background: none;
 }
 
@@ -1381,7 +1382,7 @@ button:disabled {
             rgba(180, 0, 180, 0.5) 5px,
             rgba(0, 0, 0, 0) 5px,
             rgba(0, 0, 0, 0) 10px);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     z-index: -1;
 }
 
@@ -1390,7 +1391,7 @@ button:disabled {
     color: black;
     text-shadow: 0 0 5px white;
     padding: 2px 4px;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     background: none;
 }
 
@@ -1406,7 +1407,7 @@ button:disabled {
             rgba(180, 0, 180, 0.5) 5px,
             rgba(0, 0, 0, 0) 5px,
             rgba(0, 0, 0, 0) 10px);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     z-index: -1;
 }
 
@@ -1415,7 +1416,7 @@ button:disabled {
     color: black;
     text-shadow: 0 0 5px white;
     padding: 2px 4px;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     background: none;
 }
 
@@ -1431,7 +1432,7 @@ button:disabled {
             rgba(60, 0, 0, 0.5) 5px,
             rgba(0, 0, 0, 0) 5px,
             rgba(0, 0, 0, 0) 10px);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     z-index: -1;
 }
 
@@ -2099,6 +2100,149 @@ button:disabled {
     justify-content: center;
 }
 
+.nearby-airports-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    text-align: center;
+}
+
+.nearby-airports {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+    justify-items: center;
+}
+
+@media (max-width: 600px) {
+    .nearby-airports {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 400px) {
+    .nearby-airports {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.nearby-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.nearby-airport-btn.selected-nearby {
+    border-color: var(--accent-color);
+    background-color: var(--accent-soft);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.nearby-airport-preview {
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--accent-soft);
+    border-radius: var(--radius-md);
+    display: none;
+    animation: fadeIn 0.3s ease;
+    border: 1px solid var(--accent-color);
+}
+
+.nearby-airport-preview.show {
+    display: block;
+}
+
+.preview-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.preview-info {
+    flex: 1;
+}
+
+.preview-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.preview-sub {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.preview-open-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.preview-open-btn:active {
+    transform: scale(0.95);
+}
+
+.nearby-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.1;
+}
+
+.nearby-airport-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 65px;
+}
+
+.nearby-airport-btn:active {
+    background-color: var(--accent-soft);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.nearby-icao {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.nearby-dist {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.nearby-time {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
 
 /* Правый блок (иконка горы + высота) */
 .airport-right {
@@ -2172,14 +2316,6 @@ button[hidden] {
 }
 
 
-@media (max-width: 650px) {
-
-    /* Если ширина экрана меньше или равна 768px */
-    .airport-left,
-    .airport-right {
-        display: none;
-    }
-}
 
 .airport-details-modal-info {
     text-align: left;
@@ -2851,7 +2987,7 @@ input::-webkit-inner-spin-button {
 }
 
 .instructor-value {
-    opacity: 0.8;
+    opacity: 0.5;
 }
 
 .limitations-footer {
@@ -2884,8 +3020,38 @@ input::-webkit-inner-spin-button {
 .minima-table-wrapper {
     margin-top: 10px;
     border-radius: var(--radius-md);
-    overflow: hidden;
+    overflow-x: auto;
     border: 1px solid var(--border-color);
+}
+
+.correction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    padding: 0 5px;
+}
+
+.correction-header h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.table-sub {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.correction-table {
+    min-width: 600px; /* Чтобы не сжималась слишком сильно */
+}
+
+.correction-table th, 
+.correction-table td {
+    padding: 10px 4px !important;
 }
 
 .minima-table {
@@ -2910,7 +3076,7 @@ input::-webkit-inner-spin-button {
 }
 
 .minima-table td:first-child {
-    text-align: left;
+    text-align: center;
     font-weight: 600;
     background: var(--card-bg);
 }
@@ -3224,7 +3390,31 @@ input::-webkit-inner-spin-button {
     position: relative;
 }
 
+.history button.has-maintenance.selected::after {
+    top: 1.8px;
+    right: 1.8px;
+}
+
 .history button.has-maintenance::after {
+    content: "\f0ad";
+    font: var(--fa-font-solid);
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    font-size: 7px;
+    line-height: 1;
+    color: #fff;
+    text-shadow: rgba(0,0,0,.5) 0 0 2px;
+    transform: scaleX(-1);
+    transform-origin: center;
+    pointer-events: none;
+}
+
+.nearby-item button.has-maintenance {
+    position: relative;
+}
+
+.nearby-item button.has-maintenance::after {
     content: "\f0ad";
     font: var(--fa-font-solid);
     position: absolute;
@@ -3241,8 +3431,7 @@ input::-webkit-inner-spin-button {
 
 .history button.selected {
     position: relative;
-    padding: 5px 11px; 
-    font-weight: 500;
+    padding: 3.5px 9px;
     border: 2px solid var(--selected-border-color) !important;
     box-shadow: 0 0 10px var(--accent-soft);
     z-index: 2;
@@ -3272,7 +3461,7 @@ input::-webkit-inner-spin-button {
 
 
 
-/* Стили для модального окна changelog */
+
 .changelog-modal {
     max-width: 650px;
     width: 90%;
@@ -3683,7 +3872,6 @@ input::-webkit-inner-spin-button {
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     position: relative;
     z-index: 20;
@@ -3865,6 +4053,13 @@ input::-webkit-inner-spin-button {
     }
 
     .info-reload-btn span {
+        display: none;
+    }
+}
+
+@media (max-width: 650px) {
+    .airport-left,
+    .airport-right {
         display: none;
     }
 }

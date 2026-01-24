@@ -420,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function addTimeBadgeContainerBottomGap() {
         if (timeBadgeContainer.classList.contains('remove-bottom-gap')) {
             timeBadgeContainer.classList.remove('remove-bottom-gap');
+            timeBadgeContainerRow2.classList.remove('remove-bottom-gap');
             favBadgeContainer.classList.remove('remove-bottom-gap');
         }
     }
@@ -427,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function removeTimeBadgeContainerBottomGap() {
         if (!timeBadgeContainer.classList.contains('remove-bottom-gap')) {
             timeBadgeContainer.classList.add('remove-bottom-gap');
+            timeBadgeContainerRow2.classList.add('remove-bottom-gap');
             favBadgeContainer.classList.add('remove-bottom-gap');
         }
     }
@@ -677,6 +679,30 @@ document.addEventListener('DOMContentLoaded', () => {
         addTimeBadgeContainerBottomGap();
     }
 
+    function updateOfflineBadge() {
+        // Удаляем старые плашки, если они есть
+        const existingWarning = document.getElementById('offlineWarningBadge');
+        if (existingWarning) existingWarning.remove();
+        const existingWarningNoInfo = document.getElementById('offlineWarningNoInfoBadge');
+        if (existingWarningNoInfo) existingWarningNoInfo.remove();
+
+        if (offlineMode && nowIcao) {
+            // Проверяем наличие данных в localStorage
+            const icaoData = JSON.parse(localStorage.getItem('icaoData')) || {};
+            if (icaoData[nowIcao]) {
+                showOfflineWarning();
+            } else {
+                showOfflineWarningNoInfo();
+            }
+        } else {
+            // Если авиарежим выключен или аэродром не выбран, 
+            // проверяем, нужно ли скрыть отступ, если в контейнерах пусто
+            if (timeBadgeContainer.innerHTML === '' && timeBadgeContainerRow2.innerHTML === '' && favBadgeContainer.innerHTML === '') {
+                removeTimeBadgeContainerBottomGap();
+            }
+        }
+    }
+
     function resolveOppositeFriction(state) {
         // Пройдёмся по runwayFrictionMap
         // ищем каждую полосу и её «парную» (06L <-> 24R).
@@ -745,29 +771,138 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeAirportDetailsModalBtn = document.getElementById('closeAirportDetailsModalBtn');
     const airportInfoContainer = document.getElementById('airportInfoContainer');
 
+    function getNearbyAirportsHtml(icao) {
+        if (!airportInfoDb[icao]) return '';
+        const currentAp = airportInfoDb[icao];
+        if (currentAp.latitude === undefined || currentAp.longitude === undefined) return '';
+
+        const currentLat = parseFloat(currentAp.latitude);
+        const currentLon = parseFloat(currentAp.longitude);
+        if (isNaN(currentLat) || isNaN(currentLon)) return '';
+
+        // Используем airportsList, который гарантированно является массивом
+        const nearby = airportsList
+            .filter(ap => ap.icao !== icao && ap.latitude != null && ap.longitude != null)
+            .map(ap => {
+                const lat = parseFloat(ap.latitude);
+                const lon = parseFloat(ap.longitude);
+                if (isNaN(lat) || isNaN(lon)) return null;
+                const distKm = computeDistance(currentLat, currentLon, lat, lon);
+                const distNm = distKm / 1.852;
+                
+                // Расчет времени полета: T (min) ≈ DIST / 6.0 + 20
+                const totalMinutes = Math.round(distNm / 6.0 + 20);
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                
+                let timeStr = "";
+                if (hours > 0) {
+                    timeStr = `~${hours} ч ${String(minutes).padStart(2, '0')} мин`;
+                } else {
+                    timeStr = `~${minutes} мин`;
+                }
+
+                return { icao: ap.icao, distNm: Math.round(distNm), timeStr };
+            })
+            .filter(item => item !== null)
+            .sort((a, b) => a.distNm - b.distNm)
+            .slice(0, 15);
+
+        if (nearby.length === 0) return '';
+
+        return `
+            <div class="nearby-airports-title">Ближайшие аэродромы</div>
+            <div class="nearby-airports">
+                ${nearby.map(ap => `
+                    <div class="nearby-item">
+                        <button class="nearby-airport-btn" data-icao="${ap.icao}" onclick="event.stopPropagation(); window.previewNearbyAirport('${ap.icao}')">
+                            <span class="nearby-icao">${ap.icao}</span>
+                        </button>
+                        <div class="nearby-info">
+                            <div class="nearby-dist">${ap.distNm} NM</div>
+                            <div class="nearby-time">${ap.timeStr}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    window.previewNearbyAirport = function(icao) {
+        const previewContainer = document.getElementById('nearbyAirportPreview');
+        if (!previewContainer) return;
+        
+        const data = airportInfoDb[icao];
+        if (!data) return;
+
+        previewContainer.innerHTML = `
+            <div class="preview-content">
+                <div class="preview-info">
+                    <div class="preview-name">${data.geo ? data.geo[0] : 'Аэродром ' + icao}</div>
+                    <div class="preview-sub">${data.geo && data.geo[1] ? data.geo[1] : ''}</div>
+                </div>
+                <button class="preview-open-btn" onclick="window.hideAirportDetailsModal(); window.fetchWeather('${icao}')">
+                    Открыть
+                </button>
+            </div>
+        `;
+        previewContainer.classList.add('show');
+
+        // Также можно подсветить выбранную кнопку в списке (опционально)
+        document.querySelectorAll('.nearby-airport-btn').forEach(btn => {
+            if (btn.dataset.icao === icao) {
+                btn.classList.add('selected-nearby');
+            } else {
+                btn.classList.remove('selected-nearby');
+            }
+        });
+    };
+
+    window.switchAirportDetailsTab = function(tabName) {
+        const infoTab = document.getElementById('airportDetailsTabInfo');
+        const nearbyTab = document.getElementById('airportDetailsTabNearby');
+        const tabs = document.querySelectorAll('#airportDetailsContent .tab-btn');
+
+        if (tabName === 'info') {
+            infoTab.classList.add('active');
+            nearbyTab.classList.remove('active');
+            tabs[0].classList.add('active');
+            tabs[1].classList.remove('active');
+        } else {
+            infoTab.classList.remove('active');
+            nearbyTab.classList.add('active');
+            tabs[0].classList.remove('active');
+            tabs[1].classList.add('active');
+        }
+    };
+
     function showAirportDetailsModal(icao) {
         if (!airportInfoDb[icao]) return;
         const data = airportInfoDb[icao];
         const contentElem = document.getElementById('airportDetailsContent');
 
         let html = `
-            <div class="airport-details-modal-info">
-                <p><b>Название:</b> ${data.geo ? data.geo.join(', ') : '-'}</p>
-                <p><b>ICAO/IATA:</b> ${data.icao}${data.iata ? ' / ' + data.iata : ''}</p>
-                <p><b>Превышение:</b> ${data.elevation} ft</p>
-                <p><b>Склонение:</b> ${data.declination}°</p>
-                <hr>
-                <h3>Взлетно-посадочные полосы</h3>
+            <div class="modal-tabs">
+                <button class="tab-btn active" onclick="window.switchAirportDetailsTab('info')">Характеристики</button>
+                <button class="tab-btn" onclick="window.switchAirportDetailsTab('nearby')">Ближайшие</button>
+            </div>
+
+            <div id="airportDetailsTabInfo" class="tab-pane active">
+                <div class="airport-details-modal-info">
+                    <p><b>Название:</b> ${data.geo ? data.geo.join(', ') : '-'}</p>
+                    <p><b>ICAO/IATA:</b> ${data.icao}${data.iata ? ' / ' + data.iata : ''}</p>
+                    <p><b>Превышение:</b> ${data.elevation} ft</p>
+                    <p><b>Склонение:</b> ${data.declination}°</p>
+                    
+                    <hr>
+                    <h3>Взлетно-посадочные полосы</h3>
         `;
 
         if (data.runways) {
-            // Сортировка полос
             const sortedRunways = Object.keys(data.runways).sort((a, b) => {
                 const numA = parseInt(a);
                 const numB = parseInt(b);
                 if (numA !== numB) return numA - numB;
-                
-                // Если номера одинаковые (например 03L, 03R), сортируем по буквам R > C > L
                 const order = { 'R': 1, 'C': 2, 'L': 3 };
                 const charA = a.slice(-1);
                 const charB = b.slice(-1);
@@ -786,14 +921,34 @@ document.addEventListener('DOMContentLoaded', () => {
             html += '<p>Нет данных о полосах</p>';
         }
 
-        html += `</div>`;
+        html += `
+                </div>
+            </div>
+
+            <div id="airportDetailsTabNearby" class="tab-pane">
+                ${getNearbyAirportsHtml(icao)}
+                <div id="nearbyAirportPreview" class="nearby-airport-preview"></div>
+            </div>
+        `;
+        
         contentElem.innerHTML = html;
+
+        // Раскрашиваем кнопки ближайших аэродромов
+        const nearbyBtns = contentElem.querySelectorAll('.nearby-airport-btn');
+        nearbyBtns.forEach(btn => {
+            const btnIcao = btn.dataset.icao;
+            if (btnIcao) {
+                applyIcaoButtonColors(btnIcao, btn);
+            }
+        });
+
         airportDetailsModalBackdrop.classList.add('show');
     }
 
     function hideAirportDetailsModal() {
         airportDetailsModalBackdrop.classList.remove('show');
     }
+    window.hideAirportDetailsModal = hideAirportDetailsModal;
 
     if (airportInfoContainer) {
         airportInfoContainer.style.cursor = 'pointer';
@@ -822,6 +977,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
             if (typeof updateOfflineButton === 'function') updateOfflineButton();
             if (typeof updateSystemsButton === 'function') updateSystemsButton();
+            updateOfflineBadge();
             hideNoConnModal();
         });
     }
@@ -872,16 +1028,6 @@ document.addEventListener('DOMContentLoaded', () => {
             timeBadgeContainerRow2.innerHTML = '';
             favBadgeContainer.innerHTML = '';
             removeTimeBadgeContainerBottomGap();
-        }
-
-        const existingWarning = document.getElementById('offlineWarningBadge');
-        if (existingWarning && shouldUpdateUI) {
-            existingWarning.remove();
-        }
-
-        const existingWarningNoInfo = document.getElementById('offlineWarningNoInfoBadge');
-        if (existingWarningNoInfo && shouldUpdateUI) {
-            existingWarningNoInfo.remove();
         }
 
         const gamcUid = getGamcUID();
@@ -1100,11 +1246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Добавляем в контейнер первым
-            if (toShowOfflineWarning && shouldUpdateUI) {
-                showOfflineWarning();
-            }
-
+            // Добавляем UTC плашку
             if (shouldUpdateUI) {
                 timeBadgeContainer.appendChild(utcBadge);
 
@@ -1301,6 +1443,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 responseContainer.innerHTML = finalText;
                 showAirportInfo(icao);
                 updateSystemsButton(silent);
+                updateOfflineBadge();
             }
 
             const buttons = document.querySelectorAll('.history button');
@@ -2496,6 +2639,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
         updateOfflineButton();
         updateSystemsButton();
+        updateOfflineBadge();
     });
 
     const reloadBtn = document.getElementById('reloadBtn');
@@ -2520,6 +2664,7 @@ document.addEventListener('DOMContentLoaded', () => {
             offlineMode = true;
             localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
             updateOfflineButton();
+            updateOfflineBadge();
         }
     }
 
@@ -3010,8 +3155,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('airportInfoContainer');
         const nameElem = document.getElementById('airportName');
         const countryElem = document.getElementById('airportCountry');
-        const elevationLength = document.getElementById('airportRunwayLength');
+        const elevationElem = document.getElementById('airportElevation');
         const codesElem = document.getElementById('airportCodes');
+        const nearbyContainer = document.getElementById('nearbyAirports');
 
         if (!airportInfoDb[icao]) {
             container.style.display = 'none';
@@ -3020,7 +3166,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const {
             geo,
             iata,
-            runways
+            elevation,
+            latitude,
+            longitude
         } = airportInfoDb[icao];
 
         const name = geo ? geo[0] : null;
@@ -3029,16 +3177,11 @@ document.addEventListener('DOMContentLoaded', () => {
         nameElem.textContent = name ? name : `Аэродром ${icao}`;
         countryElem.textContent = country ? country : 'Страна не указана';
 
-        let maxLength = 0;
-        let maxLengthRunway = '';
-        for (const runwayKey in runways) {
-            const runway = runways[runwayKey];
-            if (runway.xlda && runway.xlda > maxLength) {
-                maxLength = runway.xlda;
-                maxLengthRunway = runwayKey;
-            }
+        if (elevation !== undefined && elevation !== null) {
+            elevationElem.textContent = `${elevation} ft`;
+        } else {
+            elevationElem.textContent = '---';
         }
-        elevationLength.textContent = `RW ${maxLengthRunway}: ${maxLength} м`;
 
         if (iata) {
             codesElem.textContent = `${icao}/${iata}`;
@@ -3048,6 +3191,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.style.display = 'flex';
     }
+
+    // Делаем fetchWeather доступным глобально для вызова из onclick
+    window.fetchWeather = (icao) => {
+        const input = document.getElementById('icao');
+        input.value = icao;
+        fetchWeather();
+    };
 
 
     document.getElementById('exportGamcUidBtn').addEventListener('click', () => {

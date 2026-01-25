@@ -1750,10 +1750,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function highlightKeywords(text, state) {
         // 1) Подчёркиваем TEMPO, BECMG, PROB40, PROB30:
-        text = text.replace(/\b(TEMPO|BECMG|INTER|PROB40|PROB30)\b/g, '<u>$1</u>');
+        text = text.replace(/\b(TEMPO|BECMG|INTER|PROB40|PROB30)(?=$|[\s=])/g, '<u>$1</u>');
 
         // ...и любые FM + 6 цифр, например FM241500
-        text = text.replace(/\bFM\d{6}\b/g, '<u>$&</u>');
+        text = text.replace(/\b(FM\d{6})(?=$|[\s=])/g, '<u>$1</u>');
 
         // 2) Делаем жирным:
         //   - "METAR <ICAO> <DDHHMM>Z"
@@ -1761,22 +1761,22 @@ document.addEventListener('DOMContentLoaded', () => {
         //   - "TAF <ICAO> <DDHHMM>Z"
         //
         // Пример: "METAR UUEE 112030Z" → <b>METAR UUEE 112030Z</b>
-        text = text.replace(/\b(METAR\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
-        text = text.replace(/\b(SPECI\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
-        text = text.replace(/\b(TAF\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
-        text = text.replace(/\b(TAF AMD\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
-        text = text.replace(/\b(TAF COR\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
-        text = text.replace(/\b(TAF RTD\s+[A-Z]{4}\s+\d{6}Z)\b/g, '<b>$1</b>');
+        text = text.replace(/\b(METAR\s+[A-Z]{4}\s+\d{6}Z)(?=$|[\s=])/g, '<b>$1</b>');
+        text = text.replace(/\b(SPECI\s+[A-Z]{4}\s+\d{6}Z)(?=$|[\s=])/g, '<b>$1</b>');
+        text = text.replace(/\b(TAF\s+[A-Z]{4}\s+\d{6}Z)(?=$|[\s=])/g, '<b>$1</b>');
+        text = text.replace(/\b(TAF AMD\s+[A-Z]{4}\s+\d{6}Z)(?=$|[\s=])/g, '<b>$1</b>');
+        text = text.replace(/\b(TAF COR\s+[A-Z]{4}\s+\d{6}Z)(?=$|[\s=])/g, '<b>$1</b>');
+        text = text.replace(/\b(TAF RTD\s+[A-Z]{4}\s+\d{6}Z)(?=$|[\s=])/g, '<b>$1</b>');
         // LTBB SIGMET 4
-        text = text.replace(/\b([A-Z]{4}\s+SIGMET\s+\d{1,3})\b/g, '<b>$1</b>');
-        text = text.replace(/\b([A-Z]{4}\s+AIRMET\s+\d{1,3})\b/g, '<b>$1</b>');
+        text = text.replace(/\b([A-Z]{4}\s+SIGMET\s+\d{1,3})(?=$|[\s=])/g, '<b>$1</b>');
+        text = text.replace(/\b([A-Z]{4}\s+AIRMET\s+\d{1,3})(?=$|[\s=])/g, '<b>$1</b>');
 
         // 3) Выделение именно четырехзначных чисел как отдельных слов
 
         // === RVR (Runway Visual Range) ===
         // Примеры: R10/0600, R25R/1200U, R10/0400V0800, R10/M0050, R10/P2000, R10////, R10/0600D
         text = text.replace(
-            /(^|\s)(R\d{2}[LCR]?\/)(M|P)?(\d{4}|\/\/\/\/)(V(\d{4}))?([UDN])?(?=$|\s)/g,
+            /(^|\s)(R\d{2}[LCR]?\/)(M|P)?(\d{4}|\/\/\/\/)(V(\d{4}))?([UDN])?(?=$|[\s=])/g,
             (match, prefix, rwyPrefix, mp, mainVal, _vAll, vVal, trend) => {
                 // Если ////
                 if (mainVal === '////') {
@@ -1818,7 +1818,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         );
 
-        text = text.replace(/(^|\s)(\d{4})(?=$|\s)/g, (match, prefix, numStr) => {
+        text = text.replace(/(^|\s)(\d{4})(?=$|[\s=])/g, (match, prefix, numStr) => {
             let num = parseInt(numStr, 10);
             let colorClass = '';
             if (num > 3500) {
@@ -1834,11 +1834,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Выделение CAVOK и NSC зелёным цветом
-        text = text.replace(/\b(CLR|CAVOK|NCD|NSW|NSC|GOOD|VMC|VFR)\b/g, '<span class="color-green">$1</span>');
-        text = text.replace(/\b(WS)\b/g, '<span class="color-purple-ws">$1</span>');
+        text = text.replace(/\b(CLR|CAVOK|NCD|NSW|NSC|GOOD|VMC|VFR)(?=$|[\s=])/g, '<span class="color-green">$1</span>');
+        text = text.replace(/\b(WS)(?=$|[\s=])/g, '<span class="color-purple-ws">$1</span>');
 
         // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
-        text = text.replace(/\b(VV|OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
+        text = text.replace(/\b((?:VV|OVC|BKN)\d{3}(?:CB|TCU)?)(?=$|[\s=])/g, (match) => {
+            let heightStr = match.substring(3, 6);
             let height = parseInt(heightStr, 10);
             let colorClass;
 
@@ -1856,12 +1857,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Обработка обозначений полос типа RWY21L без подробной информации
-        text = text.replace(/\bRWY(\d{2}[LCR]?)\b/g, (match, rwy) => {
+        text = text.replace(/\b(RWY\d{2}[LCR]?)(?=$|[\s=])/g, (match) => {
+            const rwy = match.substring(3);
             // Создаем элемент span с классом runway-info и передаем необходимые данные
             return `<span class="runway-info" data-runway="${rwy}" data-info="//////">${match}</span>`;
         });
 
-        text = text.replace(/\bR(\d{2}[LCR]?)\/([0-9/]{6,})(?=[^0-9/]|$)/g, (match, rwy, info) => {
+        text = text.replace(/\bR(\d{2}[LCR]?)\/([0-9/]{6,})(?=[^0-9/=]|$)/g, (match, rwy, info) => {
             if (/^\/{6,}$/.test(info)) {
                 return match; // ничего не сохраняем
             }
@@ -1885,7 +1887,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Распознавание и выделение групп погодных явлений (METAR/TAF)
-        text = text.replace(/(?<=^|\s)([+-]|VC)?(MI|PR|BC|DR|BL|SH|TS|FZ)?((?:DZ|RA|SN|SG|IC|PL|GR|GS|UP|FG|BR|HZ|FU|VA|DU|SA|PY|PO|SQ|FC|SS|DS)+)(?=$|\s)/g, (token, prefix, descriptor, phenomenaStr) => {
+        text = text.replace(/(?<=^|\s)([+-]|VC)?(MI|PR|BC|DR|BL|SH|TS|FZ)?((?:DZ|RA|SN|SG|IC|PL|GR|GS|UP|FG|BR|HZ|FU|VA|DU|SA|PY|PO|SQ|FC|SS|DS)+)(?=$|[\s=])/g, (token, prefix, descriptor, phenomenaStr) => {
             // Токен не должен содержать цифр
             if (/\d/.test(token)) return token;
 
@@ -1921,7 +1923,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Распознавание и выделение информации о ветре
-        text = text.replace(/\b((?:\d{3}|VRB)\d{2,3}(?:G\d{2,3})?(?:MPS|KT))\b/g,
+        text = text.replace(/\b((?:\d{3}|VRB)\d{2,3}(?:G\d{2,3})?(?:MPS|KT))(?=$|[\s=])/g,
             (fullMatch, _) => {
                 // Разбираем группой: ddd - направление, потом скорость, потом G.., потом единицы
                 // Теперь учтём VRB в группе направления

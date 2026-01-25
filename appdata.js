@@ -5,16 +5,16 @@ const maintenance = {
         "icao": [
             'URSS', 'UNKL', 'UWOO', 'USPP', 'UWUU', 'UWKD', 'UMKK', 'UWGG', 'URMM', 'USSS', 'URML', 'URWW', 'UNBG',
             'UNNT', 'UIII', 'ULAA', 'LTAI', 'UDYZ', 'LTFM', 'ULMM', 'UNOO', 'UUYY', 'URMG', 'OMDW', 'UAAA', 'OMDB',
-            'OMAA', 'ULLI', 'USTR', 'UWWW', 'USRR', 'UEEE', 'VTBS', 'HECA', 'HESH', 'HEGN', 'UMMS', 'LTBS', 'UTTT',
-            'UTSS', 'UAFO', 'URWA', 'UHHH', 'URMT', 'UHWW', 'UCFM', 'UBBB', 'VTSP', 'ZJSY'
+            'OMAA', 'ULLI', 'USTR', 'UWWW', 'USRR', 'UEEE', 'VTBS', 'HECA', 'HESH', 'HEGN', 'UMMS', 'LTBS', 'UZTT',
+            'UZSS', 'UAFO', 'URWA', 'UHHH', 'URMT', 'UHWW', 'UCFM', 'UBBB', 'VTSP', 'ZJSY'
         ],
         "info": ""
     },
     "A320N,A321N": {
         "icao": [
             'URSS', 'UNKL', 'UMKK', 'URMM', 'USSS', 'URML', 'ULAA', 'UDYZ', 'LTFM', 'UNOO', 'UUYY', 'URMG',
-            'OMDW', 'UAAA', 'OMDB', 'OMAA', 'HESH', 'HEGN', 'UTTT', 'ZJSY', 'UNNT', 'UWOO', 'USRR', 'LTAI', 'VTBS',
-            'VIDP', 'LTBS', 'VTSP', 'UTSS'
+            'OMDW', 'UAAA', 'OMDB', 'OMAA', 'HESH', 'HEGN', 'UZTT', 'ZJSY', 'UNNT', 'UWOO', 'USRR', 'LTAI', 'VTBS',
+            'VIDP', 'LTBS', 'VTSP', 'UZSS'
         ],
         "info": ""
     },
@@ -22,8 +22,8 @@ const maintenance = {
         "icao": [
             'URSS', 'UNKL', 'USPP', 'UWUU', 'UWKD', 'UMKK', 'UWGG', 'URMM', 'USSS', 'URML', 'URWW', 'UNBG',
             'UNNT', 'UIII', 'ULAA', 'LTAI', 'UDYZ', 'LTFM', 'ULMM', 'UNOO', 'UUYY', 'URMG', 'OMDW', 'UAAA', 'OMDB',
-            'OMAA', 'ULLI', 'USTR', 'UWWW', 'USCC', 'HECA', 'HESH', 'HEGN', 'UMMS', 'UCFM', 'LTBS', 'UTTT', 'URWA',
-            'VIDP', 'UBBB', 'UWSG', 'UWOO', 'USRR', 'URMT', 'UHSS', 'UHWW', 'VTBS', 'VTSP', 'UAFO', 'UTSS'
+            'OMAA', 'ULLI', 'USTR', 'UWWW', 'USCC', 'HECA', 'HESH', 'HEGN', 'UMMS', 'UCFM', 'LTBS', 'UZTT', 'URWA',
+            'VIDP', 'UBBB', 'UWSG', 'UWOO', 'USRR', 'URMT', 'UHSS', 'UHWW', 'VTBS', 'VTSP', 'UAFO', 'UZSS'
         ],
         "info": ""
     },
@@ -51,11 +51,11 @@ let nowIcao = null;
 let icaoKeys = null;
 
 // 35
-const airportsB = ['VVCR', 'EPKK', 'LTAF', 'ZPPP', 'LTDB', 'ZLLL', 'LCLK', 'UAAA', 'KLAS', 'LFLL', 'KLAX', 'FMMI', 'UHMM', 'USCM', 'VAAH', 'LEBL', 'KMIA', 'VMMC', 'LEMG', 'RPLL', 'SBBR', 'OOMS', 'LEVC', 'URML', 'MUVR', 'URMM', 'LIPX', 'HKMO', 'UHWW', 'DTMB', 'URMO', 'CYUL', 'EGKK', 'VABB', 'VHHH', 'GCLP', 'URMN', 'URMG', 'UTFN', 'ZGGG', 'UOOO', 'UACC', 'VVDN', 'HTDA', 'KONT', 'WADD', 'KMCO', 'KDTW', 'RJBB', 'CYOW', 'HTZA', 'LTBJ', 'LFPG', 'LFPO', 'UCFL', 'ULMK', 'ZBAA', 'OPPS', 'RJTT', 'VTSP', 'CYYZ', 'LTCG', 'SBRF', 'DTTA', 'LIRF', 'ZMCK', 'LIPR', 'UIUU', 'SBGL', 'VTBU', 'URRP', 'UTFF', 'GVAC', 'KPHL', 'SBSV', 'EDDF', 'UTSS', 'VVNB', 'KSAN', 'ZSHC', 'ZJSY', 'UTDL', 'SBGR', 'KSFO', 'RKSI', 'RKPC', 'ZLXY', 'VOMM', 'URMS', 'UIAA', 'LBSF', 'ZUUU', 'KTPA', 'ZYTX', 'UUEE', 'DTNH', 'GCTS', 'UTST']
+const airportsB = ['VVCR', 'EPKK', 'LTAF', 'ZPPP', 'LTDB', 'ZLLL', 'LCLK', 'UAAA', 'KLAS', 'LFLL', 'KLAX', 'FMMI', 'UHMM', 'USCM', 'VAAH', 'LEBL', 'KMIA', 'VMMC', 'LEMG', 'RPLL', 'SBBR', 'OOMS', 'LEVC', 'URML', 'MUVR', 'URMM', 'LIPX', 'HKMO', 'UHWW', 'DTMB', 'URMO', 'CYUL', 'EGKK', 'VABB', 'VHHH', 'GCLP', 'URMN', 'URMG', 'UZFN', 'ZGGG', 'UOOO', 'UACC', 'VVDN', 'HTDA', 'KONT', 'WADD', 'KMCO', 'KDTW', 'RJBB', 'CYOW', 'HTZA', 'LTBJ', 'LFPG', 'LFPO', 'UCFL', 'ULMK', 'ZBAA', 'OPPS', 'RJTT', 'VTSP', 'CYYZ', 'LTCG', 'SBRF', 'DTTA', 'LIRF', 'ZMCK', 'LIPR', 'UIUU', 'SBGL', 'VTBU', 'URRP', 'UZFF', 'GVAC', 'KPHL', 'SBSV', 'EDDF', 'UZSS', 'VVNB', 'KSAN', 'ZSHC', 'ZJSY', 'UZDL', 'SBGR', 'KSFO', 'RKSI', 'RKPC', 'ZLXY', 'VOMM', 'URMS', 'UIAA', 'LBSF', 'ZUUU', 'KTPA', 'ZYTX', 'UUEE', 'DTNH', 'GCTS', 'UZST']
 // 98
-const airportsBz = ['GMAD', 'LEAL', 'OJAI', 'LTAC', 'EGLL', 'LTAI', 'LGAV', 'LEMD', 'OLBA', 'UCFM', 'UHBB', 'LIMC', 'LOWW', 'ULMM', 'UNBG', 'UTSA', 'UBBG', 'LLOV', 'UDYZ', 'LSGG', 'UCFO', 'LEPA', 'UIII', 'LCPH', 'BIKF', 'LBPD', 'BIRK', 'HEGN', 'LSZH', 'LTBA', 'HESH', 'UGTB', 'OIIE', 'LLBG', 'UHSS']
+const airportsBz = ['GMAD', 'LEAL', 'OJAI', 'LTAC', 'EGLL', 'LTAI', 'LGAV', 'LEMD', 'OLBA', 'UCFM', 'UHBB', 'LIMC', 'LOWW', 'ULMM', 'UNBG', 'UZSA', 'UBBG', 'LLOV', 'UDYZ', 'LSGG', 'UCFO', 'LEPA', 'UIII', 'LCPH', 'BIKF', 'LBPD', 'BIRK', 'HEGN', 'LSZH', 'LTBA', 'HESH', 'UGTB', 'OIIE', 'LLBG', 'UHSS']
 // 37
-const airportsC = ['OJAQ', 'FIMP', 'UHMA', 'LFML', 'LFKJ', 'LTFE', 'LIME', 'MMMX', 'RKPK', 'LIRN', 'URKG', 'LFMN', 'LFLS', 'KJFK', 'LTBS', 'UHPP', 'LDDU', 'LYPG', 'UTDD', 'LGTS', 'LOWS', 'FSIA', 'LOWI', 'URSS', 'LGIR', 'LDSP', 'LKKV', 'ZBYN', 'VNKT', 'OIII', 'LGKR', 'LYTV', 'UTDK', 'LIMF', 'LJLJ', 'LFLB', 'LTCE']
+const airportsC = ['OJAQ', 'FIMP', 'UHMA', 'LFML', 'LFKJ', 'LTFE', 'LIME', 'MMMX', 'RKPK', 'LIRN', 'URKG', 'LFMN', 'LFLS', 'KJFK', 'LTBS', 'UHPP', 'LDDU', 'LYPG', 'UZDD', 'LGTS', 'LOWS', 'FSIA', 'LOWI', 'URSS', 'LGIR', 'LDSP', 'LKKV', 'ZBYN', 'VNKT', 'OIII', 'LGKR', 'LYTV', 'UZDK', 'LIMF', 'LJLJ', 'LFLB', 'LTCE']
 
 const runwayConditionCaptions = {
     6: 'DRY',

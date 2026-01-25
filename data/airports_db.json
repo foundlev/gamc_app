@@ -12265,7 +12265,7 @@
         }
     },
     {
-        "icao": "UTAA",
+        "icao": "UZAA",
         "iata": "ASB",
         "geo": [
             "ASHGABAT",
@@ -12299,7 +12299,7 @@
         }
     },
     {
-        "icao": "UTAK",
+        "icao": "UZAK",
         "iata": "KRW",
         "geo": [
             "TURKMENBASHI",
@@ -12333,7 +12333,7 @@
         }
     },
     {
-        "icao": "UTDD",
+        "icao": "UZDD",
         "iata": "DYU",
         "geo": [
             "DUSHANBE",
@@ -12357,7 +12357,7 @@
         }
     },
     {
-        "icao": "UTDK",
+        "icao": "UZDK",
         "iata": "TJU",
         "geo": [
             "KULOB",
@@ -12381,7 +12381,7 @@
         }
     },
     {
-        "icao": "UTDL",
+        "icao": "UZDL",
         "iata": "LBD",
         "geo": [
             "KHUJAND",
@@ -12405,7 +12405,7 @@
         }
     },
     {
-        "icao": "UTFA",
+        "icao": "UZFA",
         "iata": "AZN",
         "geo": [
             "ANDIZHAN",
@@ -12429,7 +12429,7 @@
         }
     },
     {
-        "icao": "UTFF",
+        "icao": "UZFF",
         "iata": "FEG",
         "geo": [
             "FERGANA",
@@ -12453,7 +12453,7 @@
         }
     },
     {
-        "icao": "UTFN",
+        "icao": "UZFN",
         "iata": "NMA",
         "geo": [
             "NAMANGAN",
@@ -12477,7 +12477,7 @@
         }
     },
     {
-        "icao": "UTNN",
+        "icao": "UZNN",
         "iata": "NCU",
         "geo": [
             "NUKUS",
@@ -12501,7 +12501,7 @@
         }
     },
     {
-        "icao": "UTNU",
+        "icao": "UZNU",
         "iata": "UGC",
         "geo": [
             "URGENCH",
@@ -12525,7 +12525,7 @@
         }
     },
     {
-        "icao": "UTSA",
+        "icao": "UZSA",
         "iata": "NVI",
         "geo": [
             "NAVOI",
@@ -12549,7 +12549,7 @@
         }
     },
     {
-        "icao": "UTSB",
+        "icao": "UZSB",
         "iata": "BHK",
         "geo": [
             "BUKHARA",
@@ -12573,7 +12573,7 @@
         }
     },
     {
-        "icao": "UTSK",
+        "icao": "UZSK",
         "iata": "KSQ",
         "geo": [
             "KARSHI",
@@ -12597,7 +12597,7 @@
         }
     },
     {
-        "icao": "UTSS",
+        "icao": "UZSS",
         "iata": "SKD",
         "geo": [
             "SAMARKAND",
@@ -12621,7 +12621,7 @@
         }
     },
     {
-        "icao": "UTTT",
+        "icao": "UZTT",
         "iata": "TAS",
         "geo": [
             "TASHKENT INTL/ISLA",
@@ -16410,7 +16410,7 @@
         }
     },
     {
-        "icao": "UTDT",
+        "icao": "UZDT",
         "iata": "KQT",
         "geo": [
             "BOKHTAR",

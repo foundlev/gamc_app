@@ -379,6 +379,9 @@
                         <i class="fa-solid fa-location-dot"></i>Запасные (максимум 30):
                     </label>
                     <div>
+                        <button id="toggleAlternatesViewBtn" class="icon-button" title="Переключить вид">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
                         <button id="copyAlternatesBtn" class="icon-button" title="Скопировать запасные аэродромы">
                             <i class="fa-solid fa-copy"></i>
                         </button>
@@ -389,6 +392,10 @@
                 </div>
                 <textarea id="alternatesIcao" rows="3" placeholder="XXXX XXXX ..."
                     style="width: 100%; resize: vertical; overflow-y: auto; resize: none;"></textarea>
+                <div id="alternatesChipsContainer" class="alternates-chips-container" style="display: none;">
+                    <!-- Плашки будут здесь -->
+                    <input type="text" id="alternatesChipsInput" maxlength="4" placeholder="XXXX" />
+                </div>
                 <ul id="altsIcaoSuggestions" class="icao-suggestions"></ul>
             </div>
 

@@ -5,6 +5,7 @@
     --accent-color-light: #0077ff;
     --border-color: #dddddd;
     --card-bg: #f9f9f9;
+    --sidebar-bg: #ffffff;
     --map-bg: #F8F9FA;
     --gps-point-color: rgb(255, 103, 255);
 
@@ -171,6 +172,7 @@
 
         --bg-color: #0f172a;
         --card-bg: #1e293b;
+        --sidebar-bg: #111827;
         --text-color: #eeeeee;
         --text-secondary: #94a3b8;
         --accent-color: #1E6FB7;
@@ -181,7 +183,7 @@
 
         /* В темной теме приглушаем фоны плашек */
         --badge-green-bg: #249152;
-        --badge-orange-bg: #a85000;
+        --badge-orange-bg: #ba5900;
         --badge-red-bg: #7f1d1d;
         --badge-gray-bg: #475569;
         
@@ -293,7 +295,7 @@ body {
 ========================= */
 .sidebar {
     width: 72px;
-    background-color: var(--card-bg);
+    background-color: var(--sidebar-bg);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
@@ -322,9 +324,12 @@ body {
     transition: var(--transition);
 }
 
-.sidebar-btn:hover {
-    background-color: var(--accent-soft);
-    color: var(--accent-color);
+@media (prefers-color-scheme: dark) {
+    .sidebar-btn {
+        background-color: var(--card-bg);
+        border-color: var(--border-color);
+        color: var(--text-color);
+    }
 }
 
 .sidebar-btn:active {
@@ -483,6 +488,66 @@ button:disabled {
     font-weight: 600;
     background-color: var(--card-bg);
     color: var(--text-color);
+}
+
+/* =========================
+   Плашки запасных в модалке
+========================= */
+.alternates-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    min-height: 80px;
+    align-content: flex-start;
+    margin-top: 10px;
+}
+
+.alternate-chip {
+    flex: 0 0 auto;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.1s;
+    user-select: none;
+}
+
+.alternate-chip:active {
+    transform: translateY(0);
+}
+
+.alternate-chip i {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+#alternatesChipsInput {
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    outline: none;
+    font-size: 0.9rem;
+    flex: 1;
+    min-width: 60px;
+    width: auto;
+    margin: 0;
+    padding: 4px 10px;
+}
+
+#alternatesChipsInput::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.5;
 }
 
 /* =========================
@@ -1722,7 +1787,7 @@ button:disabled {
     margin-right: 5px;
 }
 
-#addRouteModalBackdrop #copyAlternatesBtn i, #addRouteModalBackdrop #deleteAlternatesBtn i {
+#alternatesChipsContainer i, #addRouteModalBackdrop #toggleAlternatesViewBtn i, #addRouteModalBackdrop #copyAlternatesBtn i, #addRouteModalBackdrop #deleteAlternatesBtn i {
     margin-right: 0;
 }
 
@@ -3236,7 +3301,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Стили для кнопки копирования */
-#copyAlternatesBtn, #deleteAlternatesBtn {
+#toggleAlternatesViewBtn, #copyAlternatesBtn, #deleteAlternatesBtn {
     background: none;
     border: none;
     padding: 5px;
@@ -3245,11 +3310,13 @@ input::-webkit-inner-spin-button {
     font-size: 1rem;
     transition: opacity 0.2s;
     margin-left: 8px;
+    box-shadow: none;
 }
 
-#copyAlternatesBtn:active, #deleteAlternatesBtn:active {
+#toggleAlternatesViewBtn:active, #copyAlternatesBtn:active, #deleteAlternatesBtn:active {
     opacity: 0.7;
     transform: translateY(1px);
+    background: none; /* Предотвращаем появление фона от основного стиля button */
 }
 
 /* Стили для индикатора */
@@ -3951,12 +4018,6 @@ input::-webkit-inner-spin-button {
     transition: var(--transition);
 }
 
-.info-reload-btn:hover {
-    background: var(--accent-soft);
-    color: var(--accent-color);
-    border-color: var(--accent-color);
-}
-
 .info-reload-btn:active {
     transform: scale(0.95);
 }
@@ -4011,10 +4072,6 @@ input::-webkit-inner-spin-button {
     font-weight: 600;
 }
 
-.info-content a:hover {
-    text-decoration: underline;
-}
-
 .info-sep {
     height: 1px;
     background-color: var(--border-color);
@@ -4047,10 +4104,6 @@ input::-webkit-inner-spin-button {
 .changelog-content::-webkit-scrollbar-thumb {
     background: var(--border-color);
     border-radius: 10px;
-}
-
-.changelog-content::-webkit-scrollbar-thumb:hover {
-    background: var(--text-secondary);
 }
 
 @media (max-width: 480px) {

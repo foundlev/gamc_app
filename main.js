@@ -411,6 +411,101 @@ document.addEventListener('DOMContentLoaded', () => {
     const departureIcaoInput = document.getElementById('departureIcao');
     const arrivalIcaoInput = document.getElementById('arrivalIcao');
     const alternatesIcaoInput = document.getElementById('alternatesIcao');
+    const toggleAlternatesViewBtn = document.getElementById('toggleAlternatesViewBtn');
+    const alternatesChipsContainer = document.getElementById('alternatesChipsContainer');
+    const alternatesChipsInput = document.getElementById('alternatesChipsInput');
+
+    let alternatesViewMode = localStorage.getItem('alternatesViewMode') || 'chips'; // 'text' or 'chips'
+
+    function updateAlternatesView() {
+        if (alternatesViewMode === 'chips') {
+            alternatesIcaoInput.style.display = 'none';
+            alternatesChipsContainer.style.display = 'flex';
+            toggleAlternatesViewBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            renderAlternatesChips();
+        } else {
+            alternatesIcaoInput.style.display = 'block';
+            alternatesChipsContainer.style.display = 'none';
+            toggleAlternatesViewBtn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+        }
+    }
+
+    function renderAlternatesChips() {
+        const text = alternatesIcaoInput.value.trim().toUpperCase();
+        const codes = text ? text.split(/\s+/) : [];
+        
+        // Очищаем контейнер, но оставляем инпут
+        const existingChips = alternatesChipsContainer.querySelectorAll('.alternate-chip');
+        existingChips.forEach(chip => chip.remove());
+
+        codes.forEach(code => {
+            if (code.length === 0) return;
+            const chip = document.createElement('div');
+            chip.className = 'alternate-chip';
+            chip.innerHTML = `${code}`;
+            chip.onclick = () => {
+                removeAlternateCode(code);
+            };
+            alternatesChipsContainer.insertBefore(chip, alternatesChipsInput);
+        });
+    }
+    window.renderAlternatesChips = renderAlternatesChips;
+
+    function removeAlternateCode(codeToRemove) {
+        let text = alternatesIcaoInput.value.trim().toUpperCase();
+        let codes = text ? text.split(/\s+/) : [];
+        codes = codes.filter(code => code !== codeToRemove);
+        alternatesIcaoInput.value = codes.join(' ');
+        renderAlternatesChips();
+        validateRoute();
+    }
+
+    function addAlternateCode(codeToAdd) {
+        codeToAdd = codeToAdd.trim().toUpperCase();
+        if (codeToAdd.length !== 4) return;
+        
+        let text = alternatesIcaoInput.value.trim().toUpperCase();
+        let codes = text ? text.split(/\s+/) : [];
+        
+        if (!codes.includes(codeToAdd)) {
+            codes.push(codeToAdd);
+            alternatesIcaoInput.value = codes.join(' ');
+            renderAlternatesChips();
+            validateRoute();
+        }
+        alternatesChipsInput.value = '';
+    }
+
+    toggleAlternatesViewBtn.onclick = () => {
+        alternatesViewMode = alternatesViewMode === 'chips' ? 'text' : 'chips';
+        localStorage.setItem('alternatesViewMode', alternatesViewMode);
+        updateAlternatesView();
+    };
+
+    alternatesChipsInput.addEventListener('input', () => {
+        alternatesChipsInput.value = alternatesChipsInput.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+        updateAlternatesSuggestions();
+    });
+
+    alternatesChipsInput.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+            const val = alternatesChipsInput.value.trim();
+            if (val.length === 4) {
+                e.preventDefault();
+                addAlternateCode(val);
+            }
+        } else if (e.key === 'Backspace' && alternatesChipsInput.value === '') {
+            // Удаляем последнюю плашку при Backspace в пустом инпуте
+            const text = alternatesIcaoInput.value.trim().toUpperCase();
+            const codes = text ? text.split(/\s+/) : [];
+            if (codes.length > 0) {
+                removeAlternateCode(codes[codes.length - 1]);
+            }
+        }
+    });
+
+    // Инициализация вида при загрузке
+    updateAlternatesView();
 
     const importRouteBtn = document.getElementById('importRouteBtn');
     const importRouteConfirmModalBackdrop = document.getElementById('importRouteConfirmModalBackdrop');
@@ -476,6 +571,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.alternates && data.alternates.length > 0) {
                     alternatesIcaoInput.value = data.alternates.join(' ');
                 }
+                
+                renderAlternatesChips();
                 
                 // Сохраняем точки маршрута
                 if (data.points) {
@@ -1531,16 +1628,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const buttons = document.querySelectorAll('.history button');
-            let buttonInHistory = null;
             for (const btn of buttons) {
-                if (btn.textContent.trim().toUpperCase() === icao.toUpperCase()) {
-                    buttonInHistory = btn;
-                    break;
+                const text = btn.textContent.trim();
+                const match = text.match(/\b[A-Z]{4}\b/);
+                if (match && match[0].toUpperCase() === icao.toUpperCase()) {
+                    applyIcaoButtonColors(icao, btn);
                 }
-            }
-
-            if (buttonInHistory) {
-                applyIcaoButtonColors(icao, buttonInHistory);
             }
         } catch (err) {
             if (shouldUpdateUI) responseContainer.textContent = 'Ошибка при запросе: ' + err;
@@ -1554,6 +1647,37 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.style.border = 'none';
         btn.style.boxShadow = 'var(--shadow-sm)';
         btn.style.padding = '6px 12px';
+    }
+
+    function resetButtonColor(btn) {
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.textShadow = '';
+        btn.style.border = '';
+        btn.style.boxShadow = '';
+        btn.style.padding = '';
+        btn.style.opacity = '1';
+    }
+
+    function updateAllPlacards() {
+        // Плашки в истории
+        const historyBtns = document.querySelectorAll('#historyContainer button');
+        historyBtns.forEach(btn => {
+            const text = btn.textContent.trim();
+            const match = text.match(/\b[A-Z]{4}\b/);
+            if (match) {
+                applyIcaoButtonColors(match[0], btn);
+            }
+        });
+
+        // Плашки в ближайших аэродромах (в модалке деталей)
+        const nearbyBtns = document.querySelectorAll('.nearby-airport-btn');
+        nearbyBtns.forEach(btn => {
+            const icao = btn.dataset.icao;
+            if (icao) {
+                applyIcaoButtonColors(icao, btn);
+            }
+        });
     }
 
     function applyIcaoButtonColors(icao, btn) {
@@ -1572,22 +1696,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const colObj = icaoColors[icao];
 
         // Если нет цветовых данных - ставим дефолт
-        if (!colObj) {
+        if (!colObj || !colObj.updatedAt) {
+            resetButtonColor(btn);
             return;
         }
 
-        // Проверяем, когда это обновлялось
-        if (!colObj.updatedAt) {
-            return;
-        } else {
-            const updatedTime = new Date(colObj.updatedAt).getTime();
-            const nowTime = Date.now();
-            const diffHours = (nowTime - updatedTime) / (1000 * 60 * 60);
+        const updatedTime = new Date(colObj.updatedAt).getTime();
+        const nowTime = Date.now();
+        const diffHours = (nowTime - updatedTime) / (1000 * 60 * 60);
 
-            // Если старше 10 часов
-            if (diffHours > 10) {
-                return;
-            }
+        // Пороги:
+        // Offline: > 10ч (fade), > 16ч (no color)
+        // Online: > 1ч (fade), > 4ч (no color)
+        const thresholdFade = offlineMode ? 10 : 1;
+        const thresholdNoColor = offlineMode ? 16 : 4;
+
+        if (diffHours > thresholdNoColor) {
+            resetButtonColor(btn);
+            return;
+        }
+
+        if (diffHours > thresholdFade) {
+            btn.style.opacity = '0.5';
+        } else {
+            btn.style.opacity = '1';
         }
 
         // Обрабатываем metarColor / tafColor
@@ -1641,6 +1773,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 3) Выделение именно четырехзначных чисел как отдельных слов
 
+        // === RVR (Runway Visual Range) ===
+        // Примеры: R10/0600, R25R/1200U, R10/0400V0800, R10/M0050, R10/P2000, R10////, R10/0600D
+        text = text.replace(
+            /(^|\s)(R\d{2}[LCR]?\/)(M|P)?(\d{4}|\/\/\/\/)(V(\d{4}))?([UDN])?(?=$|\s)/g,
+            (match, prefix, rwyPrefix, mp, mainVal, _vAll, vVal, trend) => {
+                // Если ////
+                if (mainVal === '////') {
+                    return prefix + rwyPrefix + `<span class="color-gray">////</span>` + (trend || '');
+                }
+
+                // Основное значение
+                const mainNum = parseInt(mainVal, 10);
+
+                // Выбираем "худшее" для окраски:
+                // - Если есть Vxxxx, берём минимум из двух
+                // - Учитываем M (less than): считаем как 0..49, чтобы точно было красным
+                // - P (more than): оставляем как число, но можно при желании всегда зелёным при P2000 и т.п.
+                let effective = mainNum;
+
+                if (mp === 'M') effective = 0;
+                if (vVal) {
+                    const vNum = parseInt(vVal, 10);
+                    effective = Math.min(effective, vNum);
+                }
+
+                let colorClass = '';
+                if (effective > 3500) {
+                    colorClass = 'color-green';
+                } else if (effective > 1200 && effective <= 3500) {
+                    colorClass = 'color-yellow';
+                } else if (effective >= 550 && effective <= 1200) {
+                    colorClass = 'color-red';
+                } else {
+                    colorClass = 'color-darkred';
+                }
+
+                // Собираем назад как было (с M/P, V, тенденцией)
+                const mpStr = mp ? mp : '';
+                const vStr = vVal ? `V${vVal}` : '';
+                const trendStr = trend ? trend : '';
+
+                return prefix + rwyPrefix + `<span class="${colorClass}">${mpStr}${mainVal}${vStr}</span>` + trendStr;
+            }
+        );
+
         text = text.replace(/(^|\s)(\d{4})(?=$|\s)/g, (match, prefix, numStr) => {
             let num = parseInt(numStr, 10);
             let colorClass = '';
@@ -1661,7 +1838,7 @@ document.addEventListener('DOMContentLoaded', () => {
         text = text.replace(/\b(WS)\b/g, '<span class="color-purple-ws">$1</span>');
 
         // Ищем групп облачности типа BKN или OVC с указанием высоты, например, BKN020 или OVC100
-        text = text.replace(/\b(OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
+        text = text.replace(/\b(VV|OVC|BKN)(\d{3})(?:CB|TCU)?\b/g, (match, type, heightStr) => {
             let height = parseInt(heightStr, 10);
             let colorClass;
 
@@ -1919,26 +2096,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Сначала применяем общие стили (включая иконку техобслуживания)
             applyIcaoButtonColors(icao, btn);
-
-            let colObj = icaoColors[icao];
-            if (colObj) {
-                // colObj.metarColor может быть "color-green", "color-yellow"...
-                // colObj.tafColor   может быть другое
-                const mc = colObj.metarColor || "color-green";
-                const tc = colObj.tafColor || "color-green";
-
-                // Превратим эти классы в реальные цвета.
-                // Но можно чуть хитрее. Например, прописать в CSS класс .split-button[color-red][color-green] { background: ... }
-                // Но проще inline-стилями:
-                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                convertColorClassToBg(mc, isDark);
-                convertColorClassToBg(tc, isDark);
-
-                btn.classList.remove('color-green', 'color-yellow', 'color-red', 'color-purple', 'color-darkred');
-                // Мы уже вызвали applyIcaoButtonColors выше, но там она могла выйти раньше, если нет colObj.
-                // Но техобслуживание мы уже проверили внутри applyIcaoButtonColors.
-                // Чтобы не дублировать вызов и не перезатирать градиент, просто оставим как есть.
-            }
 
             btn.addEventListener('click', () => {
                 icaoInput.value = icao;
@@ -2725,6 +2882,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateOfflineButton();
         updateSystemsButton();
         updateOfflineBadge();
+        updateAllPlacards();
     });
 
     const reloadBtn = document.getElementById('reloadBtn');
@@ -2750,6 +2908,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('offlineMode', JSON.stringify(offlineMode));
             updateOfflineButton();
             updateOfflineBadge();
+            updateAllPlacards();
         }
     }
 
@@ -2799,6 +2958,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             importRouteBtn.style.display = 'none';
         }
+        renderAlternatesChips();
         addRouteModalBackdrop.classList.add('show');
     }
 
@@ -3617,7 +3777,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function updateAlternatesSuggestions() {
-        const inputEl = alternatesIcaoInput;
+        const isChips = alternatesViewMode === 'chips';
+        const inputEl = isChips ? alternatesChipsInput : alternatesIcaoInput;
         const listEl = document.getElementById('altsIcaoSuggestions');
 
         const full = inputEl.value.trim().toUpperCase();
@@ -3627,10 +3788,16 @@ document.addEventListener('DOMContentLoaded', () => {
             listEl.classList.remove('show');
             return;
         }
-        // Разбиваем по пробелам
-        const parts = full.split(/\s+/);
-        // Последний кусок
-        const lastPart = parts[parts.length - 1];
+        
+        let lastPart = "";
+        if (isChips) {
+            lastPart = full;
+        } else {
+            // Разбиваем по пробелам
+            const parts = full.split(/\s+/);
+            // Последний кусок
+            lastPart = parts[parts.length - 1];
+        }
 
         if (!lastPart || !icaoKeys) {
             listEl.innerHTML = '';
@@ -3661,19 +3828,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const selected = li.dataset.icao; // например "UUEE"
         if (!selected) return;
 
-        let full = alternatesIcaoInput.value.trim();
-        // Разбиваем
-        let parts = full.split(/\s+/);
-        // Меняем последний кусочек
-        parts[parts.length - 1] = selected;
+        if (alternatesViewMode === 'chips') {
+            addAlternateCode(selected);
+            alternatesChipsInput.focus();
+        } else {
+            let full = alternatesIcaoInput.value.trim();
+            // Разбиваем
+            let parts = full.split(/\s+/);
+            // Меняем последний кусочек
+            parts[parts.length - 1] = selected;
 
-        // Склеиваем обратно
-        alternatesIcaoInput.value = parts.join(' ') + ' ';
+            // Склеиваем обратно
+            alternatesIcaoInput.value = parts.join(' ') + ' ';
+            alternatesIcaoInput.focus();
+        }
 
         // Скрываем подсказки
         const ul = document.getElementById('altsIcaoSuggestions');
         ul.classList.remove('show');
         ul.innerHTML = '';
+        
+        validateRoute();
     });
 
     document.addEventListener('click', (e) => {
@@ -3681,7 +3856,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!ul.classList.contains('show')) return;
 
         // Проверяем, кликаем ли вне input + список
-        const wrapper = alternatesIcaoInput.parentNode;
+        const inputEl = alternatesViewMode === 'chips' ? alternatesChipsInput : alternatesIcaoInput;
+        const wrapper = inputEl.parentNode;
         if (!wrapper.contains(e.target)) {
             ul.classList.remove('show');
             ul.innerHTML = '';
@@ -3713,6 +3889,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Если все условия выполнены => enable, иначе => disable
         saveRouteBtn.disabled = !(depValid && arrValid && altValid);
     }
+    window.validateRoute = validateRoute;
 
     refreshAllBtn.addEventListener('click', onRefreshAllBtnClick);
 

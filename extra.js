@@ -147,6 +147,9 @@ document.getElementById('copyAlternatesBtn').addEventListener('click', function(
 // Удаление запасных аэродромов
 document.getElementById('deleteAlternatesBtn').addEventListener('click', function() {
     document.getElementById('alternatesIcao').value = '';
+    
+    if (typeof window.renderAlternatesChips === 'function') window.renderAlternatesChips();
+    if (typeof window.validateRoute === 'function') window.validateRoute();
 
     // На 1 секунду меняем иконку на <i class="fa-solid fa-check"></i>
     document.getElementById('deleteAlternatesBtn').innerHTML = '<i class="fa-solid fa-check"></i>';

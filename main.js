@@ -18,6 +18,7 @@ let airportsList = []
 
 let storedIcaoColors = JSON.parse(localStorage.getItem('icaoColors') || '{}');
 let icaoColors = storedIcaoColors;
+let importedRouteCoords = null;
 
 // Загружаем базу аэродромов (icao, iata, geo[0]=название, geo[1]=страна)
 fetch('data/airports_db.json')
@@ -296,8 +297,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (quickTemplateBtn) {
         quickTemplateBtn.onclick = () => {
-            // Пока ничего не делает, как и просили
-            console.log('Temporary route button clicked');
+            selectRouteOption('temp');
+            hideRouteSearchModal();
         };
     }
 
@@ -385,6 +386,13 @@ document.addEventListener('DOMContentLoaded', () => {
             routeSelectLabel.textContent = 'Недавние';
         } else if (val === 'add') {
             routeSelectLabel.textContent = 'Добавить маршрут...';
+        } else if (val === 'temp') {
+            const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+            if (tempRoute.departure && tempRoute.arrival) {
+                routeSelectLabel.textContent = `${tempRoute.departure} - ${tempRoute.arrival}`;
+            } else {
+                routeSelectLabel.textContent = 'Автоподбор';
+            }
         } else {
             const idx = parseInt(val, 10);
             const route = savedRoutes[idx];
@@ -403,6 +411,91 @@ document.addEventListener('DOMContentLoaded', () => {
     const departureIcaoInput = document.getElementById('departureIcao');
     const arrivalIcaoInput = document.getElementById('arrivalIcao');
     const alternatesIcaoInput = document.getElementById('alternatesIcao');
+
+    const importRouteBtn = document.getElementById('importRouteBtn');
+    const importRouteConfirmModalBackdrop = document.getElementById('importRouteConfirmModalBackdrop');
+    const importRoutePreview = document.getElementById('importRoutePreview');
+    const importRouteConfirmYesBtn = document.getElementById('importRouteConfirmYesBtn');
+    const importRouteConfirmNoBtn = document.getElementById('importRouteConfirmNoBtn');
+    const closeImportRouteConfirmModalBtn = document.getElementById('closeImportRouteConfirmModalBtn');
+    const routeImportLoader = document.getElementById('routeImportLoader');
+    const routeModalButtonGroup = addRouteModalBackdrop.querySelector('.modal-button-group');
+
+    function cleanRoute(route) {
+        // 1. Убираем переносы строк и заменяем на пробелы
+        let cleaned = route.replace(/[\r\n]+/g, ' ');
+        // 2. Только английские буквы, цифры и пробелы (убираем русские буквы и спецсимволы)
+        cleaned = cleaned.replace(/[^a-zA-Z0-9 ]/g, ' ');
+        // 3. Схлопываем лишние пробелы (двойные, тройные и т.д.)
+        cleaned = cleaned.replace(/\s+/g, ' ').trim();
+        // 4. Обрезаем до 300 символов
+        return cleaned.substring(0, 300);
+    }
+
+    importRouteBtn.addEventListener('click', async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            const cleaned = cleanRoute(text);
+            if (!cleaned) {
+                alert('Буфер обмена пуст или не содержит допустимых символов!');
+                return;
+            }
+            importRoutePreview.textContent = cleaned;
+            importRouteConfirmModalBackdrop.classList.add('show');
+        } catch (err) {
+            console.error('Failed to read clipboard: ', err);
+            alert('Не удалось прочитать буфер обмена. Убедитесь, что вы дали разрешение на доступ к буферу обмена.');
+        }
+    });
+
+    importRouteConfirmNoBtn.addEventListener('click', () => {
+        importRouteConfirmModalBackdrop.classList.remove('show');
+    });
+
+    closeImportRouteConfirmModalBtn.addEventListener('click', () => {
+        importRouteConfirmModalBackdrop.classList.remove('show');
+    });
+
+    importRouteConfirmYesBtn.addEventListener('click', async () => {
+        const routeStr = importRoutePreview.textContent;
+        importRouteConfirmModalBackdrop.classList.remove('show');
+
+        // Скрываем кнопки и показываем лоадер
+        routeModalButtonGroup.style.display = 'none';
+        routeImportLoader.style.display = 'block';
+
+        try {
+            const response = await fetch(`https://myapihelper.na4u.ru/gamc_app/process_route.php?route=${encodeURIComponent(routeStr)}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                departureIcaoInput.value = data.departure || '';
+                arrivalIcaoInput.value = data.arrival || '';
+                if (data.alternates && data.alternates.length > 0) {
+                    alternatesIcaoInput.value = data.alternates.join(' ');
+                }
+                
+                // Сохраняем точки маршрута
+                if (data.points) {
+                    importedRouteCoords = data.points;
+                }
+                
+                // Активируем кнопку сохранения, если данные валидны
+                validateRoute();
+            } else {
+                alert('Ошибка: ' + (data.message || 'Не удалось обработать маршрут'));
+            }
+        } catch (err) {
+            console.error('Error processing route:', err);
+            alert('Произошла ошибка при связи с сервером.');
+        } finally {
+            // Возвращаем кнопки назад
+            routeImportLoader.style.display = 'none';
+            routeModalButtonGroup.style.display = 'flex';
+        }
+    });
 
     if (!localStorage.getItem(PASSWORD_KEY)) {
         showModal();
@@ -475,12 +568,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Скрываем кнопку удаления, если она не нужна для временного маршрута
             deleteRouteBtn.style.display = 'none';
             // Открываем модальное окно
-            addRouteModalBackdrop.classList.add('show');
-            document.getElementById('importGpxBtn').style.display = 'inline-block';
+            showAddRouteModal();
             return;
         }
-
-        document.getElementById('importGpxBtn').style.display = 'none';
 
         if (routeSelect.value === 'recent') {
             // Показываем модалку
@@ -515,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteRouteBtn.style.display = 'inline-block';
 
         // 6) Открываем модалку
-        addRouteModalBackdrop.classList.add('show');
+        showAddRouteModal();
     });
 
     // ЗАМЕНИ содержимое обработчика на этот вариант:
@@ -1463,6 +1553,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.style.textShadow = '0 1px 2px rgba(0, 0, 0, 0.4)';
         btn.style.border = 'none';
         btn.style.boxShadow = 'var(--shadow-sm)';
+        btn.style.padding = '6px 12px';
     }
 
     function applyIcaoButtonColors(icao, btn) {
@@ -2703,11 +2794,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function showAddRouteModal() {
+        if (routeSelect.value === 'temp') {
+            importRouteBtn.style.display = 'inline-block';
+        } else {
+            importRouteBtn.style.display = 'none';
+        }
         addRouteModalBackdrop.classList.add('show');
     }
 
     function hideAddRouteModal() {
         addRouteModalBackdrop.classList.remove('show');
+        importRouteBtn.style.display = 'none';
         // Включить поля назад:
         departureIcaoInput.disabled = false;
         arrivalIcaoInput.disabled = false;
@@ -2866,7 +2963,13 @@ document.addEventListener('DOMContentLoaded', () => {
         recentOption.innerHTML = 'Недавние';
         routeSelect.appendChild(recentOption);
 
-        // 2) Для каждого сохранённого маршрута
+        // 2) «Автоподбор»
+        let tempOption = document.createElement('option');
+        tempOption.value = 'temp';
+        tempOption.innerHTML = 'Автоподбор';
+        routeSelect.appendChild(tempOption);
+
+        // 3) Для каждого сохранённого маршрута
         savedRoutes.forEach((route, index) => {
             const option = document.createElement('option');
             const dep = route.departure;
@@ -2894,6 +2997,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Обновляем иконку кнопки редактирования
         if (routeSelect.value === 'recent' || routeSelect.value === 'add') {
              document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-plus"></i>';
+        } else if (routeSelect.value === 'temp') {
+            const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+            if (tempRoute.departure && tempRoute.arrival) {
+                document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-pen"></i>';
+            } else {
+                document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-plus"></i>';
+            }
         } else {
              document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-pen"></i>';
         }
@@ -2928,6 +3038,22 @@ document.addEventListener('DOMContentLoaded', () => {
             editBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
             reverseBtn.hidden = true;
             routeSelect.value = 'recent';
+            return;
+        }
+
+        if (selectedValue === 'temp') {
+            const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+            if (tempRoute.departure && tempRoute.arrival) {
+                const routeAerodromes = [tempRoute.departure, ...(tempRoute.alternates || []), tempRoute.arrival];
+                renderRouteAerodromes(routeAerodromes);
+                editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                reverseBtn.hidden = false;
+            } else {
+                renderHistory();
+                editBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+                reverseBtn.hidden = true;
+                showAddRouteModal();
+            }
             return;
         }
 

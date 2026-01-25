@@ -43,6 +43,7 @@
         
         <select id="routeSelect" style="display: none;">
             <option value="recent" selected>Недавние</option>
+            <option value="temp">Автоподбор</option>
         </select>
 
         <div class="sidebar-sep"></div>
@@ -392,19 +393,37 @@
             </div>
 
             <div class="modal-button-group">
+                <button id="importRouteBtn" style="display: none;">
+                    <i class="fa-solid fa-file-import"></i>Импорт
+                </button>
                 <button id="saveRouteBtn" disabled>
                     <i class="fa-solid fa-floppy-disk"></i>Сохранить маршрут
                 </button>
                 <button id="deleteRouteBtn" style="display: none; background-color: var(--col-red);">
                     <i class="fa-solid fa-trash"></i>Удалить
                 </button>
-                <button id="importGpxBtn" style="display:none;">
-                    <i class="fa-solid fa-file-import"></i>Импорт GPX
-                </button>
+            </div>
+            <div id="routeImportLoader" style="display: none; margin: 0 auto; text-align: center;">
+                <div class="neuro-loader" style="margin: 0 auto;"></div>
+                <div class="loading-text">Обработка маршрута...</div>
             </div>
         </div>
-        <input type="file" id="gpxFileInput" accept=".gpx" style="display:none">
-    </div>
+        </div>
+
+        <!-- Модальное окно подтверждения импорта маршрута -->
+        <div class="modal-backdrop" id="importRouteConfirmModalBackdrop">
+            <div class="modal">
+                <button class="modal-close-btn" id="closeImportRouteConfirmModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2>Подтвердите маршрут</h2>
+                <div id="importRoutePreview" style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; word-break: break-all; font-family: monospace; max-height: 200px; overflow-y: auto;"></div>
+                <div class="modal-button-group">
+                    <button id="importRouteConfirmYesBtn">Да</button>
+                    <button id="importRouteConfirmNoBtn">Нет</button>
+                </div>
+            </div>
+        </div>
 
 
 

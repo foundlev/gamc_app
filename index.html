@@ -137,7 +137,7 @@
                 <i class="fa-solid fa-plane-circle-check fa-3x" style="color: var(--accent-color);"></i>
                 <div class="info-title-group">
                     <h2>Weather App</h2>
-                    <span id="changelogBtn" class="version-badge">v2.0.0 Alpha</span>
+                    <span id="changelogBtn" class="version-badge">v2.0.1 Beta</span>
                 </div>
             </div>
             
@@ -167,6 +167,17 @@
             <h2>Поиск маршрута</h2>
             <div class="route-search-container">
                 <input type="text" id="routeSearchInput" placeholder="Поиск по ICAO или названию..." autofocus />
+            </div>
+            <div class="route-quick-actions">
+                <button id="quickRecentBtn" class="quick-action-btn">
+                    <i class="fas fa-history"></i> Недавние
+                </button>
+                <button id="quickAddBtn" class="quick-action-btn">
+                    <i class="fas fa-plus"></i> Создать новый
+                </button>
+                <button id="quickTemplateBtn" class="quick-action-btn">
+                    <i class="fas fa-route"></i> Автоподбор
+                </button>
             </div>
             <div id="routeSearchResults" class="route-search-results">
                 <!-- Сюда будут рендериться результаты поиска -->

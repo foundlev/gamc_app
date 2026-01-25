@@ -1904,7 +1904,40 @@ button:disabled {
 }
 
 .route-search-container {
+    margin-bottom: 10px;
+}
+
+.route-quick-actions {
+    display: flex;
+    gap: 8px;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.quick-action-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.quick-action-btn:active {
+    background-color: var(--accent-soft);
+    border-color: var(--accent-color);
+}
+
+.quick-action-btn i {
+    color: var(--accent-color);
 }
 
 #routeSearchInput {

@@ -278,6 +278,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const routeSearchInput = document.getElementById('routeSearchInput');
     const routeSearchResults = document.getElementById('routeSearchResults');
 
+    const quickRecentBtn = document.getElementById('quickRecentBtn');
+    const quickAddBtn = document.getElementById('quickAddBtn');
+    const quickTemplateBtn = document.getElementById('quickTemplateBtn');
+
+    if (quickRecentBtn) {
+        quickRecentBtn.onclick = () => {
+            selectRouteOption('recent');
+            hideRouteSearchModal();
+        };
+    }
+    if (quickAddBtn) {
+        quickAddBtn.onclick = () => {
+            selectRouteOption('add');
+            hideRouteSearchModal();
+        };
+    }
+    if (quickTemplateBtn) {
+        quickTemplateBtn.onclick = () => {
+            // Пока ничего не делает, как и просили
+            console.log('Temporary route button clicked');
+        };
+    }
+
     function openRouteSearchModal() {
         routeSearchModal.classList.add('show');
         routeSearchInput.value = '';
@@ -313,21 +336,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let resultsFound = false;
 
-        // 1. Недавние
-        if ('недавние'.includes(searchStr) || 'recent'.includes(searchStr)) {
-            const div = document.createElement('div');
-            div.className = 'route-search-item';
-            if (routeSelect.value === 'recent') div.classList.add('active');
-            div.innerHTML = `<div class="route-item-title">Недавние</div>
-                             <div class="route-item-special">Последние просмотренные ICAO</div>`;
-            div.onclick = () => {
-                selectRouteOption('recent');
-                hideRouteSearchModal();
-            };
-            routeSearchResults.appendChild(div);
-            resultsFound = true;
-        }
-
         // 2. Сохраненные маршруты
         savedRoutes.forEach((route, index) => {
             const depName = airportInfoDb[route.departure]?.geo?.[0] || '';
@@ -348,20 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultsFound = true;
             }
         });
-
-        // 3. Добавить маршрут
-        if ('добавить маршрут'.includes(searchStr) || 'add route'.includes(searchStr) || (transStr && 'add route'.includes(transStr))) {
-            const div = document.createElement('div');
-            div.className = 'route-search-item';
-            div.innerHTML = `<div class="route-item-title">Добавить маршрут...</div>
-                             <div class="route-item-special">Создать новый список аэродромов</div>`;
-            div.onclick = () => {
-                selectRouteOption('add');
-                hideRouteSearchModal();
-            };
-            routeSearchResults.appendChild(div);
-            resultsFound = true;
-        }
 
         if (!resultsFound) {
             const div = document.createElement('div');

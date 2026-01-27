@@ -10,7 +10,7 @@ let canShowAirportInfo = JSON.parse(localStorage.getItem('canShowAirportInfo')) 
 const PASSWORD_KEY = 'gamcPassword';
 const ICAO_HISTORY_KEY = 'icaoHistory';
 
-const LAST_COUNT = 30;
+const LAST_COUNT = 15;
 const SUGGESTIONS_COUNT = 7;
 
 let airportInfoDb = {};
@@ -382,11 +382,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateRouteSelectLabel() {
         const val = routeSelect.value;
+        routeSelectContainer.classList.remove('auto-route');
+        routeSelectContainer.title = "Маршруты";
+
         if (val === 'recent') {
             routeSelectLabel.textContent = 'Недавние';
         } else if (val === 'add') {
             routeSelectLabel.textContent = 'Добавить маршрут...';
         } else if (val === 'temp') {
+            routeSelectContainer.classList.add('auto-route');
+            routeSelectContainer.title = "Выбран автоматический маршрут (Автоподбор)";
             const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
             if (tempRoute.departure && tempRoute.arrival) {
                 routeSelectLabel.textContent = `${tempRoute.departure} - ${tempRoute.arrival}`;

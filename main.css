@@ -322,6 +322,7 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: var(--transition);
+    position: relative;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -339,6 +340,27 @@ body {
 .sidebar-btn.active, .sidebar-btn[data-active="true"] {
     background-color: var(--accent-color);
     color: #ffffff;
+}
+
+.sidebar-btn.auto-route {
+    background-color: var(--accent-color); /* Blue informational color */
+    color: #ffffff;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-btn.auto-route::after {
+    content: 'AUTO';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: var(--color-success); /* Green color */
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+    padding: 1px 3px;
+    border-radius: 3px;
+    border: 1px solid var(--sidebar-bg);
+    pointer-events: none;
 }
 
 .sidebar-btn i {

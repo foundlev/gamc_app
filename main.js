@@ -10,7 +10,8 @@ let canShowAirportInfo = JSON.parse(localStorage.getItem('canShowAirportInfo')) 
 const PASSWORD_KEY = 'gamcPassword';
 const ICAO_HISTORY_KEY = 'icaoHistory';
 
-const LAST_COUNT = 15;
+const LAST_COUNT = 9;
+const ROUTE_MAX_COUNT = 30;
 const SUGGESTIONS_COUNT = 7;
 
 let airportInfoDb = {};
@@ -752,9 +753,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const icao = icaoInput.value.trim().toUpperCase();
 
         if (nowIcao && nowIcao === icao && icao.length === 4) {
-            fetchBtn.innerHTML = '<i class="fas fa-sync-alt"></i>Обновить';
+            fetchBtn.innerHTML = '<i class="fas fa-sync-alt"></i><span>Обновить</span>';
         } else {
-            fetchBtn.innerHTML = '<i class="fas fa-cloud-download-alt"></i>Запросить';
+            fetchBtn.innerHTML = '<i class="fas fa-cloud-download-alt"></i><span>Запросить</span>';
         }
 
         const isDisabled = icao.length !== 4;
@@ -3000,10 +3001,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let alternatesList = alts ? alts.split(/\s+/) : [];
         // Убираем повторение из alternatesList.
         alternatesList = [...new Set(alternatesList)];
-        alternatesList = alternatesList.slice(0, LAST_COUNT).filter(a => a.length === 4);
-
-        // Ограничим максимум LAST_COUNT
-        alternatesList = alternatesList.slice(0, LAST_COUNT).filter(a => a.length === 4);
+        alternatesList = alternatesList.slice(0, ROUTE_MAX_COUNT).filter(a => a.length === 4);
 
         if (airportInfoDb[dep]) {
             const depLat = parseFloat(airportInfoDb[dep].latitude);

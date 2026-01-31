@@ -3797,6 +3797,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+
+        // 4) Обновляем прозрачность плашек аэродромов в истории/маршруте
+        const historyBtns = historyContainer.querySelectorAll('button');
+        historyBtns.forEach(btn => {
+            const icaoMatch = btn.textContent.match(/[A-Z]{4}/);
+            if (icaoMatch) {
+                applyIcaoButtonColors(icaoMatch[0], btn);
+            }
+        });
     }
 
     function hideAirportInfo() {

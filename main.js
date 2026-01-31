@@ -470,6 +470,12 @@ document.addEventListener('DOMContentLoaded', () => {
         codeToAdd = codeToAdd.trim().toUpperCase();
         if (codeToAdd.length !== 4) return;
         
+        const closedAirports = ["URKA", "UUOB", "UUBP", "UUOO", "UUOK", "UUOL", "URRP", "UKFF"];
+        if (closedAirports.includes(codeToAdd)) {
+            showCustomAlert('Внимание', `Аэродром ${codeToAdd} закрыт.`);
+            return;
+        }
+        
         let text = alternatesIcaoInput.value.trim().toUpperCase();
         let codes = text ? text.split(/\s+/) : [];
         
@@ -496,9 +502,11 @@ document.addEventListener('DOMContentLoaded', () => {
     alternatesChipsInput.addEventListener('keydown', (e) => {
         if (e.key === ' ' || e.key === 'Enter') {
             const val = alternatesChipsInput.value.trim();
-            if (val.length === 4) {
+            if (val.length >= 3) { // Позволяем вводить 3-4 символа
                 e.preventDefault();
                 addAlternateCode(val);
+                alternatesChipsInput.value = ''; // Очищаем поле после добавления
+                updateAlternatesSuggestions(); // Скрываем подсказки
             }
         } else if (e.key === 'Backspace' && alternatesChipsInput.value === '') {
             // Удаляем последнюю плашку при Backspace в пустом инпуте
@@ -514,6 +522,18 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAlternatesView();
 
     const importRouteBtn = document.getElementById('importRouteBtn');
+    const selectFlightBtn = document.getElementById('selectFlightBtn');
+    const selectFlightModalBackdrop = document.getElementById('selectFlightModalBackdrop');
+    const closeSelectFlightModalBtn = document.getElementById('closeSelectFlightModalBtn');
+    const flightNumberInput = document.getElementById('flightNumberInput');
+    const flightDateInput = document.getElementById('flightDateInput');
+    const dateTodayBtn = document.getElementById('dateTodayBtn');
+    const dateTomorrowBtn = document.getElementById('dateTomorrowBtn');
+    const getUpcomingFlightsBtn = document.getElementById('getUpcomingFlightsBtn');
+    const upcomingFlightsContainer = document.getElementById('upcomingFlightsContainer');
+    const getRouteByFlightBtn = document.getElementById('getRouteByFlightBtn');
+    const flightRouteLoader = document.getElementById('flightRouteLoader');
+
     const importRouteConfirmModalBackdrop = document.getElementById('importRouteConfirmModalBackdrop');
     const importRoutePreview = document.getElementById('importRoutePreview');
     const importRouteConfirmYesBtn = document.getElementById('importRouteConfirmYesBtn');
@@ -538,14 +558,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const text = await navigator.clipboard.readText();
             const cleaned = cleanRoute(text);
             if (!cleaned) {
-                alert('Буфер обмена пуст или не содержит допустимых символов!');
+                showCustomAlert('Внимание', 'Буфер обмена пуст или не содержит допустимых символов!');
                 return;
             }
             importRoutePreview.textContent = cleaned;
             importRouteConfirmModalBackdrop.classList.add('show');
         } catch (err) {
             console.error('Failed to read clipboard: ', err);
-            alert('Не удалось прочитать буфер обмена. Убедитесь, что вы дали разрешение на доступ к буферу обмена.');
+            showCustomAlert('Ошибка', 'Не удалось прочитать буфер обмена. Убедитесь, что вы дали разрешение на доступ к буферу обмена.');
         }
     });
 
@@ -574,8 +594,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.status === 'success') {
                 departureIcaoInput.value = data.departure || '';
                 arrivalIcaoInput.value = data.arrival || '';
+                
+                // При обычном импорте маршрута (из буфера) тоже перезаписываем запасные
                 if (data.alternates && data.alternates.length > 0) {
-                    alternatesIcaoInput.value = data.alternates.join(' ');
+                    const closedAirports = ["URKA", "UUOB", "UUBP", "UUOO", "UUOK", "UUOL", "URRP", "UKFF"];
+                    const exclude = [departureIcaoInput.value.toUpperCase(), arrivalIcaoInput.value.toUpperCase(), ...closedAirports];
+                    const filteredAlts = data.alternates.filter(a => !exclude.includes(a.toUpperCase()));
+                    alternatesIcaoInput.value = filteredAlts.join(' ');
+                } else {
+                    alternatesIcaoInput.value = '';
                 }
                 
                 renderAlternatesChips();
@@ -588,15 +615,296 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Активируем кнопку сохранения, если данные валидны
                 validateRoute();
             } else {
-                alert('Ошибка: ' + (data.message || 'Не удалось обработать маршрут'));
+                showCustomAlert('Ошибка', data.message || 'Не удалось обработать маршрут');
             }
         } catch (err) {
             console.error('Error processing route:', err);
-            alert('Произошла ошибка при связи с сервером.');
+            showCustomAlert('Ошибка', 'Произошла ошибка при связи с сервером.');
         } finally {
             // Возвращаем кнопки назад
             routeImportLoader.style.display = 'none';
             routeModalButtonGroup.style.display = 'flex';
+        }
+    });
+
+    /* =========================
+       ВЫБОР РЕЙСА (SELECT FLIGHT)
+    ========================= */
+
+    function formatDate(date) {
+        const d = date.getDate().toString().padStart(2, '0');
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        const y = date.getFullYear();
+        return `${d}.${m}.${y}`;
+    }
+
+    function formatDateToISO(date) {
+        const y = date.getUTCFullYear();
+        const m = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+        const d = date.getUTCDate().toString().padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function formatTimeUntil(date) {
+        const now = new Date();
+        const diffMs = date - now;
+        if (diffMs < 0) return 'Уже прошел';
+
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMinutes / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffDays >= 1) {
+            const remainingHours = diffHours % 24;
+            let res = `через ${diffDays} д.`;
+            if (remainingHours > 0) res += ` ${remainingHours} ч.`;
+            return res;
+        } else if (diffHours >= 1) {
+            const remainingMinutes = diffMinutes % 60;
+            let res = `через ${diffHours} ч.`;
+            if (remainingMinutes > 0) res += ` ${remainingMinutes} мин.`;
+            return res;
+        } else {
+            return `через ${diffMinutes} мин.`;
+        }
+    }
+
+    function renderUpcomingFlights() {
+        const flights = JSON.parse(localStorage.getItem('upcomingFlights') || '[]');
+        if (flights.length === 0) {
+            upcomingFlightsContainer.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:10px;">Нет сохраненных данных. Нажмите "Получить будущие рейсы"</div>';
+            return;
+        }
+        
+        upcomingFlightsContainer.innerHTML = '';
+        flights.forEach(f => {
+            const item = document.createElement('div');
+            item.className = 'upcoming-flight-item';
+            
+            const dateObj = new Date(f.departure_utc + 'Z'); 
+            
+            // Используем UTC методы для корректного отображения даты вылета по UTC
+            const d = dateObj.getUTCDate().toString().padStart(2, '0');
+            const m = (dateObj.getUTCMonth() + 1).toString().padStart(2, '0');
+            const y = dateObj.getUTCFullYear();
+            const dateStr = `${d}.${m}.${y}`;
+            
+            const timeStr = dateObj.getUTCHours().toString().padStart(2, '0') + ':' + dateObj.getUTCMinutes().toString().padStart(2, '0');
+            const timeUntilStr = formatTimeUntil(dateObj);
+
+            item.innerHTML = `
+                <div class="flight-info-main">
+                    <span class="flight-number-badge">${f.number}</span>
+                    <span class="flight-route-badge">${f.departure_icao} ➔ ${f.arrival_icao}</span>
+                </div>
+                <div class="flight-time-badge">
+                    ${dateStr} ${timeStr} UTC<br>
+                    <span class="time-until">${timeUntilStr}</span>
+                </div>
+            `;
+            
+            // Проверяем, не выбран ли этот рейс в полях ввода
+            const currentNum = flightNumberInput.value.trim();
+            const currentDate = flightDateInput.value;
+            // f.number может быть "SU1234", а в поле ввода "1234"
+            const flightNumOnly = f.number.replace(/^SU/i, '');
+            
+            if (currentNum === flightNumOnly && currentDate === f.departure_utc.split('T')[0]) {
+                item.classList.add('selected');
+            }
+
+            item.addEventListener('click', () => {
+                flightNumberInput.value = f.number.replace(/^SU/i, '');
+                flightDateInput.value = f.departure_utc.split('T')[0];
+                document.querySelectorAll('.upcoming-flight-item').forEach(el => el.classList.remove('selected'));
+                item.classList.add('selected');
+            });
+            
+            upcomingFlightsContainer.appendChild(item);
+        });
+    }
+
+    selectFlightBtn.addEventListener('click', () => {
+        const now = new Date();
+        flightDateInput.value = formatDateToISO(now);
+        selectFlightModalBackdrop.classList.add('show');
+        renderUpcomingFlights();
+    });
+
+    closeSelectFlightModalBtn.addEventListener('click', () => {
+        selectFlightModalBackdrop.classList.remove('show');
+    });
+
+    function syncFlightSelection() {
+        const currentNum = flightNumberInput.value.trim();
+        const currentDate = flightDateInput.value;
+        const flights = JSON.parse(localStorage.getItem('upcomingFlights') || '[]');
+        
+        document.querySelectorAll('.upcoming-flight-item').forEach((item, idx) => {
+            const f = flights[idx];
+            if (f) {
+                const flightNumOnly = f.number.replace(/^SU/i, '');
+                if (flightNumOnly === currentNum && f.departure_utc.split('T')[0] === currentDate) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            }
+        });
+    }
+
+    flightNumberInput.addEventListener('input', (e) => {
+        // Оставляем только цифры
+        e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 4);
+        syncFlightSelection();
+    });
+
+    flightDateInput.addEventListener('change', () => {
+        syncFlightSelection();
+    });
+
+    dateTodayBtn.addEventListener('click', () => {
+        const now = new Date();
+        flightDateInput.value = formatDateToISO(now);
+        syncFlightSelection();
+    });
+
+    dateTomorrowBtn.addEventListener('click', () => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        flightDateInput.value = formatDateToISO(tomorrow);
+        syncFlightSelection();
+    });
+
+    getUpcomingFlightsBtn.addEventListener('click', async () => {
+        const uid = getGamcUID();
+        getUpcomingFlightsBtn.disabled = true;
+        upcomingFlightsContainer.innerHTML = '<div style="text-align:center; padding:10px;"><div class="neuro-loader" style="margin:0 auto 10px;"></div>Загрузка...</div>';
+        
+        try {
+            const resp = await fetch(`https://myapihelper.na4u.ru/gamc_app/get_upcoming_flights.php?uid=${uid}`);
+            const json = await resp.json();
+            if (json.success) {
+                localStorage.setItem('upcomingFlights', JSON.stringify(json.data));
+                renderUpcomingFlights();
+            } else {
+                upcomingFlightsContainer.innerHTML = `<div style="color:var(--col-red); padding:10px;">Ошибка: ${json.error}</div>`;
+            }
+        } catch (e) {
+            upcomingFlightsContainer.innerHTML = `<div style="color:var(--col-red); padding:10px;">Ошибка сети</div>`;
+        } finally {
+            getUpcomingFlightsBtn.disabled = false;
+        }
+    });
+
+    async function handleFlightDataImport(ofpData) {
+        selectFlightModalBackdrop.classList.remove('show');
+        routeModalButtonGroup.style.display = 'none';
+        routeImportLoader.style.display = 'block';
+
+        try {
+            const routeStr = cleanRoute(ofpData.route);
+            const response = await fetch(`https://myapihelper.na4u.ru/gamc_app/process_route.php?route=${encodeURIComponent(routeStr)}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const dep = data.departure || ofpData.departure_icao || '';
+                const arr = data.arrival || ofpData.arrival_icao || '';
+                departureIcaoInput.value = dep;
+                arrivalIcaoInput.value = arr;
+                
+                // Объединяем запасные из process_route и get_ofp_data
+                let altsFromRoute = data.alternates || [];
+                let altsFromOfp = ofpData.alternates || [];
+                
+                // get_ofp_data в конец
+                let combinedAlts = [...altsFromRoute, ...altsFromOfp];
+                
+                // Убираем дубликаты, приводим к верхнему регистру
+                combinedAlts = combinedAlts.map(a => a.toUpperCase().trim());
+                let uniqueAlts = [...new Set(combinedAlts)];
+                
+                // Убираем аэродромы вылета и назначения, а также закрытые аэродромы
+                const closedAirports = ["URKA", "UUOB", "UUBP", "UUOO", "UUOK", "UUOL", "URRP", "UKFF"];
+                const exclude = [dep.toUpperCase(), arr.toUpperCase(), ...closedAirports];
+                uniqueAlts = uniqueAlts.filter(a => a && !exclude.includes(a));
+                
+                alternatesIcaoInput.value = uniqueAlts.join(' ');
+                
+                renderAlternatesChips();
+                if (data.points) importedRouteCoords = data.points;
+                validateRoute();
+            } else {
+                showCustomAlert('Ошибка', data.message || 'Не удалось обработать маршрут');
+            }
+        } catch (err) {
+            console.error('Error processing route:', err);
+            showCustomAlert('Ошибка', 'Произошла ошибка при связи с сервером.');
+        } finally {
+            routeImportLoader.style.display = 'none';
+            routeModalButtonGroup.style.display = 'flex';
+        }
+    }
+
+    getRouteByFlightBtn.addEventListener('click', async () => {
+        const flightNum = flightNumberInput.value.trim();
+        const dateStr = flightDateInput.value.trim();
+        const uid = getGamcUID();
+
+        if (!flightNum || !dateStr) {
+            showCustomAlert('Внимание', 'Введите номер рейса и дату!');
+            return;
+        }
+
+        getRouteByFlightBtn.style.display = 'none';
+        flightRouteLoader.style.display = 'block';
+
+        try {
+            const fNumOnly = flightNum.replace('SU', '');
+            const url = `https://myapihelper.na4u.ru/gamc_app/get_ofp_data.php?uid=${uid}&flight_number=${fNumOnly}&date_utc=${dateStr}`;
+            const resp = await fetch(url);
+            const json = await resp.json();
+
+            if (json.success) {
+                const data = json.data;
+                const alternatesHtml = data.alternates.map(alt => `<span class="import-alternate-badge">${alt}</span>`).join('');
+                const confirmMsg = `
+                    <div style="text-align: left;">
+                        <div style="margin-bottom: 8px; text-align: center; font-weight: 600; font-size: 1.1rem;">Импортировать этот маршрут?</div>
+                        <div style="font-weight: 600; margin-bottom: 2px; color: var(--text-secondary); font-size: 0.75rem; letter-spacing: 0.05em;">МАРШРУТ:</div>
+                        <div class="import-preview-box" style="margin-bottom: 8px;">${data.route}</div>
+                        <div style="font-weight: 600; margin-bottom: 2px; color: var(--text-secondary); font-size: 0.75rem; letter-spacing: 0.05em;">ЗАПАСНЫЕ:</div>
+                        <div class="import-alternates-list">${alternatesHtml || '—'}</div>
+                    </div>
+                `;
+                showConfirmModal('Рейс найден', confirmMsg, () => {
+                    handleFlightDataImport(data);
+                });
+            } else {
+                if (json.error === 'Flight not found') {
+                    const errorMsg = `
+                        <div style="text-align: center; padding: 5px 0;">
+                            <i class="fa-solid fa-plane-slash" style="font-size: 2.5rem; color: var(--col-red); margin-bottom: 10px; display: inline-block;"></i>
+                            <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 6px;">Рейс не найден</div>
+                            <div style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4;">
+                                Проверьте правильность номера рейса и даты вылета.<br>
+                                OFP может быть еще не сформирован.
+                            </div>
+                        </div>
+                    `;
+                    showCustomAlert('Внимание', errorMsg);
+                } else {
+                    showCustomAlert('Ошибка', json.error);
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            showCustomAlert('Ошибка', 'Ошибка при получении данных OFP');
+        } finally {
+            flightRouteLoader.style.display = 'none';
+            getRouteByFlightBtn.style.display = 'block';
         }
     });
 
@@ -925,7 +1233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     savePasswordBtn.addEventListener('click', () => {
         const pwd = modalPassword.value.trim();
         if (!pwd) {
-            alert('Пароль не может быть пустым');
+            showCustomAlert('Ошибка', 'Пароль не может быть пустым');
             return;
         }
         localStorage.setItem(PASSWORD_KEY, pwd);
@@ -968,8 +1276,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isNaN(currentLat) || isNaN(currentLon)) return '';
 
         // Используем airportsList, который гарантированно является массивом
+        const closedAirports = ["URKA", "UUOB", "UUBP", "UUOO", "UUOK", "UUOL", "URRP", "UKFF"];
         const nearby = airportsList
-            .filter(ap => ap.icao !== icao && ap.latitude != null && ap.longitude != null)
+            .filter(ap => ap.icao !== icao && ap.latitude != null && ap.longitude != null && !closedAirports.includes(ap.icao))
             .map(ap => {
                 const lat = parseFloat(ap.latitude);
                 const lon = parseFloat(ap.longitude);
@@ -977,8 +1286,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const distKm = computeDistance(currentLat, currentLon, lat, lon);
                 const distNm = distKm / 1.852;
                 
-                // Расчет времени полета: T (min) ≈ DIST / 6.0 + 20
-                const totalMinutes = Math.round(distNm / 6.0 + 20);
+                // Расчет времени полета: T (min) ≈ DIST / 6.0 + 10
+                const totalMinutes = Math.round(distNm / 6.0 + 10);
                 const hours = Math.floor(totalMinutes / 60);
                 const minutes = totalMinutes % 60;
                 
@@ -989,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     timeStr = `~${minutes} мин`;
                 }
 
-                return { icao: ap.icao, distNm: Math.round(distNm), timeStr };
+                return { icao: ap.icao, distNm: Math.round(distNm), timeStr, totalMinutes };
             })
             .filter(item => item !== null)
             .sort((a, b) => a.distNm - b.distNm)
@@ -997,23 +1306,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (nearby.length === 0) return '';
 
-        return `
+        // Группировка по времени
+        const groups = {
+            priority: nearby.filter(ap => ap.totalMinutes < 60),
+            medium: nearby.filter(ap => ap.totalMinutes >= 60 && ap.totalMinutes <= 90),
+            others: nearby.filter(ap => ap.totalMinutes > 90)
+        };
+
+        let html = `
             <div class="nearby-airports-title">Ближайшие аэродромы</div>
-            <div class="nearby-airports">
-                ${nearby.map(ap => `
-                    <div class="nearby-item">
-                        <button class="nearby-airport-btn" data-icao="${ap.icao}" onclick="event.stopPropagation(); window.previewNearbyAirport('${ap.icao}')">
-                            <span class="nearby-icao">${ap.icao}</span>
-                        </button>
-                        <div class="nearby-info">
-                            <div class="nearby-dist">${ap.distNm} NM</div>
-                            <div class="nearby-time">${ap.timeStr}</div>
-                        </div>
+        `;
+
+        if (groups.priority.length > 0) {
+            html += `
+                <div class="nearby-airports-group priority">
+                    <div class="nearby-group-title">ПРИОРИТЕТНЫЕ (&lt; 1 ч)</div>
+                    <div class="nearby-airports">
+                        ${groups.priority.map(ap => this.renderNearbyItemHtml(ap)).join('')}
                     </div>
-                `).join('')}
+                </div>
+            `;
+        }
+
+        if (groups.medium.length > 0) {
+            html += `
+                <div class="nearby-airports-group medium">
+                    <div class="nearby-group-title">ОТ 1 ч ДО 1 ч 30 мин</div>
+                    <div class="nearby-airports">
+                        ${groups.medium.map(ap => this.renderNearbyItemHtml(ap)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        if (groups.others.length > 0) {
+            html += `
+                <div class="nearby-airports-group others">
+                    <div class="nearby-group-title">БОЛЕЕ 1 ч 30 мин</div>
+                    <div class="nearby-airports">
+                        ${groups.others.map(ap => this.renderNearbyItemHtml(ap)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        return html;
+    }
+
+    window.renderNearbyItemHtml = function(ap) {
+        return `
+            <div class="nearby-item">
+                <button class="nearby-airport-btn" data-icao="${ap.icao}" onclick="event.stopPropagation(); window.previewNearbyAirport('${ap.icao}')">
+                    <span class="nearby-icao">${ap.icao}</span>
+                </button>
+                <div class="nearby-info">
+                    <div class="nearby-dist">${ap.distNm} NM</div>
+                    <div class="nearby-time">${ap.timeStr}</div>
+                </div>
             </div>
         `;
-    }
+    };
 
     window.previewNearbyAirport = function(icao) {
         const previewContainer = document.getElementById('nearbyAirportPreview');
@@ -1184,7 +1536,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!icao) {
-            alert('Введите ICAO!');
+            showCustomAlert('Внимание', 'Введите ICAO!');
             return;
         }
 
@@ -2204,15 +2556,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showOfflineAlert() {
-        confirmModalTitle.textContent = 'Оффлайн режим включен';
-        confirmModalMessage.textContent = 'Отключите оффлайн режим для обновления';
+        showCustomAlert('Оффлайн режим включен', 'Отключите оффлайн режим для обновления');
+    }
+
+    /**
+     * Показывает кастомное уведомление (замена системному alert)
+     */
+    function showCustomAlert(title, message) {
+        confirmModalTitle.textContent = title;
+        confirmModalMessage.innerHTML = message.replace(/\n/g, '<br>');
         confirmModalExtra.style.display = 'none';
 
-        // Спрячем кнопку "Да" полностью
-        confirmYesBtn.style.display = 'none';
+        // Спрячем кнопку "Нет" полностью
+        confirmNoBtn.style.display = 'none';
 
-        // Заменим текст второй кнопки на "Закрыть"
-        confirmNoBtn.textContent = 'Закрыть';
+        // Настроим кнопку "Да" как "ОК"
+        confirmYesBtn.textContent = 'ОК';
+        confirmYesBtn.onclick = () => {
+            hideConfirmModal();
+        };
 
         // Показываем модалку
         confirmModalBackdrop.classList.add('show');
@@ -2226,10 +2588,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Восстанавливаем кнопки
         confirmYesBtn.style.display = '';
-        confirmYesBtn.onclick = null; // сбросим обработчик, чтобы не мешалось
+        confirmYesBtn.textContent = 'Да';
+        confirmYesBtn.onclick = null;
 
+        confirmNoBtn.style.display = '';
         confirmNoBtn.textContent = 'Нет';
-        // Можно сбрасывать и стили backgroundColor, если вы их меняли вручную
         confirmNoBtn.style.backgroundColor = '';
         confirmYesBtn.style.backgroundColor = '';
     }
@@ -2963,8 +3326,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function showAddRouteModal() {
         if (routeSelect.value === 'temp') {
             importRouteBtn.style.display = 'inline-block';
+            if (getGamcUID() === 'LEV737') {
+                selectFlightBtn.style.display = 'inline-block';
+            } else {
+                selectFlightBtn.style.display = 'none';
+            }
         } else {
             importRouteBtn.style.display = 'none';
+            selectFlightBtn.style.display = 'none';
         }
         renderAlternatesChips();
         addRouteModalBackdrop.classList.add('show');
@@ -2973,6 +3342,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideAddRouteModal() {
         addRouteModalBackdrop.classList.remove('show');
         importRouteBtn.style.display = 'none';
+        selectFlightBtn.style.display = 'none';
         // Включить поля назад:
         departureIcaoInput.disabled = false;
         arrivalIcaoInput.disabled = false;
@@ -2993,7 +3363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const arr = arrivalIcaoInput.value.trim().toUpperCase();
 
         if (dep.length !== 4 || arr.length !== 4) {
-            alert('Вылет и Назначение должны содержать по 4 латинских буквы!');
+            showCustomAlert('Внимание', 'Вылет и Назначение должны содержать по 4 латинских буквы!');
             return;
         }
 
@@ -3933,7 +4303,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allAerodromes = cleanList(allAerodromes);
 
         if (allAerodromes.length === 0) {
-            alert('Нет сохранённых аэродромов для обновления!');
+            showCustomAlert('Внимание', 'Нет сохранённых аэродромов для обновления!');
             return;
         }
 
@@ -4181,7 +4551,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 editGamcUidBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
                 isEditingGamcUid = false;
             } else {
-                alert('Введите корректный шестизначный код (только заглавные латинские буквы и цифры)');
+                showCustomAlert('Ошибка', 'Введите корректный шестизначный код (только заглавные латинские буквы и цифры)');
             }
         }
     });

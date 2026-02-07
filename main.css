@@ -60,6 +60,8 @@
     --col-airspace: #94a3b8;
 
     --star-color: #f59e0b;
+    --badge-yellow-bg: #f1c40f;
+    --badge-text-color: #ffffff;
 
     /* Дизайн-токены */
     --radius-sm: 8px;
@@ -204,6 +206,7 @@
         --col-airspace: #94a3b8;
 
         --star-color: #fbbf24;
+        --badge-yellow-bg: #d4ac0d;
         --selected-border-color: #ffffff;
     }
 }
@@ -269,6 +272,11 @@ b, strong {
 
 .badge-red {
     background-color: var(--badge-red-bg);
+    color: #ffffff;
+}
+
+.badge-yellow {
+    background-color: var(--badge-yellow-bg);
     color: #ffffff;
 }
 
@@ -581,6 +589,21 @@ button:disabled {
     cursor: pointer;
     transition: transform 0.1s;
     user-select: none;
+}
+
+/* Выделение первоначальных OFP-запасных — аккуратное подчёркивание,
+   не конфликтует с раскраской по погоде */
+#historyContainer button.is-ofp span.icao-text {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+
+.alternate-chip.is-ofp {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 3px;
 }
 
 .alternate-chip:active {

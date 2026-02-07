@@ -44,7 +44,7 @@ self.addEventListener('fetch', event => {
   const { request } = event;
 
   // Не кэшировать запросы к API
-  if (request.url.startsWith('https://myapihelper.na4u.ru/gamc_app/api.php')) {
+  if (request.url.startsWith('https://myapihelper.na4u.ru')) {
       event.respondWith(
           fetch(request)
               .catch(() => new Response('Ошибка сети', { status: 500 }))

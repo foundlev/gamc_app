@@ -439,6 +439,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderAlternatesChips() {
         const text = alternatesIcaoInput.value.trim().toUpperCase();
         const codes = text ? text.split(/\s+/) : [];
+
+        // Загружаем список первоначальных OFP-запасных, чтобы визуально выделить их
+        let ofpAlts = [];
+        try {
+            ofpAlts = JSON.parse(localStorage.getItem('ofpAlternates') || '[]');
+        } catch (_) {
+            ofpAlts = [];
+        }
+        if (!Array.isArray(ofpAlts)) ofpAlts = [];
+        ofpAlts = ofpAlts.map(a => String(a).toUpperCase().trim());
         
         // Очищаем контейнер, но оставляем инпут
         const existingChips = alternatesChipsContainer.querySelectorAll('.alternate-chip');
@@ -447,8 +457,10 @@ document.addEventListener('DOMContentLoaded', () => {
         codes.forEach(code => {
             if (code.length === 0) return;
             const chip = document.createElement('div');
-            chip.className = 'alternate-chip';
+            const isOfp = ofpAlts.includes(code);
+            chip.className = 'alternate-chip' + (isOfp ? ' is-ofp' : '');
             chip.innerHTML = `${code}`;
+            if (isOfp) chip.title = 'Из OFP';
             chip.onclick = () => {
                 removeAlternateCode(code);
             };
@@ -830,6 +842,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const closedAirports = ["URKA", "UUOB", "UUBP", "UUOO", "UUOK", "UUOL", "URRP", "UKFF"];
                 const exclude = [dep.toUpperCase(), arr.toUpperCase(), ...closedAirports];
                 uniqueAlts = uniqueAlts.filter(a => a && !exclude.includes(a));
+
+                // Сохраняем первоначальные OFP-запасные (без вылета/назначения/закрытых)
+                let ofpInitial = (ofpData.alternates || [])
+                    .map(a => String(a).toUpperCase().trim())
+                    .filter(a => a && !exclude.includes(a));
+                ofpInitial = [...new Set(ofpInitial)];
+                try {
+                    localStorage.setItem('ofpAlternates', JSON.stringify(ofpInitial));
+                } catch (e) {
+                    console.warn('Не удалось сохранить ofpAlternates в localStorage', e);
+                }
                 
                 alternatesIcaoInput.value = uniqueAlts.join(' ');
                 
@@ -1746,6 +1769,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 removeTimeBadgeContainerBottomGap();
             }
 
+            // --- Плашка Избранное (в самом начале Row2) ---
+            if (shouldUpdateUI && icao && icao.length === 4) {
+                const favBadge = document.createElement('div');
+                favBadge.className = 'time-badge content-clickable badge-default';
+                favBadge.id = 'toggleFavoriteBtn';
+                
+                let ofpAlts = [];
+                try {
+                    ofpAlts = JSON.parse(localStorage.getItem('ofpAlternates') || '[]');
+                } catch (_) {}
+                const isFav = ofpAlts.includes(icao.toUpperCase());
+                
+                favBadge.innerHTML = `<div class="badge-main"><i class="fa-${isFav ? 'solid' : 'regular'} fa-star"></i></div>`;
+                favBadge.title = isFav ? 'Удалить из избранного' : 'Добавить в избранное';
+                
+                favBadge.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavoriteIcao(icao);
+                });
+                
+                timeBadgeContainerRow2.appendChild(favBadge);
+            }
+
             const nowUTC = new Date();
             const hhUTC = String(nowUTC.getUTCHours()).padStart(2, '0');
             const mmUTC = String(nowUTC.getUTCMinutes()).padStart(2, '0');
@@ -2049,6 +2095,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             btn.classList.remove('has-maintenance');
+        }
+
+        // Подчёркивание избранных (OFP) аэродромов
+        let ofpAlts = [];
+        try {
+            ofpAlts = JSON.parse(localStorage.getItem('ofpAlternates') || '[]');
+        } catch (_) {}
+        if (Array.isArray(ofpAlts) && ofpAlts.includes(icao.toUpperCase())) {
+            btn.classList.add('is-ofp');
+        } else {
+            btn.classList.remove('is-ofp');
         }
 
         const colObj = icaoColors[icao];
@@ -2446,13 +2503,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function toggleFavoriteIcao(icao) {
+        icao = icao.toUpperCase();
+        let ofpAlts = [];
+        try {
+            ofpAlts = JSON.parse(localStorage.getItem('ofpAlternates') || '[]');
+        } catch (_) {}
+        
+        const isNowFav = !ofpAlts.includes(icao);
+        if (!isNowFav) {
+            ofpAlts = ofpAlts.filter(a => a !== icao);
+        } else {
+            ofpAlts.push(icao);
+        }
+        
+        localStorage.setItem('ofpAlternates', JSON.stringify(ofpAlts));
+        
+        // Обновляем кнопку-звездочку, если она есть на экране
+        const favBtn = document.getElementById('toggleFavoriteBtn');
+        if (favBtn && icao === nowIcao) {
+            const icon = favBtn.querySelector('i');
+            if (icon) {
+                icon.className = `fa-${isNowFav ? 'solid' : 'regular'} fa-star`;
+            }
+            favBtn.title = isNowFav ? 'Удалить из избранного' : 'Добавить в избранное';
+        }
+        
+        // Обновляем подчёркивания во всех видимых плашках
+        updateAllPlacards();
+
+        // Если открыт маршрут, в котором есть этот аэродром, подчёркивание уже обновилось через updateAllPlacards.
+        // Но на всякий случай, если структура renderRouteAerodromes специфична:
+        // renderSelectedRoute(); // Но это может сбросить вид, поэтому лучше просто updateAllPlacards()
+    }
+
     function renderHistory() {
         let history = JSON.parse(localStorage.getItem(ICAO_HISTORY_KEY) || '[]');
         historyContainer.innerHTML = '';
 
         history.forEach(icao => {
             const btn = document.createElement('button');
-            btn.textContent = icao;
+            btn.innerHTML = `<span class="icao-text">${icao}</span>`;
 
             // Сначала применяем общие стили (включая иконку техобслуживания)
             applyIcaoButtonColors(icao, btn);
@@ -3653,16 +3744,40 @@ document.addEventListener('DOMContentLoaded', () => {
         historyContainer.innerHTML = '';
         if (aerodromes.length === 0) return;
 
+        // Загружаем список первоначальных OFP-запасных
+        let ofpAlts = [];
+        try {
+            ofpAlts = JSON.parse(localStorage.getItem('ofpAlternates') || '[]');
+        } catch (_) {}
+        if (!Array.isArray(ofpAlts)) ofpAlts = [];
+        ofpAlts = ofpAlts.map(a => String(a).toUpperCase().trim());
+
+        function createAerodromeButton(icao, iconHtml = '') {
+            const btn = document.createElement('button');
+            const isOfp = ofpAlts.includes(icao.toUpperCase());
+            if (isOfp) {
+                btn.classList.add('is-ofp');
+            }
+
+            let content = '';
+            if (iconHtml) {
+                content += iconHtml + ' ';
+            }
+            content += `<span class="icao-text">${icao}</span>`;
+            
+            btn.innerHTML = content;
+            btn.addEventListener('click', () => {
+                document.getElementById('icao').value = icao;
+                getWeather(icao, false);
+                updateFetchBtn();
+                updateSelectedPlacard();
+            });
+            applyIcaoButtonColors(icao, btn);
+            return btn;
+        }
+
         // Рендерим первый аэродром с иконкой взлёта
-        const firstBtn = document.createElement('button');
-        firstBtn.innerHTML = '<i class="fa-solid fa-plane-departure"></i> ' + aerodromes[0];
-        firstBtn.addEventListener('click', () => {
-            document.getElementById('icao').value = aerodromes[0];
-            getWeather(aerodromes[0], false);
-            updateFetchBtn();
-            updateSelectedPlacard();
-        });
-        applyIcaoButtonColors(aerodromes[0], firstBtn);
+        const firstBtn = createAerodromeButton(aerodromes[0], '<i class="fa-solid fa-plane-departure"></i>');
         historyContainer.appendChild(firstBtn);
 
         // Если аэродромов больше одного, вставляем разделитель после первого
@@ -3675,15 +3790,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Если аэродромов больше двух, рендерим средние аэродромы (без иконок)
         if (aerodromes.length > 2) {
             for (let i = 1; i < aerodromes.length - 1; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = aerodromes[i];
-                btn.addEventListener('click', () => {
-                    document.getElementById('icao').value = aerodromes[i];
-                    getWeather(aerodromes[i], false);
-                    updateFetchBtn();
-                    updateSelectedPlacard();
-                });
-                applyIcaoButtonColors(aerodromes[i], btn);
+                const btn = createAerodromeButton(aerodromes[i]);
                 historyContainer.appendChild(btn);
             }
         }
@@ -3695,15 +3802,7 @@ document.addEventListener('DOMContentLoaded', () => {
             historyContainer.appendChild(sep2);
 
             // Рендерим последний аэродром с иконкой посадки
-            const lastBtn = document.createElement('button');
-            lastBtn.innerHTML = '<i class="fa-solid fa-plane-arrival"></i> ' + aerodromes[aerodromes.length - 1];
-            lastBtn.addEventListener('click', () => {
-                document.getElementById('icao').value = aerodromes[aerodromes.length - 1];
-                getWeather(aerodromes[aerodromes.length - 1], false);
-                updateFetchBtn();
-                updateSelectedPlacard();
-            });
-            applyIcaoButtonColors(aerodromes[aerodromes.length - 1], lastBtn);
+            const lastBtn = createAerodromeButton(aerodromes[aerodromes.length - 1], '<i class="fa-solid fa-plane-arrival"></i>');
             historyContainer.appendChild(lastBtn);
         }
 

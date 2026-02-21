@@ -66,6 +66,32 @@
 
     <div class="app-wrapper">
     <main>
+        <div class="announcement-banner collapsed" id="announcementBanner">
+            <div class="announcement-content">
+                <i class="fa-solid fa-circle-info announcement-icon"></i>
+                <div class="announcement-text">
+                    <div class="announcement-short">
+                        <span class="short-desktop-tablet"><strong>Проект переведён в статус закрытого.</strong></span>
+                        <span class="short-mobile"><strong>Важное объявление.</strong></span>
+                        <button class="announcement-toggle-btn" id="toggleAnnouncementBtn">Нажмите для прочтения</button>
+                    </div>
+                    <div class="announcement-full">
+                        <div class="announcement-full-header">
+                            <strong>Внимание:</strong>
+                            <button class="announcement-close-btn" id="closeAnnouncementBtn" title="Свернуть">
+                                <i class="fa-solid fa-chevron-up"></i>
+                            </button>
+                        </div>
+                        <p>
+                            Поддержка публичной версии приложения <strong>Weather Helper</strong> завершена.
+                            Проект становится закрытым, поскольку одновременная поддержка публичной и закрытой версии оказалась технически сложной.
+                            Текущая версия приложения продолжит работать в существующем виде, однако новые обновления и изменения выпускаться не будут.
+                            Спасибо всем, кто пользовался приложением.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="input-group">
             <div class="input-group icao-input-wrapper">
                 <div class="input-group-row">
@@ -138,7 +164,7 @@
                 <i class="fa-solid fa-plane-circle-check fa-3x" style="color: var(--accent-color);"></i>
                 <div class="info-title-group">
                     <h2>AeroDesk App</h2>
-                    <span id="changelogBtn" class="version-badge">v2.0.6 Beta</span>
+                    <span id="changelogBtn" class="version-badge">v2.0.7</span>
                 </div>
             </div>
             

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gamc-app-v8';
+const CACHE_NAME = 'gamc-app-v10';
 
 const PRECACHE = [
   './',                     // fallback для навигаций

@@ -3427,7 +3427,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000);
             
-            const resp = await fetch('https://aerodesk.na4u.ru/check.php', { 
+            const resp = await fetch('https://myapihelper.na4u.ru/gamc_app/check.php', {
                 cache: 'no-store',
                 signal: controller.signal 
             });
@@ -4959,4 +4959,21 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
     setInterval(updateBadgesTimeAndColors, 15000);
+
+    // Toggle announcement banner
+    const toggleAnnouncementBtn = document.getElementById('toggleAnnouncementBtn');
+    const closeAnnouncementBtn = document.getElementById('closeAnnouncementBtn');
+    const announcementBanner = document.getElementById('announcementBanner');
+
+    if (toggleAnnouncementBtn && announcementBanner) {
+        toggleAnnouncementBtn.addEventListener('click', () => {
+            announcementBanner.classList.remove('collapsed');
+        });
+    }
+
+    if (closeAnnouncementBtn && announcementBanner) {
+        closeAnnouncementBtn.addEventListener('click', () => {
+            announcementBanner.classList.add('collapsed');
+        });
+    }
 });

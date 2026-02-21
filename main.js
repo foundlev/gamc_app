@@ -5,6 +5,12 @@ let autoGoOffline = localStorage.getItem('autoGoOffline') !== null ?
 let doHighlight = JSON.parse(localStorage.getItem('doHighlight')) || false;
 let doMarkBagde = JSON.parse(localStorage.getItem('doMarkBagde')) || false;
 let canShowAirportInfo = JSON.parse(localStorage.getItem('canShowAirportInfo')) || false;
+let checkServerConn = JSON.parse(localStorage.getItem('checkServerConn')) || false;
+let serverCheckInterval = parseInt(localStorage.getItem('serverCheckInterval')) || 30;
+let connectivityInterval = null;
+let serverFailCount = 0;
+let lastServerStatus = null; // 'ok', 'error', 'checking'
+let lastServerCheckTime = 0;
 
 // Ключи для localStorage
 const PASSWORD_KEY = 'gamcPassword';
@@ -457,7 +463,8 @@ document.addEventListener('DOMContentLoaded', () => {
         codes.forEach(code => {
             if (code.length === 0) return;
             const chip = document.createElement('div');
-            const isOfp = ofpAlts.includes(code);
+            const isTempRoute = (document.getElementById('routeSelect')?.value === 'temp');
+            const isOfp = isTempRoute && ofpAlts.includes(code);
             chip.className = 'alternate-chip' + (isOfp ? ' is-ofp' : '');
             chip.innerHTML = `${code}`;
             if (isOfp) chip.title = 'Из OFP';
@@ -606,6 +613,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.status === 'success') {
                 departureIcaoInput.value = data.departure || '';
                 arrivalIcaoInput.value = data.arrival || '';
+
+                // Очищаем старые OFP-запасные перед добавлением новых
+                localStorage.removeItem('ofpAlternates');
+
+                // Сохраняем текстовый маршрут
+                const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+                tempRoute.route = routeStr;
+                localStorage.setItem('tempRoute', JSON.stringify(tempRoute));
+
+                const routeTextContent = document.getElementById('routeTextContent');
+                const routeTextRow = document.getElementById('routeTextRow');
+                if (routeTextContent && routeTextRow) {
+                    routeTextContent.textContent = routeStr;
+                    routeTextRow.style.display = 'block';
+                }
                 
                 // При обычном импорте маршрута (из буфера) тоже перезаписываем запасные
                 if (data.alternates && data.alternates.length > 0) {
@@ -613,6 +635,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const exclude = [departureIcaoInput.value.toUpperCase(), arrivalIcaoInput.value.toUpperCase(), ...closedAirports];
                     const filteredAlts = data.alternates.filter(a => !exclude.includes(a.toUpperCase()));
                     alternatesIcaoInput.value = filteredAlts.join(' ');
+                    
+                    // Сохраняем новые OFP-запасные для подчеркивания
+                    const uniqueAlts = [...new Set(filteredAlts.map(a => a.toUpperCase().trim()))];
+                    localStorage.setItem('ofpAlternates', JSON.stringify(uniqueAlts));
                 } else {
                     alternatesIcaoInput.value = '';
                 }
@@ -791,7 +817,7 @@ document.addEventListener('DOMContentLoaded', () => {
     getUpcomingFlightsBtn.addEventListener('click', async () => {
         const uid = getGamcUID();
         getUpcomingFlightsBtn.disabled = true;
-        upcomingFlightsContainer.innerHTML = '<div style="text-align:center; padding:10px;"><div class="neuro-loader" style="margin:0 auto 10px;"></div>Загрузка...</div>';
+        upcomingFlightsContainer.innerHTML = '<div style="text-align:center; padding:20px 10px;"><div class="neuro-loader" style="margin:0 auto 15px;"></div><div class="loading-text">Загрузка...</div></div>';
         
         try {
             const resp = await fetch(`https://myapihelper.na4u.ru/gamc_app/get_upcoming_flights.php?uid=${uid}`);
@@ -815,6 +841,9 @@ document.addEventListener('DOMContentLoaded', () => {
         routeImportLoader.style.display = 'block';
 
         try {
+            // Очищаем старые OFP-запасные перед обработкой нового маршрута
+            localStorage.removeItem('ofpAlternates');
+
             const routeStr = cleanRoute(ofpData.route);
             const response = await fetch(`https://myapihelper.na4u.ru/gamc_app/process_route.php?route=${encodeURIComponent(routeStr)}`);
             if (!response.ok) throw new Error('Network response was not ok');
@@ -826,6 +855,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const arr = data.arrival || ofpData.arrival_icao || '';
                 departureIcaoInput.value = dep;
                 arrivalIcaoInput.value = arr;
+                
+                // Сохраняем текстовый маршрут
+                if (ofpData.route) {
+                    const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+                    tempRoute.route = ofpData.route;
+                    localStorage.setItem('tempRoute', JSON.stringify(tempRoute));
+                    
+                    const routeTextContent = document.getElementById('routeTextContent');
+                    const routeTextRow = document.getElementById('routeTextRow');
+                    if (routeTextContent && routeTextRow) {
+                        routeTextContent.textContent = ofpData.route;
+                        routeTextRow.style.display = 'block';
+                    }
+                }
                 
                 // Объединяем запасные из process_route и get_ofp_data
                 let altsFromRoute = data.alternates || [];
@@ -1454,7 +1497,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><b>Название:</b> ${data.geo ? data.geo.join(', ') : '-'}</p>
                     <p><b>ICAO/IATA:</b> ${data.icao}${data.iata ? ' / ' + data.iata : ''}</p>
                     <p><b>Превышение:</b> ${data.elevation} ft</p>
-                    <p><b>Склонение:</b> ${data.declination}°</p>
+                    <p><b>Склонение:</b> ${data.declination > 0 ? '+' : ''}${data.declination}°</p>
                     
                     <hr>
                     <h3>Взлетно-посадочные полосы</h3>
@@ -1473,9 +1516,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             sortedRunways.forEach(rwyKey => {
                 const rwy = data.runways[rwyKey];
+                const formattedHdg = String(rwy.hdg).padStart(3, '0');
                 html += `
                     <div class="runway-detail-item">
-                        <b>ВПП ${rwyKey}</b>: курс ${rwy.hdg}°, ${rwy.xlda} м x ${rwy.width} м
+                        <b>ВПП ${rwyKey}</b>: курс ${formattedHdg}°, ${rwy.xlda} м x ${rwy.width} м
                     </div>
                 `;
             });
@@ -2102,7 +2146,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             ofpAlts = JSON.parse(localStorage.getItem('ofpAlternates') || '[]');
         } catch (_) {}
-        if (Array.isArray(ofpAlts) && ofpAlts.includes(icao.toUpperCase())) {
+        const isTempRoute = (document.getElementById('routeSelect')?.value === 'temp');
+        if (isTempRoute && Array.isArray(ofpAlts) && ofpAlts.includes(icao.toUpperCase())) {
             btn.classList.add('is-ofp');
         } else {
             btn.classList.remove('is-ofp');
@@ -2662,7 +2707,7 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmNoBtn.style.display = 'none';
 
         // Настроим кнопку "Да" как "ОК"
-        confirmYesBtn.textContent = 'ОК';
+        confirmYesBtn.innerHTML = 'ОК';
         confirmYesBtn.onclick = () => {
             hideConfirmModal();
         };
@@ -2679,17 +2724,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Восстанавливаем кнопки
         confirmYesBtn.style.display = '';
-        confirmYesBtn.textContent = 'Да';
+        confirmYesBtn.innerHTML = '<i class="fa-solid fa-check"></i>Да';
         confirmYesBtn.onclick = null;
 
         confirmNoBtn.style.display = '';
-        confirmNoBtn.textContent = 'Нет';
+        confirmNoBtn.innerHTML = '<i class="fa-solid fa-times"></i>Нет';
         confirmNoBtn.style.backgroundColor = '';
         confirmYesBtn.style.backgroundColor = '';
     }
 
     // По клику на кнопку закрытия (крестик) — тоже просто скрываем
     closeConfirmModalBtn.addEventListener('click', hideConfirmModal);
+
+    // Изначально задаем иконки кнопкам подтверждения
+    confirmYesBtn.innerHTML = '<i class="fa-solid fa-check"></i>Да';
+    confirmNoBtn.innerHTML = '<i class="fa-solid fa-times"></i>Нет';
 
     // Или по клику на "Нет"
     confirmNoBtn.addEventListener('click', hideConfirmModal);
@@ -3317,8 +3366,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const reloadBtn = document.getElementById('reloadBtn');
         if (offlineMode) {
             offlineToggleBtn.classList.add('offline');
-            offlineToggleBtn.classList.remove('online');
+            offlineToggleBtn.classList.remove('online', 'warn', 'error', 'checking');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-plane"></i>';
+            offlineToggleBtn.title = 'Оффлайн режим';
             document.getElementById('refreshAllBtn').disabled = true;
             document.getElementById('loadGamcUidBtn').disabled = true;
             document.getElementById('exportGamcUidBtn').disabled = true;
@@ -3327,10 +3377,95 @@ document.addEventListener('DOMContentLoaded', () => {
             offlineToggleBtn.classList.add('online');
             offlineToggleBtn.classList.remove('offline');
             offlineToggleBtn.innerHTML = '<i class="fa-solid fa-signal"></i>';
+            
+            if (checkServerConn) {
+                const now = Date.now();
+                const diff = (now - lastServerCheckTime) / 1000;
+                
+                // Если статус свежий (в пределах интервала), применяем его
+                if (lastServerCheckTime > 0 && diff < serverCheckInterval) {
+                    applyServerStatusUI(lastServerStatus);
+                } else {
+                    // Иначе сбрасываем в "проверку" и запускаем
+                    applyServerStatusUI('checking');
+                    performServerCheck();
+                }
+            } else {
+                offlineToggleBtn.classList.remove('warn', 'error', 'checking');
+                offlineToggleBtn.title = 'Онлайн режим';
+            }
+
             document.getElementById('refreshAllBtn').disabled = false;
             document.getElementById('loadGamcUidBtn').disabled = false;
             document.getElementById('exportGamcUidBtn').disabled = false;
             if (reloadBtn) reloadBtn.style.display = 'flex';
+        }
+    }
+
+    function applyServerStatusUI(status) {
+        if (offlineMode) return;
+        offlineToggleBtn.classList.remove('warn', 'error', 'checking');
+        
+        if (status === 'ok') {
+            offlineToggleBtn.title = 'Онлайн: сервер доступен';
+        } else if (status === 'warn') {
+            offlineToggleBtn.classList.add('warn');
+            offlineToggleBtn.title = 'Онлайн: одна ошибка подключения';
+        } else if (status === 'error') {
+            offlineToggleBtn.classList.add('error');
+            offlineToggleBtn.title = 'Онлайн: сервер НЕДОСТУПЕН';
+        } else if (status === 'checking') {
+            offlineToggleBtn.classList.add('checking');
+            offlineToggleBtn.title = 'Онлайн: проверка связи...';
+        }
+    }
+
+    async function performServerCheck() {
+        if (offlineMode || !checkServerConn) return;
+        
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            
+            const resp = await fetch('https://aerodesk.na4u.ru/check.php', { 
+                cache: 'no-store',
+                signal: controller.signal 
+            });
+            clearTimeout(timeoutId);
+            const text = await resp.text();
+            
+            lastServerCheckTime = Date.now();
+            if (text.trim() === 'OK') {
+                serverFailCount = 0;
+                lastServerStatus = 'ok';
+            } else {
+                serverFailCount++;
+                lastServerStatus = serverFailCount === 1 ? 'warn' : 'error';
+            }
+        } catch (e) {
+            lastServerCheckTime = Date.now();
+            serverFailCount++;
+            lastServerStatus = serverFailCount === 1 ? 'warn' : 'error';
+        }
+        
+        applyServerStatusUI(lastServerStatus);
+    }
+
+    function startConnectivityCheck() {
+        if (connectivityInterval) clearInterval(connectivityInterval);
+        if (!checkServerConn) return;
+
+        connectivityInterval = setInterval(() => {
+            if (!offlineMode) {
+                performServerCheck();
+            }
+        }, serverCheckInterval * 1000);
+    }
+
+    function stopConnectivityCheck() {
+        if (connectivityInterval) {
+            clearInterval(connectivityInterval);
+            connectivityInterval = null;
         }
     }
 
@@ -3384,12 +3519,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const doHighlightCheckbox = document.getElementById('doHighlightCheckbox');
     const showAirportInfoCheckbox = document.getElementById('showAirportInfoCheckbox');
     const doMarkBagdeCheckbox = document.getElementById('doMarkBagdeCheckbox');
+    const checkServerConnCheckbox = document.getElementById('checkServerConnCheckbox');
+    const serverCheckIntervalSelect = document.getElementById('serverCheckIntervalSelect');
+    // const serverCheckIntervalRow = document.getElementById('serverCheckIntervalRow'); // Больше не нужен
 
     // Установить состояние чекбокса при загрузке
     autoOfflineCheckbox.checked = autoGoOffline; // Установить состояние
     doHighlightCheckbox.checked = doHighlight; // Установить состояние
     doMarkBagdeCheckbox.checked = doMarkBagde;
     showAirportInfoCheckbox.checked = canShowAirportInfo;
+    checkServerConnCheckbox.checked = checkServerConn;
+    serverCheckIntervalSelect.value = serverCheckInterval;
+    if (checkServerConn) {
+        serverCheckIntervalSelect.style.display = 'inline-block';
+        startConnectivityCheck();
+    }
+
+    checkServerConnCheckbox.addEventListener('change', () => {
+        checkServerConn = checkServerConnCheckbox.checked;
+        localStorage.setItem('checkServerConn', JSON.stringify(checkServerConn));
+        if (checkServerConn) {
+            serverCheckIntervalSelect.style.display = 'inline-block';
+            startConnectivityCheck();
+            performServerCheck();
+        } else {
+            serverCheckIntervalSelect.style.display = 'none';
+            stopConnectivityCheck();
+            updateOfflineButton();
+        }
+    });
+
+    serverCheckIntervalSelect.addEventListener('change', () => {
+        serverCheckInterval = parseInt(serverCheckIntervalSelect.value);
+        localStorage.setItem('serverCheckInterval', serverCheckInterval);
+        if (checkServerConn) {
+            startConnectivityCheck();
+        }
+    });
 
     // Обработчик изменения чекбокса
     autoOfflineCheckbox.addEventListener('change', () => {
@@ -3415,6 +3581,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function showAddRouteModal() {
+        const routeTextRow = document.getElementById('routeTextRow');
+        const routeTextContent = document.getElementById('routeTextContent');
+
         if (routeSelect.value === 'temp') {
             importRouteBtn.style.display = 'inline-block';
             if (getGamcUID() === 'LEV737') {
@@ -3422,12 +3591,104 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 selectFlightBtn.style.display = 'none';
             }
+
+            const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
+            if (tempRoute.route && routeTextRow && routeTextContent) {
+                routeTextContent.textContent = tempRoute.route;
+                routeTextRow.style.display = 'block';
+            } else if (routeTextRow) {
+                routeTextRow.style.display = 'none';
+            }
         } else {
             importRouteBtn.style.display = 'none';
             selectFlightBtn.style.display = 'none';
+            if (routeTextRow) routeTextRow.style.display = 'none';
         }
         renderAlternatesChips();
         addRouteModalBackdrop.classList.add('show');
+    }
+
+    function getCleanedRouteForCopy(route) {
+        if (!route) return '';
+        let words = route.trim().split(/\s+/);
+        if (words.length === 0) return '';
+
+        // Функция обработки первого и последнего слова
+        const processFirstLast = (word) => {
+            if (word.length > 4) {
+                const first4 = word.substring(0, 4);
+                const fifth = word[4];
+                // Если первые 4 символа - буквы, а 5-й - цифра
+                if (/^[A-Za-z]{4}$/.test(first4) && /^\d$/.test(fifth)) {
+                    return first4;
+                }
+            }
+            return word;
+        };
+
+        // Обработка первого слова
+        words[0] = processFirstLast(words[0]);
+
+        // Обработка последнего слова (если слов больше одного)
+        if (words.length > 1) {
+            words[words.length - 1] = processFirstLast(words[words.length - 1]);
+        }
+
+        // Функция проверки на удаление (для второго и предпоследнего)
+        const shouldRemove = (word) => {
+            // Условие 1: 5 букв + 1-2 цифры + 1 буква
+            if (/^[A-Za-z]{5}\d{1,2}[A-Za-z]$/.test(word)) return true;
+            // Условие 2: 2 буквы + 1-2 цифры + 1 буква
+            if (/^[A-Za-z]{2}\d{1,2}[A-Za-z]$/.test(word)) return true;
+            return false;
+        };
+
+        // Индексы для удаления
+        let indicesToRemove = [];
+
+        // Второе слово (индекс 1)
+        if (words.length >= 3) {
+            if (shouldRemove(words[1])) {
+                indicesToRemove.push(1);
+            }
+        }
+
+        // Предпоследнее слово
+        if (words.length >= 4) {
+            const secondToLastIdx = words.length - 2;
+            if (shouldRemove(words[secondToLastIdx])) {
+                // Избегаем повторного добавления индекса 1, если слов ровно 3 (хотя в этом случае length >= 4 условие не пустит)
+                if (!indicesToRemove.includes(secondToLastIdx)) {
+                    indicesToRemove.push(secondToLastIdx);
+                }
+            }
+        }
+
+        // Удаляем слова с конца, чтобы не сбить индексы
+        indicesToRemove.sort((a, b) => b - a).forEach(idx => {
+            words.splice(idx, 1);
+        });
+
+        return words.join(' ');
+    }
+
+    const copyRouteTextBtn = document.getElementById('copyRouteTextBtn');
+    if (copyRouteTextBtn) {
+        copyRouteTextBtn.addEventListener('click', () => {
+            const content = document.getElementById('routeTextContent').textContent;
+            if (content) {
+                const cleanedContent = getCleanedRouteForCopy(content);
+                navigator.clipboard.writeText(cleanedContent).then(() => {
+                    const originalIcon = copyRouteTextBtn.innerHTML;
+                    copyRouteTextBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    setTimeout(() => {
+                        copyRouteTextBtn.innerHTML = originalIcon;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Could not copy text: ', err);
+                });
+            }
+        });
     }
 
     function hideAddRouteModal() {
@@ -3476,11 +3737,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (routeSelect.value === 'temp') {
+            const currentTemp = JSON.parse(localStorage.getItem('tempRoute') || '{}');
             const newRoute = {
                 departure: dep,
                 arrival: arr,
                 alternates: alternatesList,
-                coords: importedRouteCoords
+                coords: importedRouteCoords,
+                route: currentTemp.route || ''
             };
 
             // Сохраняем временный маршрут в localStorage
@@ -3626,7 +3889,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (routeSelect.value === 'temp') {
             const tempRoute = JSON.parse(localStorage.getItem('tempRoute') || '{}');
             if (tempRoute.departure && tempRoute.arrival) {
-                document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-pen"></i>';
+                document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-sliders"></i>';
             } else {
                 document.getElementById('editRouteBtn').innerHTML = '<i class="fa-solid fa-plus"></i>';
             }
@@ -3672,7 +3935,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (tempRoute.departure && tempRoute.arrival) {
                 const routeAerodromes = [tempRoute.departure, ...(tempRoute.alternates || []), tempRoute.arrival];
                 renderRouteAerodromes(routeAerodromes);
-                editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                editBtn.innerHTML = '<i class="fa-solid fa-sliders"></i>';
                 reverseBtn.hidden = false;
             } else {
                 renderHistory();
@@ -3754,7 +4017,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function createAerodromeButton(icao, iconHtml = '') {
             const btn = document.createElement('button');
-            const isOfp = ofpAlts.includes(icao.toUpperCase());
+            const isTempRoute = (document.getElementById('routeSelect')?.value === 'temp');
+            const isOfp = isTempRoute && ofpAlts.includes(icao.toUpperCase());
             if (isOfp) {
                 btn.classList.add('is-ofp');
             }

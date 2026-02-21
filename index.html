@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Weather Helper</title>
+    <title>AeroDesk</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,8 +14,8 @@
     <meta name="theme-color" content="#f8fafc">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="icon" href="logo.png" sizes="100x100" type="image/png">
-    <link rel="apple-touch-icon" href="logo.png" sizes="100x100" type="image/png">
+    <link rel="icon" href="favicon.svg" sizes="100x100" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="logo.svg" sizes="100x100" type="image/svg+xml">
 </head>
 
 <body>
@@ -137,7 +137,7 @@
             <div class="info-header">
                 <i class="fa-solid fa-plane-circle-check fa-3x" style="color: var(--accent-color);"></i>
                 <div class="info-title-group">
-                    <h2>Weather App</h2>
+                    <h2>AeroDesk App</h2>
                     <span id="changelogBtn" class="version-badge">v2.0.6 Beta</span>
                 </div>
             </div>
@@ -340,6 +340,18 @@
                             <input type="checkbox" id="autoOfflineCheckbox">
                             <span>Автоматически включать режим оффлайн, если нет интернета</span>
                         </label>
+                        <div class="setting-row-inline" id="serverCheckRow">
+                            <label class="custom-checkbox no-margin">
+                                <input type="checkbox" id="checkServerConnCheckbox">
+                                <span>Проверять подключение к серверу</span>
+                            </label>
+                            <select id="serverCheckIntervalSelect" class="small-select" title="Интервал проверки" style="display: none; width: 70px;">
+                                <option value="5">5с</option>
+                                <option value="15">15с</option>
+                                <option value="30" selected>30с</option>
+                                <option value="60">60с</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -354,22 +366,40 @@
             </button>
             <h2>Добавить маршрут</h2>
 
-            <!-- Блок Вылет -->
-            <div style="position: relative;">
-                <label for="departureIcao">
-                    <i class="fa-solid fa-plane-departure"></i>Вылет:
-                </label>
-                <input type="text" id="departureIcao" maxlength="4" placeholder="XXXX" />
-                <ul id="depIcaoSuggestions" class="icao-suggestions"></ul>
+            <!-- Блок Вылет и Назначение в одну строку -->
+            <div class="route-main-row">
+                <div class="icao-field-group">
+                    <label for="departureIcao">
+                        <i class="fa-solid fa-plane-departure"></i>Вылет:
+                    </label>
+                    <div style="position: relative;">
+                        <input type="text" id="departureIcao" maxlength="4" placeholder="XXXX" />
+                        <ul id="depIcaoSuggestions" class="icao-suggestions"></ul>
+                    </div>
+                </div>
+
+                <div class="icao-field-group">
+                    <label for="arrivalIcao">
+                        <i class="fa-solid fa-plane-arrival"></i>Назначение:
+                    </label>
+                    <div style="position: relative;">
+                        <input type="text" id="arrivalIcao" maxlength="4" placeholder="XXXX" />
+                        <ul id="arrIcaoSuggestions" class="icao-suggestions"></ul>
+                    </div>
+                </div>
             </div>
 
-            <!-- Блок Назначение -->
-            <div style="position: relative;">
-                <label for="arrivalIcao">
-                    <i class="fa-solid fa-plane-arrival"></i>Назначение:
-                </label>
-                <input type="text" id="arrivalIcao" maxlength="4" placeholder="XXXX" />
-                <ul id="arrIcaoSuggestions" class="icao-suggestions"></ul>
+            <!-- Блок Маршрут текст (только в режиме автоподбор) -->
+            <div id="routeTextRow" style="display: none; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <label style="margin-bottom: 0;">
+                        <i class="fa-solid fa-route"></i> Маршрут:
+                    </label>
+                    <button id="copyRouteTextBtn" class="icon-button" title="Скопировать текст маршрута">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+                <div id="routeTextContent" class="route-text-display"></div>
             </div>
 
             <!-- Блок Запасные -->
@@ -400,12 +430,13 @@
             </div>
 
             <div class="modal-button-group">
-                <button id="importRouteBtn" style="display: none;">
-                    <i class="fa-solid fa-paste"></i>Вставить маршрут
-                </button>
                 <button id="selectFlightBtn" style="display: none;">
                     <i class="fa-solid fa-cloud-arrow-down"></i>Скачать
                 </button>
+                <button id="importRouteBtn" style="display: none;">
+                    <i class="fa-solid fa-paste"></i>Вставить маршрут
+                </button>
+                <div class="modal-sep-v"></div>
                 <button id="saveRouteBtn" disabled>
                     <i class="fa-solid fa-floppy-disk"></i>Сохранить
                 </button>
@@ -413,8 +444,8 @@
                     <i class="fa-solid fa-trash"></i>Удалить
                 </button>
             </div>
-            <div id="routeImportLoader" style="display: none; margin: 0 auto; text-align: center;">
-                <div class="neuro-loader" style="margin: 0 auto;"></div>
+            <div id="routeImportLoader" style="display: none; margin: 20px auto; text-align: center;">
+                <div class="neuro-loader" style="margin: 0 auto 15px;"></div>
                 <div class="loading-text">Обработка маршрута...</div>
             </div>
         </div>
@@ -458,8 +489,8 @@
                         <!-- Список будущих рейсов -->
                     </div>
 
-                    <div id="flightRouteLoader" style="display: none; margin: 15px auto; text-align: center;">
-                        <div class="neuro-loader" style="margin: 0 auto;"></div>
+                    <div id="flightRouteLoader" style="display: none; margin: 20px auto; text-align: center;">
+                        <div class="neuro-loader" style="margin: 0 auto 15px;"></div>
                         <div class="loading-text">Получение данных OFP...</div>
                     </div>
                 </div>
@@ -481,8 +512,12 @@
                 <h2>Подтвердите маршрут</h2>
                 <div id="importRoutePreview" style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; word-break: break-all; font-family: monospace; max-height: 200px; overflow-y: auto;"></div>
                 <div class="modal-button-group">
-                    <button id="importRouteConfirmYesBtn">Да</button>
-                    <button id="importRouteConfirmNoBtn">Нет</button>
+                    <button id="importRouteConfirmYesBtn" class="confirm-yes-btn">
+                        <i class="fa-solid fa-check"></i>Да
+                    </button>
+                    <button id="importRouteConfirmNoBtn" class="confirm-no-btn">
+                        <i class="fa-solid fa-times"></i>Нет
+                    </button>
                 </div>
             </div>
         </div>

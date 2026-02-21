@@ -5,7 +5,7 @@ const PRECACHE = [
   './index.html',
   './main.css',
   './main.js',
-  './logo.png',
+  './logo.svg',
   './manifest.json',
 
   /* data */
@@ -44,12 +44,12 @@ self.addEventListener('fetch', event => {
   const { request } = event;
 
   // Не кэшировать запросы к API
-  if (request.url.startsWith('https://myapihelper.na4u.ru')) {
-      event.respondWith(
-          fetch(request)
-              .catch(() => new Response('Ошибка сети', { status: 500 }))
-      );
-      return;
+  if (request.url.startsWith('https://myapihelper.na4u.ru') || request.url.startsWith('https://aerodesk.na4u.ru')) {
+    event.respondWith(
+        fetch(request)
+            .catch(() => new Response('Ошибка сети', {status: 500}))
+    );
+    return;
   }
 
   /* 1. Для переходов по страницам всегда отдаём index.html */

@@ -633,6 +633,19 @@ button:disabled {
     opacity: 0.5;
 }
 
+.route-text-display {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    max-height: 120px;
+    overflow-y: auto;
+    color: var(--text-color);
+}
+
 /* =========================
    Плашки времени
 ========================= */
@@ -933,8 +946,48 @@ button:disabled {
     margin-top: 20px;
 }
 
+.route-main-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 480px) {
+    .route-main-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+.icao-field-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.icao-field-group label {
+    margin-bottom: 5px;
+}
+
+.icao-field-group input {
+    width: 100%;
+}
+
+.modal-button-group button, .modal-button-group .modal-sep-v {
+    flex: 0 0 auto;
+}
+
 .modal-button-group button {
     flex: 1;
+}
+
+.modal-sep-v {
+    width: 2px;
+    height: 32px;
+    background-color: #64748b;
+    align-self: center;
+    border-radius: 1px;
+    flex: 0 0 auto !important;
 }
 
 .modal-close-btn {
@@ -970,6 +1023,10 @@ button:disabled {
 #confirmYesBtn,
 #confirmNoBtn {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .color-green {
@@ -1874,6 +1931,18 @@ button:disabled {
     background-color: var(--badge-green-bg);
     color: #fff;
 }
+#offlineToggleBtn.online.warn {
+    background-color: var(--badge-orange-bg);
+    color: #fff;
+}
+#offlineToggleBtn.online.error {
+    background-color: var(--badge-red-bg);
+    color: #fff;
+}
+#offlineToggleBtn.online.checking {
+    background-color: #6c757d;
+    color: #fff;
+}
 #offlineToggleBtn.offline {
     background-color: var(--badge-orange-bg);
     color: #fff;
@@ -1903,7 +1972,7 @@ button:disabled {
     z-index: 3200;
 }
 
-#saveRouteBtn {
+#saveRouteBtn, #confirmYesBtn {
     background-color: var(--badge-green-bg);
     color: white;
 }
@@ -1918,8 +1987,19 @@ button:disabled {
 }
 
 #selectFlightBtn {
-    background-color: var(--accent-color);
+    background-color: #5d6d7e;
     color: white;
+}
+
+
+#importRouteConfirmModalBackdrop .confirm-yes-btn {
+    background-color: var(--badge-green-bg);
+    color: white;
+}
+
+#importRouteConfirmModalBackdrop .confirm-yes-btn i,
+#importRouteConfirmModalBackdrop .confirm-no-btn i {
+    margin-right: 8px;
 }
 
 .import-preview-box {
@@ -1928,10 +2008,9 @@ button:disabled {
     border-radius: var(--radius-md);
     padding: 8px 12px;
     margin: 4px 0;
-    font-family: var(--font-mono, monospace);
+    font-family: monospace;
     font-size: 0.85rem;
     line-height: 1.3;
-    word-break: break-all;
     max-height: 100px;
     overflow-y: auto;
 }
@@ -1950,6 +2029,49 @@ button:disabled {
     font-size: 0.8rem;
     font-weight: 600;
     border: 1px solid var(--border-color);
+}
+
+.setting-row-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.no-margin {
+    margin-bottom: 0 !important;
+}
+
+.small-select {
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-color);
+    padding: 2px 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none; /* Убираем дефолтную стрелку */
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 12px;
+    padding-right: 20px;
+}
+
+.small-select:hover {
+    border-color: var(--accent-color);
+}
+
+.small-select:focus {
+    border-color: var(--accent-color);
+}
+
+.small-select option {
+    background: var(--card-bg);
+    color: var(--text-color);
 }
 
 /* Стилизация чекбокса */
@@ -3462,7 +3584,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Стили для кнопки копирования */
-#toggleAlternatesViewBtn, #copyAlternatesBtn, #deleteAlternatesBtn {
+#toggleAlternatesViewBtn, #copyAlternatesBtn, #deleteAlternatesBtn, #copyRouteTextBtn {
     background: none;
     border: none;
     padding: 5px;
